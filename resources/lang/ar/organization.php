@@ -1,0 +1,22 @@
+<?php
+return [
+    'organization' => 'منظمة',
+    'Organization' => 'المنظمة',
+    'financial_report' => 'التقرير المالي',
+    'sales_report' => 'تقرير المبيعات',
+    'income' => 'الدخل',
+    'topic' => 'الموضوع',
+    'account_balance' => 'رصيد الحساب',
+    'ready_to_payout' => 'جاهز للدفع',
+    'total_income' => 'إجمالي الدخل',
+    'payout_history' => 'تاريخ المدفوعات',
+    'request_payout' => 'طلب صرف الدفعة',
+    'payout_confirmation' => 'تأكيد الدفع',
+    'total_payout' => 'إجمالي المدفوعات',
+    'account' => 'حساب',
+    'completed' => 'مكتمل',
+    'confirmation' => 'تأكيد',
+    'admin_profit' => 'أرباح الإدارة',
+    'account_type' => 'نوع الحساب',
+    'student' => 'طالب',
+];

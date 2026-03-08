@@ -1,0 +1,28 @@
+{
+    "name": "modules/parent-module",
+    "description": "Parent Module for LMS - Manage children education, courses, payments and reports",
+    "type": "laravel-module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "LMS Development Team",
+            "email": "dev@lms.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\ParentModule\\": ""
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\ParentModule\\ParentModuleServiceProvider"
+            ]
+        }
+    }
+}
+

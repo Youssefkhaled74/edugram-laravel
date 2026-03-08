@@ -1,0 +1,17 @@
+{
+    "AmazonS3": {
+        "item_id": "31121775",
+        "versions": [
+            "1.4.0"
+        ],
+        "migration": [
+            "2023_09_04_114248_AddRolePermissionForAmazonS3.php"
+        ],
+        "url": [
+            "https://www.aorasoft.com/"
+        ],
+        "notes": [
+            "This is Amazon S3 module for AWS Cloud Storage. Thanks for using."
+        ]
+    }
+}

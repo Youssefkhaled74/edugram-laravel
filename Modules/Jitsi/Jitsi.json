@@ -1,0 +1,22 @@
+{
+    "Jitsi": {
+        "item_id": "31356290",
+        "migration": [
+            "2020_11_24_123643_create_jitsi_settings_table.php",
+            "2020_11_24_123936_create_jitsi_meetings_table.php",
+            "2020_11_24_124009_create_jitsi_meeting_users_table.php",
+            "2021_03_11_181352_AddHostInVirtualClass.php",
+            "2021_07_27_181511_AddColumnInJitsiMeeting.php",
+            "2022_10_20_115458_AddJitsiModulePermission.php"
+        ],
+        "versions": [
+            "1.2.0"
+        ],
+        "url": [
+            "https://www.aorasoft.com/"
+        ],
+        "notes": [
+            "This is Jitsi module for live virtual class and meeting in this system at a time. Thanks for using."
+        ]
+    }
+}

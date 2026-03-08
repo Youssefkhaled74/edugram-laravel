@@ -1,0 +1,13 @@
+{
+    "name": "Jitsi",
+    "alias": "jitsi",
+    "description": "",
+    "keywords": [],
+    "order": 0,
+    "providers": [
+        "Modules\\Jitsi\\Providers\\JitsiServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

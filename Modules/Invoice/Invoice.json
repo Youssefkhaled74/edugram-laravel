@@ -1,0 +1,29 @@
+{
+    "Invoice": {
+        "item_id": "51634466",
+        "migration": [
+            "2022_07_18_164901_create_invoice_settings_table.php",
+            "2022_07_19_111348_create_invoices_table.php",
+            "2022_07_19_125258_AddColumnToCheckoutInvoice.php",
+            "2022_07_19_145817_AddEmailTemplateForInvoice.php",
+            "2022_07_20_193903_create_invoice_courses_table.php",
+            "2022_07_21_161127_create_invoice_billings_table.php",
+            "2022_07_25_151502_create_invoice_offline_payments_table.php",
+            "2022_07_26_161136_AddRolePermissionInvoice.php",
+            "2022_07_26_193114_create_printed_certificates_table.php",
+            "2022_07_27_122908_create_order_certificates_table.php",
+            "2022_07_27_180020_AddCertificateColumnToCheckout.php",
+            "2022_07_28_125149_AddEmailTemplateForCertificateOrder.php",
+            "2024_11_20_134801_AddAccountTypeIntoInvoiceOfflinePayment.php"
+        ],
+        "versions": [
+            "2.1.0"
+        ],
+        "url": [
+            "https://www.aorasoft.com/"
+        ],
+        "notes": [
+            "Invoice Module Course Sell From Admin Panel and User Receive Payment Link"
+        ]
+    }
+}

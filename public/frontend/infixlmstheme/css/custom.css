@@ -1,0 +1,18 @@
+.about-inner {
+        margin-bottom: 70px;
+  } 
+  .work_process.section_padding.bg-white{
+        padding: 70px 0;
+  } 
+  
+.category-item {
+    background-color: #b18b00 !important;
+    background-size: auto 200%;
+} 
+
+
+.heading-logo img {
+    width: 345px;
+    height: 95px;
+    margin-top: -33px;
+}

@@ -1,0 +1,37 @@
+<?php
+
+return [
+    'Student' => 'طالب',
+    'Successfully' => 'بنجاح',
+    'Deleted' => 'محذوف',
+    'Image size is too large' => 'حجم الصورة كبير جدًا',
+    'Yes' => 'نعم',
+    'Enable' => 'تفعيل',
+    'Delete' => 'حذف',
+    'Disable' => 'تعطيل',
+    'Cancel' => 'إلغاء',
+    'Are you sure want to' => 'هل أنت متأكد أنك تريد؟',
+    'Course' => 'المقرر الدراسي',
+    'Cart' => 'عربة التسوق',
+    'Remove' => 'إزالة',
+    'Oops' => 'عفوًا',
+    'Message' => 'رسالة',
+    'Activated' => 'مُفعّل',
+    'Operation Failed' => 'فشل العملية',
+    'Account was Created successfully, please Check you Email' => 'تم إنشاء الحساب بنجاح، يرجى التحقق من بريدك الإلكتروني',
+    'Deactivated' => 'معطل',
+    'Oops, Something Went Wrong' => 'عذرًا، حدث خطأ ما',
+    'Added' => 'تمت الإضافة',
+    'examinations' => 'الامتحانات',
+    'dashboard' => 'لوحة التحكم',
+    'online_exam' => 'الاختبار الإلكتروني',
+    'marking' => 'التقييم',
+    'subject' => 'المادة الدراسية',
+    'exam' => 'امتحان',
+    'student' => 'طالب',
+    'class_sec' => 'قسم الصف',
+    'Settings' => 'الإعدادات',
+    'Payment request has been successfully submitted' => 'تم تقديم طلب الدفع بنجاح',
+    'Payment request has been Approved' => 'تمت الموافقة على طلب الدفع'
+
+];

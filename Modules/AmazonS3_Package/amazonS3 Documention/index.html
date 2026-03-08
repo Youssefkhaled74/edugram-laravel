@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="icon" href="img/favicon.png" type="image/png"/>
+    <title>InfixLMS Amazon S3 Module | InfixLMS</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="vendors/css/jquery-ui.css"/>
+    <link rel="stylesheet" href="vendors/css/bootstrap.css"/>
+    <link rel="stylesheet" href="vendors/css/jquery.data-tables.css">
+    <link rel="stylesheet" href="vendors/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="vendors/css/rowReorder.dataTables.min.css">
+    <link rel="stylesheet" href="vendors/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" href="vendors/css/bootstrap-datepicker.min.css"/>
+    <link rel="stylesheet" href="vendors/css/bootstrap-datetimepicker.min.css"/>
+    <link rel="stylesheet" href="vendors/css/themify-icons.css"/>
+    <link rel="stylesheet" href="vendors/css/flaticon.css"/>
+    <link rel="stylesheet" href="vendors/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="vendors/css/magnific-popup.css"/>
+    <link rel="stylesheet" href="vendors/css/nice-select.css"/>
+    <!-- main css -->
+    <link rel="stylesheet" href="css/style.css"/>
+    <link rel="stylesheet" href="css/documentation.css"/>
+</head>
+
+
+<body class="version1" data-spy="scroll" data-target="#sidebar" data-offset="50">
+<div class="main-wrapper">
+    <!-- Sidebar  -->
+    <nav id="sidebar" class="active">
+        <div class="sidebar-header">
+            <a href="index.html">
+                <img src="img/logo.png" alt="">
+            </a>
+        </div>
+
+        <ul class="list-unstyled components">
+            <li>
+                <a href="#initiate" class="active spy_scroll">
+                    <span class="flaticon-dashboard"></span>
+                    initiate
+                </a>
+            </li>
+            <li>
+                <a href="#system-requirements">
+                    <span class="flaticon-dashboard"></span>
+                    System Requirements
+                </a>
+            </li>
+
+            <li>
+                <a href="#subMenuGettingStarted" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <span class="flaticon-cabinet"></span>
+                    Getting Started
+                </a>
+                <ul class="collapse list-unstyled" id="subMenuGettingStarted">
+
+                    <li>
+                        <a href="#Installation" class="spy_scroll">Module Installation</a>
+                    </li>
+
+                </ul>
+            </li>
+
+
+            <li>
+                <a href="#SubGeneralUse" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <span class="flaticon-cabinet"></span>
+                    Basic Use
+                </a>
+                <ul class="collapse list-unstyled" id="SubGeneralUse">
+                    <li>
+                        <a href="#s3Bucket" class="spy_scroll">Setting up an S3 bucket</a>
+                    </li>
+
+                    <li>
+                        <a href="#Setting" class="spy_scroll">
+
+                            Amazon S3 Setting
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#Use" class="spy_scroll">
+                            Course Upload
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
+                <a href="#resources" class="spy_scroll">
+                    <span class="flaticon-dashboard"></span>
+                    Useful Resources
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+
+    <!-- Page Content  -->
+    <div id="main-content">
+        <nav class="navbar navbar-expand-lg">
+
+        </nav>
+
+        <section class="mb-40" id="initiate">
+            <div class="container-fluid p-0">
+                <div class="white-box ">
+                    <div class="row border-bottom text-center">
+                        <div class="col-lg-12">
+                            <h1>Welcome</h1>
+                            <h3>To</h3>
+                            <h1 class="mb-20">InfixLMS Amazon S3 Module</h1>
+                            <h1>By</h1>
+                            <h1><a href="https://spondonit.com/">SPONDONIT</a></h1>
+                        </div>
+                    </div>
+                    <div class="row mt-40 border-bottom">
+                        <div class="col-lg-12">
+                            <p><strong>Email: </strong><a href="mailto:support@pspondonit.com">support@spondonit.com</a><br>
+                                <strong>Web: </strong><a href="https://spondonit.com/">SPONDONIT</a></p>
+                        </div>
+                    </div>
+                    <div class="row mt-40">
+                        <div class="col-lg-12">
+                            <p>
+                                We would like to thank you for purchasing InfixLMS Amazon S3 Module!
+                            </p>
+                            <p>
+                                Before you get started, Please be sure to always check out these documentation files. We
+                                outline all kinds of good information and provide you with all the details you need to
+                                use InfixLMS.
+
+                            </p>
+                            <p>
+                                <b>
+                                    This Amazon S3 Module! can be used only for InfixLMS.
+                                </b>
+                            </p>
+                            <p>
+                                <i>
+                                    "Amazon S3 or Amazon Simple Storage Service is a service offered by Amazon Web
+                                    Services that
+                                    provides object storage through a web service interface. Amazon S3 uses the same
+                                    scalable
+                                    storage infrastructure that Amazon.com uses to run its global e-commerce network."
+                                </i>
+                            </p>
+
+
+                            <p>If you are unable to find your answer here in our documentation, watch our Video
+                                Tutorials, you can also visit our Help & Support. Chances are your question or issue
+                                have been brought up already and the answer is waiting to be found. If you are unable to
+                                find it anywhere, then please go our Support section and open a new Support Ticket with
+                                all the details we need. Please be sure to include your site URL as well. Thank you, we
+                                hope you enjoy using InfixLMS!</p>
+                        </div>
+                        <div class="col-md-12 docs-initiate text-center mt-40">
+                            <a class="primary-btn small fix-gr-bg"
+                               href="https://www.youtube.com/channel/UCwCDI8YDQiDdt1H0iNRPgpw" target="_blank">Video Tutorials</a>
+                            <a class="primary-btn small tr-bg" href="https://ticket.spondonit.com/help-center">Help &
+                                Supports</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="infix-documentation mt-40" id="system-requirements">
+            <div class="container-fluid p-0">
+                <div class="row">
+                    <div class="col-lg-4 no-gutters">
+                        <div class="main-title">
+                            <h3 class="mb-30" id="Installation">AmazonS3 Module Installation</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="white-box ">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="main-title">
+                                <h3 class="mb-30 text-center">Install AmazonS3 Module In your Existing InfixLMS
+                                    System</h3>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12">
+                            <p>Log into your InfixLMS system and go to <b>System Setting</b> > <b>Module Manager</b>.
+                            </p>
+                            <img src="img/install/1.png" class="img img-responsive w-100">
+
+                            <p class="mtb">Click the Add Module, if you are not added yet.</p>
+                            <img src="img/install/2.png"
+                                 class="img img-responsive w-100">
+
+                            <p class="mtb">Browse The module zip file. Then Submit. After Submit you can see You have a
+                                verify Button for Verify your module license. </p>
+                            <img src="img/install/3.png"
+                                 class="img img-responsive w-100">
+
+                            <p class="mtb">Enter Envato Username & Envato Purchase code and verify your licence</p>
+                            <img src="img/install/4.png"
+                                 class="img img-responsive w-100">
+
+
+                            <p class="mtb">After Successfully verify your licence you can found a enable/disable switch.
+                                you can easily enable/disable by click on switch</p>
+                            <img src="img/install/5.png"
+                                 class="img img-responsive w-100">
+
+
+                            <p class="mtb">Install complete </p>
+                            <img src="img/install/6.png"
+                                 class="img img-responsive w-100">
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="infix-documentation mt-40" id="s3Bucket">
+            <div class="container-fluid p-0">
+                <div class="row">
+                    <div class="col-lg-4 no-gutters">
+                        <div class="main-title">
+                            <h3 class="mb-30">Setting up an S3 bucket</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="white-box ">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="main-title">
+                                <h3 class="mb-30 text-center">Setting up an S3 bucket</h3>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+
+
+                            <p>Head on over to&nbsp;<a href="https://aws.amazon.com/">aws.amazon.com</a>&nbsp;and create
+                                an account (or sign in with your existing one). After you're in, take a look at the top
+                                menu bar and find the 'Services' item. If you click on that, you open up a box with
+                                Amazon's massive list of AWS services. Scroll down, and under the Storage section,
+                                select 'S3'.</p>
+                            <p>On the following screen, you'll see a list of any S3 buckets that you've created, along
+                                with a blue "Create bucket" button. Click that! On the following pages, enter in your
+                                bucket name (which has to be unique across the entire AWS platform), and select the
+                                region most applicable for your bucket.</p>
+                            <p>The rest of the pages should remain with the default values, and continue clicking the
+                                next button until your bucket is successfully created.</p>
+                            <p>Alright, we have our bucket, but now we need credentials in order to access it
+                                programmatically. Clicking the 'Services' menu item again, search
+                                for&nbsp;<strong>IAM</strong>. This stands for&nbsp;<strong>I</strong>dentity
+                                and&nbsp;<strong>A</strong>ccess&nbsp;<strong>M</strong>anagement, and it's where we're
+                                going to create id/secret pairs for our newly-created bucket.</p>
+                            <p>On the left-hand side of this screen, click the 'Users' item under the Access management
+                                group. On the following page, click the blue 'Add user' button.</p>
+                            <p>Fill out a user name for your user, and check the box next to&nbsp;<strong>Programmatic
+                                access</strong>, this let's AWS know that we want to generate a key ID and secret access
+                                key for this user.</p>
+
+                            <img src="img/setting/2.png"
+                                 class="img img-responsive w-100">
+
+                            <p>The next page going to the "Attach
+                                existing policies directly" section, searching for&nbsp;<code>S3</code>, and checking
+                                the box next to&nbsp;<strong>AmazonS3FullAccess</strong>. This ensures that our user
+                                (with the ID/secret attached), has full read/write access to our S3 bucket.</p>
+                            <p>Click through the next few screens, leaving everything unchanged, and your user will be
+                                created successfully!</p>
+                            <p>You'll be on a screen that contains your user created, along with its Access key ID and
+                                Secret access key. </p>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="infix-documentation mt-40" id="Setting">
+            <div class="container-fluid p-0">
+                <div class="row">
+                    <div class="col-lg-4 no-gutters">
+                        <div class="main-title">
+                            <h3 class="mb-30">AWS S3 Setting</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="white-box ">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="main-title">
+                                <h3 class="mb-30 text-center">AWS S3 Setting</h3>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <img src="img/setting/1.png"
+                                 class="img img-responsive w-100">
+
+                            <p>
+                                in previous chapter we have create a AWS S3 Bucket. now you have to full fill the
+                                credential and hit save.
+                            <ol>
+                                <li>Access key: <code>YOUR_AWS_ACCESS_KEY_ID</code></li>
+                                <li>Secret Key: <code>YOUR_AWS_SECRET_ACCESS_KEY</code></li>
+                                <li>Default Region: <code>ap-south-1</code></li>
+                                <li>AWS Bucket : <code>infixlms</code></li>
+                            </ol>
+                            <br>
+                            <small>* Please Use your own credentials</small>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="infix-documentation mt-40" id="Use">
+            <div class="container-fluid p-0">
+                <div class="row">
+                    <div class="col-lg-4 no-gutters">
+                        <div class="main-title">
+                            <h3 class="mb-30">Upload Course </h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="white-box ">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="main-title">
+                                <h3 class="mb-30 text-center">Upload Course </h3>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+
+                            <p>After Saving Your credential & if credential is correct you can use Amazon S3 Service</p>
+
+                            <img src="img/course/1.png"
+                                 class="img img-responsive w-100">
+
+                            <img src="img/course/2.png"
+                                 class="img img-responsive w-100">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="infix-documentation mt-40" id="resources">
+
+            <div class="container-fluid p-0">
+                <div class="white-box ">
+                    <div class="row">
+                        <div class="col-lg-4 no-gutters">
+                            <div class="main-title">
+                                <h3 class="mb-30">Resources may help you</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-40 mb-50">
+                        <div class="col-lg-4">
+                            <iframe style="width: 100%" height="200" src="https://www.youtube.com/embed/TAc9BLUodTY"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe>
+                        </div>
+                        <div class="col-lg-4">
+                            <iframe style="width: 100%" height="200" src="https://www.youtube.com/embed/7z9BCeVeokQ"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe>
+                        </div>
+                        <div class="col-lg-4">
+
+                            <iframe style="width: 100%" height="200" src="https://www.youtube.com/embed/OApO68B5HcI"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+        <!--            End Parent Panel-->
+    </div>
+</div>
+
+<!-- ================Footer Area ================= -->
+<footer class="footer-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12"></div>
+        </div>
+    </div>
+</footer>
+<!-- ================End Footer Area ================= -->
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="vendors/js/jquery-3.2.1.min.js">
+</script>
+<script src="vendors/js/jquery-ui.js">
+</script>
+<script src="vendors/js/jquery.data-tables.js">
+</script>
+<script src="vendors/js/dataTables.buttons.min.js">
+</script>
+<script src="vendors/js/buttons.flash.min.js">
+</script>
+<script src="vendors/js/jszip.min.js">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js">
+</script>
+<script src="vendors/js/buttons.html5.min.js">
+</script>
+<script src="vendors/js/buttons.print.min.js">
+</script>
+<script src="vendors/js/dataTables.rowReorder.min.js">
+</script>
+<script src="vendors/js/dataTables.responsive.min.js">
+</script>
+<script src="vendors/js/buttons.colVis.min.js">
+</script>
+<script src="vendors/js/popper.js">
+</script>
+<script src="vendors/js/bootstrap.min.js">
+</script>
+<script src="vendors/js/nice-select.min.js">
+</script>
+<script src="vendors/js/jquery.magnific-popup.min.js">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2. 18.1/moment.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4. 17.47/js/bootstrap-datetimepicker.min.js"></script>
+<script src="vendors/js/bootstrap-datepicker.min.js">
+</script>
+<script src="js/main.js">
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var sections = [];
+        var scrolled_id = false;
+        var id = false;
+        var $navbar = $('#sidebar');
+        var $navbar__links = $navbar.find('.spy_scroll');
+
+        $navbar__links.each(function () {
+            sections.push($($(this).attr('href')));
+        });
+
+        $('.spy_scroll').bind('click', function (event) {
+            var $anchor = $(this);
+            var headerH = '0';
+            $('html, body').stop().animate({
+                scrollTop: $($anchor.attr('href')).offset().top - headerH + "px"
+            }, 5000, 'easeInOutExpo');
+            event.preventDefault();
+        });
+
+        $(window).scroll(function (e) {
+            e.preventDefault();
+            var scrollTop = $(this).scrollTop() + ($(window).height() / 3);
+
+
+            for (var i in sections) {
+                var section = sections[i];
+
+                if (scrollTop > section.offset().top) {
+                    scrolled_id = section.attr('id');
+                }
+
+                if (scrolled_id !== id) {
+                    id = scrolled_id;
+
+                    $navbar__links.removeClass('spy_scroll--current');
+
+                    $('a[href="#' + id + '"]', $navbar).addClass('spy_scroll--current');
+                    $('a[href="#' + id + '"]', $navbar).closest('.list-unstyled').addClass('show');
+                    $('a[href="#' + id + '"]', $navbar).closest('.list-unstyled').siblings('.dropdown-toggle').addClass('active');
+                    // $('a[href="#' + id + '"]', $navbar).closest('.list-unstyled').addClass('active');
+
+
+                }
+            }
+        });
+
+        $(window).trigger('scroll');
+    });
+
+</script>
+</body>
+
+</html>

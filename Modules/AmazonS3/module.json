@@ -1,0 +1,12 @@
+{
+    "name": "AmazonS3",
+    "alias": "amazons3",
+    "description": "",
+    "providers": [
+        "Modules\\AmazonS3\\Providers\\AmazonS3ServiceProvider"
+    ],
+    "minimumCoreVersion": "",
+    "title": "Amazon S3",
+    "version": 1,
+    "author": "Infix LMS"
+}

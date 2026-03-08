@@ -1,0 +1,24 @@
+{
+    "name": "ParentModule",
+    "alias": "parentmodule",
+    "description": "Parent Module for managing children education, courses, payments and reports",
+    "keywords": [
+        "parent",
+        "guardian",
+        "children",
+        "education",
+        "lms",
+        "payment",
+        "reports"
+    ],
+    "version": "1.0.0",
+    "active": 1,
+    "order": 100,
+    "providers": [
+        "Modules\\ParentModule\\ParentModuleServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}
+
