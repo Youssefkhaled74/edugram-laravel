@@ -17,3 +17,8 @@ storage/*.key
 phpcs.xml
 modules_statuses.json
 code-generator
+/storage/*.key
+/storage/app/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
