@@ -1,47 +1,133 @@
 # Project Overview
 
 ## 1. Project Summary
-
-This is a Laravel-based LMS platform with a public website, dynamic homepage builder, courses, classes, quizzes, blogs, payments, notifications, and role-based dashboards.
+EduGram is a modular Laravel LMS with a public marketing site, authenticated dashboards, courses/classes/quizzes, organization and parent flows, payments, notifications, and a theme-driven homepage builder.
 
 Main stack:
-- Laravel
-- Blade
+- Laravel + Blade
 - Laravel Mix / Webpack
-- Modular code under `Modules/`
-- Static and generated assets under `public/`
-- RTL-aware theme support for Arabic
+- Modular feature folders under `Modules/`
+- Static/public assets under `public/`
+- RTL-aware frontend theme support
 
-## 2. Folder and Architecture Overview
+## 2. Architecture Overview
+The codebase is split between the core app and feature modules.
 
-- `app/`: controllers, middleware, helpers, models, traits, components
-- `routes/`: frontend, tenant, API, console, broadcast routes
-- `resources/views/`: Blade layouts, partials, auth pages, frontend theme views
-- `public/`: compiled CSS/JS, uploads, theme images, fonts, service worker
-- `config/`: Laravel and package configuration
-- `database/`: migrations and seeders
-- `resources/lang/`: localization files
-- `Modules/`: feature modules and module-specific views, assets, migrations
-- `webpack.mix.js`: frontend build pipeline
-- `package.json`: frontend dependencies/scripts
+### Core Laravel layer
+- `app/Http/Controllers/`: frontend/auth/shared controllers
+- `app/Helpers/helper3.php` and `app/Helpers/helper4.php`: global helpers used in Blade and controllers
+- `app/Providers/AppServiceProvider.php`: shares theme data, menus, categories, languages, and homepage content
+- `app/View/Components/`: reusable frontend/backend sections
 
-## 3. Request / Render Flow
+### Modular layer
+Important modules for the public site:
+- `Modules/FrontendManage`: homepage blocks, page records, menus, header/footer styles, custom CSS/JS
+- `Modules/AoraPageBuilder`: dynamic homepage rendering and page-builder layout/assets
+- `Modules/RolePermission`: roles/permissions
+- `Modules/Localization`: language switching
+- `Modules/ParentModule`, `Modules/Org`, `Modules/OrgSubscription`, `Modules/Quiz`, `Modules/CourseSetting`, `Modules/Payment`, `Modules/Zoom`, `Modules/Store`, `Modules/Blog`, `Modules/Chat`
 
-Homepage flow:
-- route: `/` in `routes/tenant.php`
-- controller: `App\Http\Controllers\Frontend\FrontendHomeController@index`
-- dynamic homepage view: `aorapagebuilder::pages.show`
-- layout: `Modules/AoraPageBuilder/Resources/views/layouts/master.blade.php`
-- partials: theme menu/footer/header partials
-- dynamic sections: `.dynamicData` blocks loaded during render
+### Theme layer
+The active public theme is usually `infixlmstheme`, with other branches like `edume`, `kidslms`, `teachery`, and `wetech` referenced by helpers and views.
 
-## 4. Frontend System
+## 3. Important Folders
+### `routes/`
+`routes/tenant.php` is the key frontend route file. It contains:
+- homepage route `/`
+- auth/public routes
+- asset proxy routes for `public/{path}` and `Modules/{module}/Resources/assets/{path}`
+- language switching and public LMS routes
 
-The project uses a hybrid frontend system:
-- Laravel Mix compiles source assets
-- many assets are served directly from `public/`
-- theme assets live in `public/frontend/infixlmstheme/`
-- Aora builder/editor assets live in `Modules/AoraPageBuilder/Resources/assets/`
+### `resources/views/`
+- `resources/views/frontend/infixlmstheme/`: public theme views and partials
+- `resources/views/backend/`: admin UI
+- `resources/views/layouts/`: standard app layouts
+- `resources/views/partials/`: shared fragments such as preloaders and emails
+
+### `public/`
+Holds compiled runtime assets and uploads:
+- `public/frontend/infixlmstheme/`
+- `public/backend/`
+- `public/js/`
+- `public/uploads/`
+- fonts, icons, vendors, previews
+
+### `database/`
+Migrations do more than schema work here. They also seed homepage HTML blocks, update default homepage content, and set header/footer style defaults.
+
+### Build files
+- `package.json`
+- `webpack.mix.js`
+
+## 4. Laravel Layers in Use
+### Controllers
+Important frontend controllers:
+- `app/Http/Controllers/Frontend/FrontendHomeController.php`
+- `Modules/FrontendManage/Http/Controllers/FrontPageController.php`
+- `Modules/FrontendManage/Http/Controllers/FrontendManageController.php`
+- `Modules/FrontendManage/Http/Controllers/CustomStyleScriptController.php`
+- `Modules/FrontendManage/Http/Controllers/HeaderFooterStyleController.php`
+
+### Middleware
+The homepage controller uses:
+- `maintenanceMode`
+- `onlyAppMode`
+
+### Models and domain objects
+Frequently used in the homepage/render chain:
+- `Modules\FrontendManage\Entities\FrontPage`
+- `Modules\FrontendManage\Entities\HomeContent`
+- `Modules\FrontendManage\Entities\HeaderMenu`
+- `Modules\CourseSetting\Entities\Category`
+- `Modules\RolePermission\Entities\Permission`
+- `Modules\Setting\Model\GeneralSetting`
+- `App\User`
+
+## 5. Module Responsibilities
+### `Modules/FrontendManage`
+Frontend CMS and public homepage orchestration:
+- homepage blocks and ordering
+- page records and content editing
+- header/footer style selection
+- menu management
+- custom CSS/JS editor
+- slider/banner/home content admin screens
+
+### `Modules/AoraPageBuilder`
+Dynamic page rendering:
+- renders stored homepage HTML
+- injects builder assets
+- powers the `/` page-builder flow
+
+### `Modules/RolePermission`
+- role definitions such as super admin, instructor, student, staff, organization, parent
+- permission trees for admin navigation
+
+### `Modules/Localization`
+- locale switching routes
+- language-related behavior
+
+### `Modules/ParentModule`
+- parent role and child/student-related flows
+
+## 6. Route Organization
+`routes/tenant.php` is the main public route file. It registers auth routes, asset proxy routes, and then a `Route::group(['namespace' => 'Frontend'], ...)` block with the homepage and public LMS pages.
+
+## 7. Request / Render Flow
+The homepage path is:
+- `/` -> `FrontendHomeController@index`
+- if dynamic pages are enabled, it loads `FrontPage` slug `/`
+- it runs `dynamicContentAppend($row->details)`
+- it returns `aorapagebuilder::pages.show`
+- that view extends `aorapagebuilder::layouts.master`
+- the master layout includes the theme menu/footer and loads theme + builder assets
+
+## 8. Frontend System
+The frontend uses a hybrid strategy:
+- Laravel Mix builds theme JS/CSS
+- many files are served directly from `public/`
+- builder assets are referenced from `Modules/AoraPageBuilder/Resources/assets/`
+- some module assets are reachable through custom proxy routes
 
 Critical homepage CSS:
 - `public/frontend/infixlmstheme/css/app.css`
@@ -54,69 +140,37 @@ Critical homepage JS:
 - `public/frontend/infixlmstheme/js/common.js`
 - `public/frontend/infixlmstheme/js/app.js`
 - `public/frontend/infixlmstheme/js/custom.js`
+- `public/frontend/infixlmstheme/js/courses.js`
 
-## 5. Localization / Arabic-English Behavior
+## 9. Localization / Arabic-English Behavior
+- `isRtl()` decides RTL mode
+- the master layout switches `dir` and CSS files
+- the header partial adjusts submenu/search behavior with JS
+- Arabic pages load `frontend_style_rtl.css` and `bootstrap.rtl.min.css`
+- language switching is exposed in the header when frontend translation is enabled
 
-- Locale is stored in session/auth user settings and exposed through `app()->getLocale()`
-- `isRtl()` controls RTL mode
-- RTL assets are loaded conditionally
-- Arabic pages use `frontend_style_rtl.css` and `bootstrap.rtl.min.css`
+## 10. Key Technical Risks
+- hardcoded production URLs can survive inside stored homepage HTML or menus
+- the project mixes Mix output, static public assets, and module assets
+- RTL behavior depends on both CSS order and conditional Blade branches
+- page-builder HTML is stored in the database, so old environment assumptions can leak into local rendering
+- theme branches differ, so the wrong theme path can change the asset stack
 
-Risks:
-- content can contain hardcoded production URLs
-- locale-dependent layout branches can break spacing if RTL CSS is missing or stale
-
-## 6. Important Pages and Rendering Sources
-
-- `/` -> `FrontendHomeController@index` -> `aorapagebuilder::pages.show`
-- `/about-us` -> `WebsiteController@aboutData`
-- `/contact-us` -> `WebsiteController@contact`
-- `/courses` -> `CourseController@courses`
-- `/classes` -> `ClassController@classes`
-- `/quizzes` -> `QuizController@quizzes`
-- `/student-dashboard` -> `StudentController@myDashboard`
-
-## 7. Known Technical Issues or Risks
-
-- hardcoded production URLs in saved content or menu data
-- mixed asset strategies: Mix output, static public files, module assets
-- RTL layout depends on correct conditional Blade branches
-- stale cache or service worker can hide real fixes
-- module assets may return wrong MIME if served through a proxy without explicit types
-
-## 8. Local Development Notes
-
-Typical local steps:
+## 11. Local Setup Notes
+Recommended local steps:
 ```bash
 composer install
 npm install
-npm run prod
 php artisan optimize:clear
 php artisan serve --host=127.0.0.1 --port=8000
 ```
+If assets need rebuilding:
+```bash
+npm run prod
+```
+The repo already configures `NODE_OPTIONS=--openssl-legacy-provider` for webpack compatibility.
 
-Common problems:
-- `npm` not on PATH
-- Node/OpenSSL mismatch during Mix builds
-- stale config/view/cache
-- browser service worker cache
-
-## 9. Homepage Styling / Debugging Notes
-
-Files that matter most:
-- `app/Http/Controllers/Frontend/FrontendHomeController.php`
-- `Modules/AoraPageBuilder/Resources/views/pages/show.blade.php`
-- `Modules/AoraPageBuilder/Resources/views/layouts/master.blade.php`
-- `resources/views/frontend/infixlmstheme/partials/_menu.blade.php`
-- `resources/views/frontend/infixlmstheme/partials/_footer.blade.php`
-- `resources/views/frontend/infixlmstheme/partials/header/2.blade.php`
-- `app/Helpers/helper3.php`
-- `app/Helpers/helper4.php`
-
-First checks when the homepage breaks locally:
-- confirm `/` still uses the dynamic homepage path
-- confirm RTL CSS loads for Arabic
-- confirm no production domain URLs remain in rendered HTML
-- confirm critical CSS/JS assets return `200`
-- clear caches and hard refresh the browser
-
+## 12. Developer Notes
+- `AppServiceProvider` injects menus, languages, categories, and homepage content into frontend views.
+- `database/migrations` contain homepage content-seeding migrations, not just schema changes.
+- If layout breaks locally, inspect the rendered HTML and asset URLs before assuming a missing CSS file.
