@@ -4,24 +4,26 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class AssetProxyController extends Controller
+class ModuleAssetProxyController extends Controller
 {
     /**
-     * Serve legacy "/public/*" asset URLs when local webroot is already /public
-     * (e.g. php artisan serve on 127.0.0.1:8000).
+     * Serve module assets for local environments where webroot is /public.
      */
-    public function __invoke(Request $request, string $path)
+    public function __invoke(Request $request, string $module, string $path)
     {
-        $relativePath = ltrim($path, '/');
-        $publicRoot = realpath(public_path());
-
-        if (!$publicRoot) {
+        if (!preg_match('/^[A-Za-z0-9_-]+$/', $module)) {
             abort(404);
         }
 
-        $target = realpath(public_path($relativePath));
+        $assetsRoot = realpath(base_path("Modules/{$module}/Resources/assets"));
+        if (!$assetsRoot) {
+            abort(404);
+        }
 
-        if (!$target || !is_file($target) || strpos($target, $publicRoot) !== 0) {
+        $relativePath = ltrim($path, '/');
+        $target = realpath($assetsRoot . DIRECTORY_SEPARATOR . $relativePath);
+
+        if (!$target || !is_file($target) || strpos($target, $assetsRoot) !== 0) {
             abort(404);
         }
 

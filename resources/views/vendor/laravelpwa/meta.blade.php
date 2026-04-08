@@ -31,16 +31,22 @@
 <meta name="msapplication-TileImage" content="{{ data_get(end($config['icons']), 'src') }}">
 
 <script type="text/javascript">
-    // Initialize the service worker
+    // Avoid stale cached frontend assets while developing on localhost.
     if ('serviceWorker' in navigator) {
+        @if(in_array(request()->getHost(), ['127.0.0.1', 'localhost']))
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+            registrations.forEach(function (registration) {
+                registration.unregister();
+            });
+        });
+        @else
         navigator.serviceWorker.register('{{asset('serviceworker.js')}}', {
             scope: '.'
         }).then(function (registration) {
-            // Registration was successful
             console.log('Laravel PWA: ServiceWorker registration successful with scope: ', registration.scope);
         }, function (err) {
-            // registration failed :(
             console.log('Laravel PWA: ServiceWorker registration failed: ', err);
         });
+        @endif
     }
 </script>

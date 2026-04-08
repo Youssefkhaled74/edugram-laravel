@@ -200,6 +200,9 @@
     @endif
 </div>
 
+<script src="{{ asset('public/frontend/infixlmstheme/js/app.js') }}{{ assetVersion() }}"></script>
+<script src="{{ asset('public/frontend/infixlmstheme/js/custom.js') }}{{ assetVersion() }}"></script>
+
 
 <script type="text/javascript" src="{{ asset('Modules/AoraPageBuilder/Resources/assets/js/bootstrap.min.js') }}">
 </script>

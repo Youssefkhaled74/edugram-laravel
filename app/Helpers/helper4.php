@@ -686,6 +686,52 @@ if (!function_exists('dynamicContentAppend')) {
     function dynamicContentAppend($content = null)
     {
         try {
+            $normalizeKnownSiteUrls = function ($html) {
+                if (empty($html)) {
+                    return $html;
+                }
+
+                // Convert escaped URLs (https:\/\/domain\/path) into plain URLs first.
+                $html = preg_replace_callback('~https?:\\\\/\\\\/[^\s"\']+~i', function ($matches) {
+                    return str_replace('\\/', '/', $matches[0]);
+                }, $html);
+
+                $allowedPaths = [
+                    '/',
+                    '/about-us',
+                    '/contact-us',
+                    '/courses',
+                    '/quizzes',
+                    '/classes',
+                    '/search',
+                    '/get-dynamic-data',
+                ];
+
+                return preg_replace_callback('~https?://[^\s"\']+~i', function ($matches) use ($allowedPaths) {
+                    $rawUrl = $matches[0];
+                    $parts = parse_url($rawUrl);
+                    if (!$parts || empty($parts['path'])) {
+                        return $rawUrl;
+                    }
+
+                    $path = '/' . ltrim($parts['path'], '/');
+                    $query = isset($parts['query']) ? ('?' . $parts['query']) : '';
+                    $fragment = isset($parts['fragment']) ? ('#' . $parts['fragment']) : '';
+
+                    if (strpos($path, '/public/') === 0) {
+                        return url(ltrim($path, '/')) . $query . $fragment;
+                    }
+
+                    if (in_array($path, $allowedPaths, true)) {
+                        return url(ltrim($path, '/')) . $query . $fragment;
+                    }
+
+                    return $rawUrl;
+                }, $html);
+            };
+
+            $content = $normalizeKnownSiteUrls($content);
+
             $dom = new HTML5DOMDocument();
             $dom->loadHTML($content, HTML5DOMDocument::ALLOW_DUPLICATE_IDS);
             $nodes = $dom->querySelectorAll('.dynamicData');
@@ -707,7 +753,7 @@ if (!function_exists('dynamicContentAppend')) {
                     $themeDynamic = new ThemeDynamicData();
                     $data = $themeDynamic->__invoke(request());
                     if (response($data)->status() == 200) {
-                        $content = response($data)->content();
+                        $content = $normalizeKnownSiteUrls(response($data)->content());
                         $newnode = $dom->createDocumentFragment();
                         $newnode->appendXML('<div>' . htmlspecialchars($content) . '</div>');
                         $node->appendChild($newnode);
@@ -962,5 +1008,3 @@ if (!function_exists('createUserLevelHistory')) {
 
     }
 }
-
-

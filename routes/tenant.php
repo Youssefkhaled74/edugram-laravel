@@ -11,6 +11,9 @@ Route::post('store-google-analytics-client-id', StoreGoogleAnalyticsClientIdCont
 Route::get('public/{path}', \App\Http\Controllers\AssetProxyController::class)
     ->where('path', '.*')
     ->name('public.asset.proxy');
+Route::get('Modules/{module}/Resources/assets/{path}', \App\Http\Controllers\ModuleAssetProxyController::class)
+    ->where('path', '.*')
+    ->name('modules.asset.proxy');
 
 Route::get('send-password-reset-link', 'Auth\ForgotPasswordController@SendPasswordResetLink')->name('SendPasswordResetLink');
 Route::get('reset-password', 'Auth\ForgotPasswordController@ResetPassword')->name('ResetPassword');
@@ -523,4 +526,3 @@ Route::get('scorm/video/{lesson_id}/{id}', 'Frontend\WebsiteController@scormPlay
 Route::get('document/video/{lesson_id}', 'Frontend\WebsiteController@documentPlayer')->name('documentPlayer');
 Route::get('get-dynamic-data', 'Frontend\ThemeDynamicData')->name('getDynamicData');
 Route::get('read-some-part-of-books/{id}', 'Frontend\WebsiteController@readSomePartOfBooks')->name('readSomePartOfBooks');
-
