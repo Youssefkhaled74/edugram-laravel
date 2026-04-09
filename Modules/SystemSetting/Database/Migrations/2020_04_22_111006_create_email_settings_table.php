@@ -64,7 +64,7 @@ class CreateEmailSettingsTable extends Migration
                 'email_engine_type' => 'sendgrid',
                 'from_name' => 'Admin',
                 'from_email' => 'info@pangea-technology.com',
-                'api_key' => 'YOUR_SENDGRID_API_KEY',
+                'api_key' => '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',
                 'active_status' => '0',
             ]
         ]);

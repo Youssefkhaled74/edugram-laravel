@@ -1149,7 +1149,7 @@ CREATE TABLE `email_settings` (
 INSERT INTO `email_settings` (`id`, `email_engine_type`, `from_name`, `from_email`, `mail_driver`, `mail_host`, `mail_port`, `mail_username`, `mail_password`, `mail_encryption`, `active_status`, `api_key`, `created_at`, `updated_at`) VALUES
 (1, 'php', 'System Admin', 'admin@lms.com', 'php', NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL),
 (2, 'smtp', 'System Admin', 'admin@lms.com', 'smtp', 'mail.uxseven.com', '465', 'test@uxseven.com', 'TOZ,2TdYn+Hp', 'ssl', 0, NULL, NULL, NULL),
-(3, 'sendgrid', 'Admin', 'info@pangea-technology.com', NULL, NULL, NULL, NULL, NULL, NULL, 0, 'YOUR_SENDGRID_API_KEY', NULL, NULL);
+(3, 'sendgrid', 'Admin', 'info@pangea-technology.com', NULL, NULL, NULL, NULL, NULL, NULL, 0, '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', NULL, NULL);
 
 -- --------------------------------------------------------
 
