@@ -310,7 +310,9 @@
                                                           alt="Profile Photo">
                                     </div>
                                 </div>
-                                <a href="{{$follow_btn_route}}" class="theme_btn rounded-pill">{{$follow_btn_text}}</a>
+                                @if($can_follow_btn ?? true)
+                                    <a href="{{$follow_btn_route}}" class="theme_btn rounded-pill">{{$follow_btn_text}}</a>
+                                @endif
                                 <p class="f_w_500">{{$total_followers}} {{__('profile.follower')}}
                                     | {{$total_following}} {{__('profile.following')}}</p>
                             </div>

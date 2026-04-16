@@ -261,17 +261,23 @@ class ProfileController extends Controller
             }
 
 
+            $data['can_follow_btn'] = true;
             if (\auth()->check()) {
-                $follow_flag = UserFollower::where('following_id', $id)->where('follower_id', Auth::id())->first();
-                if ($follow_flag) {
-                    $data['follow_btn_route'] = route('users.unfollow', $id);
-                    $data['follow_btn_text'] = trans('profile.following');
-
+                if ((int)Auth::id() === (int)$id) {
+                    $data['can_follow_btn'] = false;
+                    $data['follow_btn_route'] = null;
+                    $data['follow_btn_text'] = null;
                 } else {
-                    $data['follow_btn_route'] = route('users.follow', $id);
-                    $data['follow_btn_text'] = trans('profile.follow');
-                }
+                    $follow_flag = UserFollower::where('following_id', $id)->where('follower_id', Auth::id())->first();
+                    if ($follow_flag) {
+                        $data['follow_btn_route'] = route('users.unfollow', $id);
+                        $data['follow_btn_text'] = trans('profile.following');
 
+                    } else {
+                        $data['follow_btn_route'] = route('users.follow', $id);
+                        $data['follow_btn_text'] = trans('profile.follow');
+                    }
+                }
             } else {
                 $data['follow_btn_route'] = route('users.follow', $id);
                 $data['follow_btn_text'] = trans('profile.follow');
@@ -384,6 +390,10 @@ class ProfileController extends Controller
     public function unfollow($id)
     {
         try {
+            if ((int)$id === (int)Auth::id()) {
+                Toastr::error(trans('common.Operation failed'), trans('common.Failed'));
+                return back();
+            }
             $check = UserFollower::where('following_id', $id)->where('follower_id', Auth::id())->first();
             if ($check) {
                 $check->delete();
@@ -402,6 +412,10 @@ class ProfileController extends Controller
     public function follow($id)
     {
         try {
+            if ((int)$id === (int)Auth::id()) {
+                Toastr::error(trans('common.Operation failed'), trans('common.Failed'));
+                return back();
+            }
             $check = UserFollower::where('following_id', $id)->where('follower_id', Auth::id())->first();
             if (!$check) {
                 UserFollower::create([
