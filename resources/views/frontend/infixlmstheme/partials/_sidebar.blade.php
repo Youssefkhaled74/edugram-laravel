@@ -79,7 +79,7 @@
                                         fill="currentColor"/>
                                 </svg>
                             </div>
-                            <span>{{__('common.My Courses')}}</span>
+                            <span>كورساتي</span>
                         </a>
                     </li>
                 @endif
@@ -115,7 +115,7 @@
                                 </svg>
 
                             </div>
-                            <span>{{__('common.Live Classes')}}</span>
+                            <span>حصص اونلاين</span>
                         </a>
                     </li>
                 @endif
@@ -377,42 +377,6 @@
                     </li>
                 @endif
 
-                @if(isModuleActive('Chat'))
-                    <li>
-                        <a class=" d-flex justify-content-between align-items-center  {{ routeIs('chat.index')  ? 'active' : '' }}"
-                           data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false"
-                           aria-controls="collapseExample">
-                            <div class="d-flex align-items-center ">
-                                <div class="menu_icon">
-                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                         xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M3.07692 14.32L1 14.8462L2.38462 10.6923V2.38462C2.38462 2.01739 2.5305 1.66521 2.79016 1.40554C3.04983 1.14588 3.402 1 3.76923 1H14.8462C15.2134 1 15.5656 1.14588 15.8252 1.40554C16.0848 1.66521 16.2308 2.01739 16.2308 2.38462V4.46154M14.1538 17.6154L19 19L18.3077 14.8462V9.30769C18.3077 8.94047 18.1618 8.58829 17.9021 8.32862C17.6425 8.06896 17.2903 7.92308 16.9231 7.92308H7.92308C7.55585 7.92308 7.20367 8.06896 6.944 8.32862C6.68434 8.58829 6.53846 8.94047 6.53846 9.30769V16.2308C6.53846 16.598 6.68434 16.9502 6.944 17.2098C7.20367 17.4694 7.55585 17.6154 7.92308 17.6154H14.1538Z"
-                                            stroke="currentColor" stroke-width="1.71429" stroke-linecap="round"
-                                            stroke-linejoin="round"/>
-                                    </svg>
-                                </div>
-                                <span>@lang('chat.chat') </span>
-                            </div>
-                            <i class="fa fa-chevron-down text-black"
-                               style="font-size:14px;color: var(--system_secendory_color);"></i>                        </a>
-                        <ul class="collapse chat-menu-ul" id="collapseExample">
-                            <li>
-                                <a class="chat-submenu" href="{{ route('chat.index') }}">{{ __('chat.chat_box') }}</a>
-                            </li>
-
-                            <li>
-                                <a class="chat-submenu"
-                                   href="{{ route('chat.invitation') }}">{{ __('chat.invitation') }}</a>
-                            </li>
-
-                            <li>
-                                <a class="chat-submenu"
-                                   href="{{ route('chat.blocked.users') }}">{{ __('chat.blocked_user') }}</a>
-                            </li>
-                        </ul>
-                    </li>
-                @endif
                 @if (isModuleActive('Installment'))
                     <li>
                         <a href="{{route('installment.student_installment.list')}}"
@@ -502,7 +466,7 @@
                                 </svg>
 
                             </div>
-                            <span>{{__('certificate.Certificate')}}</span>
+                            <span>شهاداتي</span>
                         </a>
                     </li>
                 @endif
@@ -540,24 +504,6 @@
 
                             </div>
                             <span>{{__('invoice.My Invoice')}}</span>
-                        </a>
-                    </li>
-                @endif
-                @if (permissionCheck('myPurchases'))
-                    <li>
-                        <a href="{{route('myPurchases')}}"
-                           class=" d-flex align-items-center  {{ routeIs('myPurchases')  ? 'active' : '' }}">
-                            <div class="menu_icon">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M5.60767 5.40881H8.39076M5.96766 10.0004H8.75074M5.96766 14.5922H8.75074M17.8237 8.33563H12.289C11.2316 2.32847 13.9014 0.956056 15.4613 1.00106C18.7012 1.50503 18.4387 6.10076 17.8237 8.33563ZM11.4398 18.2805C15.4123 13.6479 8.55546 2.94074 14.929 1.00109H4.48921C-1.61813 2.94074 4.70517 14.0036 1 17.9131C1 17.9131 2.25958 19 6.12616 19C9.99274 19 11.4398 18.2805 11.4398 18.2805Z"
-                                        stroke="currentColor" stroke-width="1.71429" stroke-linecap="round"
-                                        stroke-linejoin="round"/>
-                                </svg>
-
-                            </div>
-                            <span>{{__('common.Purchase History')}}</span>
                         </a>
                     </li>
                 @endif
@@ -622,7 +568,7 @@
                                 </svg>
 
                             </div>
-                            <span>{{__('common.Deposit')}}</span>
+                            <span>محفظتي</span>
                         </a>
                     </li>
                 @endif

@@ -1,4 +1,12 @@
 <div class="tab-pane fade" id="social_tab">
+    @php
+        $socialInfo = $user->userInfo;
+        $showFacebook = (int)($socialInfo->show_facebook ?? 1) === 1;
+        $showInstagram = (int)($socialInfo->show_instagram ?? 1) === 1;
+        $showWhatsapp = (int)($socialInfo->show_whatsapp ?? 1) === 1;
+        $showTwitter = (int)($socialInfo->show_twitter ?? 1) === 1;
+        $showSnapchat = (int)($socialInfo->show_snapchat ?? 1) === 1;
+    @endphp
     <div class="row">
         <div class="col-12">
 
@@ -11,7 +19,14 @@
 
                 <div class="row">
                     <div class="col-lg-6">
-                        <label class="primary_label2" for="facebook">{{__('common.Facebook URL')}}</label>
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label class="primary_label2 mb-0" for="facebook">{{__('common.Facebook URL')}}</label>
+                            <label class="lmsSwitch_toggle pe-2" for="toggle_facebook">
+                                <input value="{{ $showFacebook ? 0 : 1 }}" class="hide_show_tab" data-filed="show_facebook"
+                                       type="checkbox" id="toggle_facebook" {{ $showFacebook ? 'checked' : '' }}>
+                                <div class="slider round"></div>
+                            </label>
+                        </div>
                         <input id="facebook" name="facebook" placeholder="{{__('common.Facebook URL')}}"
                                onfocus="this.placeholder = ''"
                                onblur="this.placeholder = '{{__('common.Facebook URL')}}'"
@@ -23,7 +38,14 @@
 
                 <div class="row mt_20">
                     <div class="col-lg-6">
-                        <label class="primary_label2" for="instagram">{{__('common.Instagram URL')}}</label>
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label class="primary_label2 mb-0" for="instagram">{{__('common.Instagram URL')}}</label>
+                            <label class="lmsSwitch_toggle pe-2" for="toggle_instagram">
+                                <input value="{{ $showInstagram ? 0 : 1 }}" class="hide_show_tab" data-filed="show_instagram"
+                                       type="checkbox" id="toggle_instagram" {{ $showInstagram ? 'checked' : '' }}>
+                                <div class="slider round"></div>
+                            </label>
+                        </div>
                         <input id="instagram" name="instagram" placeholder="{{__('common.Instagram URL')}}"
                                onfocus="this.placeholder = ''"
                                onblur="this.placeholder = '{{__('common.Instagram URL')}}'"
@@ -35,7 +57,14 @@
 
                 <div class="row mt_20">
                     <div class="col-lg-6">
-                        <label class="primary_label2" for="whatsapp">WhatsApp URL</label>
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label class="primary_label2 mb-0" for="whatsapp">WhatsApp URL</label>
+                            <label class="lmsSwitch_toggle pe-2" for="toggle_whatsapp">
+                                <input value="{{ $showWhatsapp ? 0 : 1 }}" class="hide_show_tab" data-filed="show_whatsapp"
+                                       type="checkbox" id="toggle_whatsapp" {{ $showWhatsapp ? 'checked' : '' }}>
+                                <div class="slider round"></div>
+                            </label>
+                        </div>
                         <input id="whatsapp" name="whatsapp" placeholder="WhatsApp URL"
                                onfocus="this.placeholder = ''"
                                onblur="this.placeholder = 'WhatsApp URL'"
@@ -48,7 +77,14 @@
 
                 <div class="row mt_20">
                     <div class="col-lg-6">
-                        <label class="primary_label2" for="twitter">{{__('common.Twitter URL')}}</label>
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label class="primary_label2 mb-0" for="twitter">{{__('common.Twitter URL')}}</label>
+                            <label class="lmsSwitch_toggle pe-2" for="toggle_twitter">
+                                <input value="{{ $showTwitter ? 0 : 1 }}" class="hide_show_tab" data-filed="show_twitter"
+                                       type="checkbox" id="toggle_twitter" {{ $showTwitter ? 'checked' : '' }}>
+                                <div class="slider round"></div>
+                            </label>
+                        </div>
                         <input id="twitter" name="twitter" placeholder="{{__('common.Twitter URL')}}"
                                onfocus="this.placeholder = ''"
                                onblur="this.placeholder = '{{__('common.Twitter URL')}}'"
@@ -60,7 +96,14 @@
 
                 <div class="row mt_20">
                     <div class="col-lg-6">
-                        <label class="primary_label2" for="snapchat">Snapchat URL</label>
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label class="primary_label2 mb-0" for="snapchat">Snapchat URL</label>
+                            <label class="lmsSwitch_toggle pe-2" for="toggle_snapchat">
+                                <input value="{{ $showSnapchat ? 0 : 1 }}" class="hide_show_tab" data-filed="show_snapchat"
+                                       type="checkbox" id="toggle_snapchat" {{ $showSnapchat ? 'checked' : '' }}>
+                                <div class="slider round"></div>
+                            </label>
+                        </div>
                         <input id="snapchat" name="snapchat" placeholder="Snapchat URL"
                                onfocus="this.placeholder = ''"
                                onblur="this.placeholder = 'Snapchat URL'"

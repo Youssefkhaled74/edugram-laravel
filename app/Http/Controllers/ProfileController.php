@@ -155,6 +155,12 @@ class ProfileController extends Controller
                 $data['section_experience_tab'] = true;
             }
 
+            $data['section_show_facebook'] = (int)($data['user']->userInfo->show_facebook ?? 1) === 1;
+            $data['section_show_instagram'] = (int)($data['user']->userInfo->show_instagram ?? 1) === 1;
+            $data['section_show_whatsapp'] = (int)($data['user']->userInfo->show_whatsapp ?? 1) === 1;
+            $data['section_show_twitter'] = (int)($data['user']->userInfo->show_twitter ?? 1) === 1;
+            $data['section_show_snapchat'] = (int)($data['user']->userInfo->show_snapchat ?? 1) === 1;
+
 
             $data['section_badge'] = false;
             $data['section_review'] = false;
@@ -365,14 +371,26 @@ class ProfileController extends Controller
     public function profileDataToggle(Request $request)
     {
         try {
-
+            $allowedFields = [
+                'show_education',
+                'show_experience',
+                'show_facebook',
+                'show_instagram',
+                'show_whatsapp',
+                'show_twitter',
+                'show_snapchat',
+            ];
+            $field = $request->get('field');
+            if (!in_array($field, $allowedFields, true)) {
+                return response()->json(['error' => 'Invalid field'], 422);
+            }
             $user = Auth::user();
 
             $user->userInfo()->updateOrCreate(
                 ['user_id' => Auth::id()],
                 [
                     'user_id' => Auth::id(),
-                    $request->field => $request->value,
+                    $field => (int)$request->get('value', 1) === 1 ? 1 : 0,
                 ]
             );
             $msg = trans('common.Operation successful');

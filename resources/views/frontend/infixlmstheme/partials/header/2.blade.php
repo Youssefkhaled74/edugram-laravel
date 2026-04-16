@@ -507,6 +507,19 @@
                                 </div>
                                 <!-- cart end -->
                             @endif
+                            @auth()
+                                @if (permissionCheck('deposit') && showEcommerce() && Auth::user()->role_id==3)
+                                    <a href="{{route('deposit')}}" class="heading-cart-icon cart_store" title="محفظتي">
+                                        <svg width="20" height="22" viewBox="0 0 18 20" fill="none"
+                                             xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M10.135 5.43111L11.467 2.40726C11.6359 2.02369 11.6947 1.55931 11.3152 1.38152C10.2292 0.872825 7.27737 0.872825 6.19143 1.38152C5.81189 1.55931 5.87067 2.02369 6.03963 2.40726L7.37159 5.43111C7.61934 5.9936 8.12469 6.29277 8.64649 6.32866C8.63192 6.3286 8.61735 6.32859 8.60275 6.32859C3.73699 6.32859 1 9.05163 1 13.8926C1 18.7335 3.73699 19 8.60275 19C13.4686 19 16.2054 18.7335 16.2054 13.8926C16.2054 9.12673 13.5528 6.41359 8.82768 6.33055C9.36086 6.30505 9.88213 6.00524 10.135 5.43111Z"
+                                                stroke="#1F2B40" stroke-width="1.5" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span class="heading-cart-items notify_count">10</span>
+                                    </a>
+                                @endif
+                            @endauth
 
                             <!-- <div class="position-relative heading-search-form d-lg-none">
                                 <button class="p-0 rounded-circle heading-search">
@@ -568,6 +581,9 @@
                                                 <a href="{{route('studentDashboard')}}">{{__('dashboard.Dashboard')}}</a>
                                                 <a href="{{auth()->user()->username?route('profileUniqueUrl',auth()->user()->username):''}}">{{__('frontendmanage.My Profile')}}</a>
                                                 <a href="{{route('users.settings')}}">{{__('frontend.Account Settings')}}</a>
+                                                @if(isModuleActive('SupportTicket') && permissionCheck('student.support-ticket.index'))
+                                                    <a href="{{route('student.support-ticket.index')}}">{{__('ticket.support_ticket')}}</a>
+                                                @endif
 
                                                 @if(isModuleActive('Affiliate') && auth()->user()->affiliate_request!=1)
                                                     <a href="{{routeIsExist('affiliate.users.request')?route('affiliate.users.request'):''}}">{{__('frontend.Join Affiliate Program')}}</a>

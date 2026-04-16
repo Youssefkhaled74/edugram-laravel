@@ -71,6 +71,7 @@
                                     <h3>{{__('frontend.Convert your points')}} {{__('frontend.&')}}
                                         <span>{{__('frontend.Get free courses')}}</span></h3>
                                     <p>{{__('frontend.You can convert your earned points to the wallet charge or get free courses by spending points')}}</p>
+                                    <p>{{__('setting.Conversion Rate')}}: {{Settings('gamification_reward_point_conversion_rate')}} {{__('setting.Points')}} = {{getPriceFormat(1,false)}}</p>
                                     <div class="d-flex flex-wrap align-items-center pb-2 gap-3 reward-bottom">
                                         <div>
                                             <h4 class="mb-0">{{getPriceFormat($total_remind/Settings('gamification_reward_point_conversion_rate'),false)}}</h4>

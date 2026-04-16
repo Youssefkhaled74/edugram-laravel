@@ -343,16 +343,26 @@
                                         </ul>
                                     @endif
                                     <ul class="social_media">
-                                        <li><a href="{{@$user->facebook??"javascript:void(0)"}}"><i
-                                                    class="fab fa-facebook-f"></i></a></li>
-                                        <li><a href="{{@$user->instagram??"javascript:void(0)"}}"><i
-                                                    class="fab fa-instagram"></i></a></li>
-                                        <li><a href="{{@$user->whatsapp??"javascript:void(0)"}}"><i
-                                                    class="fab fa-whatsapp"></i></a></li>
-                                        <li><a href="{{@$user->twitter??"javascript:void(0)"}}"><i
-                                                    class="fab fa-x-twitter"></i></a></li>
-                                        <li><a href="{{@$user->snapchat??"javascript:void(0)"}}"><i
-                                                    class="fab fa-snapchat-ghost"></i></a></li>
+                                        @if($section_show_facebook)
+                                            <li><a href="{{@$user->facebook??"javascript:void(0)"}}"><i
+                                                        class="fab fa-facebook-f"></i></a></li>
+                                        @endif
+                                        @if($section_show_instagram)
+                                            <li><a href="{{@$user->instagram??"javascript:void(0)"}}"><i
+                                                        class="fab fa-instagram"></i></a></li>
+                                        @endif
+                                        @if($section_show_whatsapp)
+                                            <li><a href="{{@$user->whatsapp??"javascript:void(0)"}}"><i
+                                                        class="fab fa-whatsapp"></i></a></li>
+                                        @endif
+                                        @if($section_show_twitter)
+                                            <li><a href="{{@$user->twitter??"javascript:void(0)"}}"><i
+                                                        class="fab fa-twitter"></i></a></li>
+                                        @endif
+                                        @if($section_show_snapchat)
+                                            <li><a href="{{@$user->snapchat??"javascript:void(0)"}}"><i
+                                                        class="fab fa-snapchat-ghost"></i></a></li>
+                                        @endif
                                     </ul>
                                 </div>
                             </div>

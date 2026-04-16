@@ -2112,24 +2112,44 @@
                                     @endif
 
                                 </ul>
-                                {{--                             <h4 class="mt-30 mb-3">Material Included</h4>--}}
-                                {{--                            <ul class="material_included d-flex gap-4 align-items-center">--}}
-                                {{--                                <li>--}}
-                                {{--                                    <img src="{{asset('public/frontend/infixlmstheme/svg/video.svg')}}" alt="">--}}
-                                {{--                                </li>--}}
-                                {{--                                <li>--}}
-                                {{--                                    <img src="{{asset('public/frontend/infixlmstheme/svg/image.svg')}}" alt="">--}}
-                                {{--                                </li>--}}
-                                {{--                                <li>--}}
-                                {{--                                    <img src="{{asset('public/frontend/infixlmstheme/svg/doc.svg')}}" alt="">--}}
-                                {{--                                </li>--}}
-                                {{--                                <li>--}}
-                                {{--                                    <img src="{{asset('public/frontend/infixlmstheme/svg/code.svg')}}" alt="">--}}
-                                {{--                                </li>--}}
-                                {{--                                <li>--}}
-                                {{--                                    <img src="{{asset('public/frontend/infixlmstheme/svg/gift.svg')}}" alt="">--}}
-                                {{--                                </li>--}}
-                                {{--                            </ul>--}}
+                                @php
+                                    $assignmentCount = isset($course->lessons) ? $course->lessons->where('is_assignment', 1)->count() : 0;
+                                    $videoCount = max((int) $course->total_lessons - (int) $assignmentCount, 0);
+                                    $memoFile = null;
+                                    if (isset($course_exercises) && count($course_exercises) > 0) {
+                                        foreach ($course_exercises as $exerciseFile) {
+                                            if ($exerciseFile->lock == 0 || (Auth::check() && $isEnrolled)) {
+                                                $memoFile = $exerciseFile;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                @endphp
+
+                                <h4 class="mt-30 mb-3">{{__('courses.Course')}} {{__('common.Details')}}</h4>
+                                <ul class="material_included d-flex flex-wrap gap-3 align-items-center">
+                                    <li class="d-flex align-items-center gap-2">
+                                        <i class="ti-control-play"></i>
+                                        <span>{{ $videoCount }} {{ __('frontend.Video') }}</span>
+                                    </li>
+                                    <li class="d-flex align-items-center gap-2">
+                                        <i class="ti-write"></i>
+                                        <span>{{ $assignmentCount }} {{ __('assignment.Assignment') }}</span>
+                                    </li>
+                                    <li class="d-flex align-items-center gap-2">
+                                        <i class="ti-check-box"></i>
+                                        <span>{{ $course->total_quiz_lessons }} {{ __('frontend.Quizzes') }}</span>
+                                    </li>
+                                    <li class="d-flex align-items-center gap-2">
+                                        <i class="ti-files"></i>
+                                        @if($memoFile)
+                                            <a href="{{ asset($memoFile->file) }}" class="theme_btn_lite me-1" download>{{ __('common.Download') }}</a>
+                                            <a href="{{ asset($memoFile->file) }}" class="theme_btn_lite" target="_blank">{{ __('common.Print') }}</a>
+                                        @else
+                                            <span>-</span>
+                                        @endif
+                                    </li>
+                                </ul>
 
 
                                 <div class="apply_coupon_section mt-4">
