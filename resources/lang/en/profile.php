@@ -64,5 +64,6 @@ return [
     'will be displayed at the bottom of your name on the profile cards. Keep it short (maximum 500 characters)' => 'will be displayed at the bottom of your name on the profile cards. Keep it short (maximum 500 characters)',
     'will be displayed at the bottom of your name on the profile cards. Keep it short (80 to 100 words)' => 'will be displayed at the bottom of your name on the profile cards. Keep it short (80 to 100 words)',
     'With Country Code without plus' => 'With Country Code without plus',
-    'no_data_available' => 'No Data Available'
+    'no_data_available' => 'No Data Available',
+    'student_account_for_testing_profile_and_avatar_flows' => 'Student account for testing profile and avatar flows.',
 ];

@@ -363,29 +363,28 @@
                                         @if(isModuleActive('Chat'))
 
                                             @if(Settings('chat_invitation_requirement') == 'none')
-                                                <form action="{{ route('chat.invitation.open') }}"
-                                                      method="post">
-                                                    @csrf
-                                                    <input type="hidden" value="{{ $user->id }}" name="to">
-                                                    <a
-                                                        onclick="$(this).closest('form').submit();" href="#">
-                                                        <i class="far fa-comment-dots"></i>
-                                                    </a>
-                                                </form>
+                                                <li>
+                                                    <form action="{{ route('chat.invitation.open') }}" method="post" class="m-0">
+                                                        @csrf
+                                                        <input type="hidden" value="{{ $user->id }}" name="to">
+                                                        <a href="javascript:void(0)"
+                                                           onclick="event.preventDefault(); $(this).closest('form').submit();">
+                                                            <i class="far fa-comment-dots"></i>
+                                                        </a>
+                                                    </form>
+                                                </li>
                                             @else
                                                 @if(!$user->connectedWithLoggedInUser())
-                                                    <form action="{{ route('chat.invitation.create') }}"
-                                                          method="post">
-                                                        @csrf
-                                                        <input type="hidden" value="{{ $user->id }}"
-                                                               name="to">
-                                                        <li>
-                                                            <a href="#"
-                                                               onclick="$(this).closest('form').submit();">
+                                                    <li>
+                                                        <form action="{{ route('chat.invitation.create') }}" method="post" class="m-0">
+                                                            @csrf
+                                                            <input type="hidden" value="{{ $user->id }}" name="to">
+                                                            <a href="javascript:void(0)"
+                                                               onclick="event.preventDefault(); $(this).closest('form').submit();">
                                                                 <span class="ti-plus"></span>
                                                             </a>
-                                                        </li>
-                                                    </form>
+                                                        </form>
+                                                    </li>
                                                 @else
                                                     @if($user->connectionPending())
                                                         <li class="connection-status d-flex align-items-center justify-content-center">
@@ -614,7 +613,22 @@
 
                                 <h3 class="h2">{{__('common.About')}}</h3>
                                 <div>
-                                    {!!  @$user->about !!}
+                                    @php
+                                        $aboutContent = (string) (@$user->about ?? '');
+                                        $legacyAboutMap = [
+                                            'Student account for testing profile and avatar flows.' => __('profile.student_account_for_testing_profile_and_avatar_flows'),
+                                        ];
+
+                                        if (isset($legacyAboutMap[$aboutContent])) {
+                                            $aboutContent = $legacyAboutMap[$aboutContent];
+                                        } elseif (str_starts_with($aboutContent, 'profile.')) {
+                                            $translated = __($aboutContent);
+                                            if ($translated !== $aboutContent) {
+                                                $aboutContent = $translated;
+                                            }
+                                        }
+                                    @endphp
+                                    {!! $aboutContent !!}
                                 </div>
                                 {{--                                <div class="profile-info p-0 d-flex align-items-center flex-wrap">--}}
                                 {{--                                    <strong class="f_w_600 mb-0 me-1">Contact Us:</strong>--}}

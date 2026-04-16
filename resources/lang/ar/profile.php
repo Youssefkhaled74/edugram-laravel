@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 return [
     'profile_settings' => 'إعدادات الملف الشخصي',
     'basic_information' => 'المعلومات الأساسية',
@@ -64,5 +64,7 @@ return [
     'will be displayed at the bottom of your name on the profile cards. Keep it short (maximum 500 characters)' => 'سيتم عرضه أسفل اسمك على بطاقات الملف الشخصي. اجعله مختصراً (بحد أقصى 500 حرف).',
     'will be displayed at the bottom of your name on the profile cards. Keep it short (80 to 100 words)' => 'سيتم عرضها أسفل اسمك على بطاقات الملف الشخصي. احرص على أن تكون مختصرة (من 80 إلى 100 كلمة).',
     'With Country Code without plus' => 'مع رمز الدولة بدون علامة الزائد',
-    'no_data_available' => 'لا توجد بيانات متاحة'
+    'no_data_available' => 'لا توجد بيانات متاحة',
+    'student_account_for_testing_profile_and_avatar_flows' => 'حساب طالب لتجربة الملف الشخصي وخيارات الصور الرمزية.',
 ];
+

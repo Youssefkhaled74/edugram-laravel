@@ -1,5 +1,5 @@
 <?php
-return ["Account Settings" => "Account Settings",
+return ["Account Settings" => "إعدادات الحساب",
     "Change Password"=>"تغيير كلمة المرور",
     "Existing Password"=>"كلمة المرور الحالية",
     "Re-Type Password"=>"أعد كتابة كلمة المرور",
