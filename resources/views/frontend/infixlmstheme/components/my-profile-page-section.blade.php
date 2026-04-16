@@ -17,6 +17,7 @@
                             <form action="{{route('myProfileUpdate')}}" method="POST"
                                   enctype="multipart/form-data">@csrf
                                 <div class="row">
+                                                                        <input type="hidden" id="profile_form_avatar_key" name="avatar_key" value="{{ collect(config('profile_avatars.items', []))->search($profile->image) ?: '' }}">
                                     <input type="hidden" name="username" value="{{$profile->email}}">
                                     <div class="col-lg-12">
                                         <label class="primary_label2">{{__('student.Full Name')}}
@@ -333,31 +334,6 @@
                                                   onblur="this.placeholder = '{{__('student.Write Note here')}}'">{!! $profile->about !=""? @$profile->about:old('about') !!}</textarea>
                                     </div>
 
-                                    <div class="col-12">
-                                        <div class="preview_upload">
-                                            <div class="preview_upload_thumb">
-                                                <img src="" alt="" id="imgPreview"
-                                                     style=" display:none;height: 100%;width: 100%;">
-                                                <span id="previewTxt">{{__('student.Preview')}}</span>
-                                            </div>
-                                            <div class="preview_drag">
-                                                <div class="preview_drag_inner">
-                                                    <div class="img">
-                                                        <img
-                                                            src="{{asset('public/frontend/infixlmstheme')}}/img/account/gallery_icon.png"
-                                                            alt="">
-                                                    </div>
-                                                    <p>{{__('student.Drop your file here')}}</p>
-                                                    <small>{{__('student.Recommended image size')}} (330x400)</small>
-                                                    <div class="chose_file">
-                                                        <input type="file" name="image" id="imgInp"
-                                                               onchange="readURL(this)">
-                                                        {{__('student.or choose files to upload')}}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                                 <h3 class="font_22 f_w_700 mb_30">{{__('student.Social Links')}}</h3>
                                 <div class="row">

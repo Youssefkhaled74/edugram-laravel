@@ -1,45 +1,20 @@
-function readURL(input) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-
-        reader.onload = function (e) {
-            $('#previewTxt').hide();
-            $('#imgPreview').show();
-            $('#imgPreview').attr('src', e.target.result);
-        }
-
-        reader.readAsDataURL(input.files[0]); // convert to base64 string
-    }
-}
 $('#select_country').select2();
 
-// pofile_image.onchange = evt => {
-//     console.log('text');
-//     const [file] = pofile_image.files
-//     if (file) {
-//         show_profile_image.src = URL.createObjectURL(file)
-
-//     }
-// }
-
-
-$('#pofile_image').change(function () {
-    console.log('image uploaded');
-    if ($(this).val() != '') {
-        upload(this);
-
+function uploadAvatarByKey(avatarKey) {
+    if (!avatarKey) {
+        return;
     }
-});
 
-
-function upload(img) {
     var form_data = new FormData();
-    var token=$("input[name=_token]").val();
-    form_data.append('file', img.files[0]);
+    var token = $("input[name=_token]").val();
+    var submit_url = $('#ajax-update-profile-image').val();
+    var url = $('#url').val();
+
+    form_data.append('avatar_key', avatarKey);
     form_data.append('_token', token);
-    var submit_url=$('#ajax-update-profile-image').val();
-    var url=$('#url').val();
+
     $('#loading').css('display', 'block');
+
     $.ajax({
         url: submit_url,
         data: form_data,
@@ -47,67 +22,40 @@ function upload(img) {
         contentType: false,
         processData: false,
         success: function (data) {
-            // console.log(data);
-            if (data.fail) {
-                $('#show_profile_image').attr('src', url+'/public/demo/user/admin.jpg');
-
+            if (data && !data.fail) {
+                $('#show_profile_image').attr('src', data);
+                var header_image = 'background-image: url(' + data + ')';
+                $('.studentProfileThumb').attr('style', header_image);
+            } else if (data && data.fail) {
+                $('#show_profile_image').attr('src', url + '/public/demo/user/admin.jpg');
                 toastr.error(data.errors['file'], 'Error Alert', {
-                        timeOut: 5000
-                    });
-            }else {
-                // $('#file_name').val(data);
-                // console.log(data);
-                $('#show_profile_image').attr('src',data);
-                var header_image='background-image: url('+data+')';
-                $('.studentProfileThumb').attr('style',header_image);
-                // console.log('success');
+                    timeOut: 5000
+                });
             }
             $('#loading').css('display', 'none');
-            //   location.reload();
-              
         },
-        error: function (xhr, status, error) {
+        error: function (xhr) {
             alert(xhr.responseText);
-            $('#show_profile_image').attr('src', url+'/public/demo/user/admin.jpg');
+            $('#show_profile_image').attr('src', url + '/public/demo/user/admin.jpg');
+            $('#loading').css('display', 'none');
         }
     });
 }
 
-// $(document).ready(function (e) {
-//     $.ajaxSetup({
-//     headers: {
-//     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-//     }
-//     });
-//     pofile_image.onchange = evt => {
-//         const [file] = pofile_image.files
-//         if (file) {
-//             show_profile_image.src = URL.createObjectURL(file)
-//             var submit_url=document.getElementById('ajax-update-profile-image').value;
-//             var pofile_image=document.getElementById('pofile_image');
+$(document).on('click', '.avatar-item', function () {
+    var avatarKey = $(this).data('avatar-key');
+    var avatarPath = $(this).data('avatar-path');
 
-//             var formData = new FormData(this);
-//             var files = $('#pofile_image')[0].files;
+    $('.avatar-item').removeClass('active');
+    $(this).addClass('active');
 
+    $('#selected_avatar').val(avatarKey);
+    $('#avatar_key').val(avatarKey);
+    $('#profile_form_avatar_key').val(avatarKey);
 
-//             console.log(pofile_image);
+    if (avatarPath) {
+        $('#show_profile_image').attr('src', avatarPath);
+    }
 
-//             fd.append('file',files[0]);
-//             $.ajax({
-//                 type:'POST',
-//                 url: submit_url,
-//                 data: formData,
-//                 cache:false,
-//                 contentType: false,
-//                 processData: false,
-//                 success: (data) => {
-//                 alert('File has been uploaded successfully');
-//                 console.log(data);
-//                 },
-//                 error: function(data){
-//                 console.log(data);
-//                 }
-//             });
-//         }
-//     };
-//     });
+    uploadAvatarByKey(avatarKey);
+});

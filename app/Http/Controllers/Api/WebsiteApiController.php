@@ -964,6 +964,11 @@ class WebsiteApiController extends Controller
 
             if ($request->file('image') != "") {
                 $user->image = $this->saveImage($request->file('image'));
+            } elseif ($request->filled('avatar_key')) {
+                $avatarPath = $this->resolveProfileAvatarPath($request->get('avatar_key'));
+                if ($avatarPath) {
+                    $user->image = $avatarPath;
+                }
             }
             $user->save();
             $response = [
@@ -978,6 +983,22 @@ class WebsiteApiController extends Controller
             ];
             return response()->json($response, 500);
         }
+    }
+
+    private function resolveProfileAvatarPath($avatarKey)
+    {
+        if (!$avatarKey) {
+            return null;
+        }
+
+        $avatars = config('profile_avatars.items', []);
+        $avatarPath = $avatars[$avatarKey] ?? null;
+
+        if (!$avatarPath || !file_exists(base_path($avatarPath))) {
+            return null;
+        }
+
+        return $avatarPath;
     }
 
     /**

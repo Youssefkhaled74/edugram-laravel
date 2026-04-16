@@ -1,7 +1,8 @@
 <div>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/svg-with-js.min.css" rel="stylesheet"/>
+    @php
+        $profileAvatars = config('profile_avatars.items', []);
+        $selectedAvatarKey = collect($profileAvatars)->search($profile->image);
+    @endphp
 
     <style>
         .profilepic {
@@ -58,69 +59,8 @@
         }
 
 
-        .profilepic:hover .profilepic__content {
-            opacity: 1;
-        }
-
-        .profilepic:hover .profilepic__image {
-            opacity: .5;
-        }
-
         .profilepic__image {
             object-fit: cover;
-            opacity: 1;
-            transition: opacity .2s ease-in-out;
-        }
-
-        .profilepic__content {
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            opacity: 0;
-            transition: opacity .2s ease-in-out;
-        }
-
-        .profilepic__icon {
-            color: white;
-            padding-bottom: 8px;
-        }
-
-        .fas {
-            font-size: 20px;
-        }
-
-        .profilepic__text {
-            text-transform: uppercase;
-            font-size: 12px;
-            width: 50%;
-            text-align: center;
-
-        }
-
-        .profilepic__text {
-            position: absolute;
-            bottom: 0;
-            outline: none;
-            color: transparent;
-            width: 100%;
-            box-sizing: border-box;
-            padding: 150px 120px;
-            cursor: pointer;
-            transition: 0.5s;
-            background: rgba(236, 231, 231, 0.5);
-            opacity: 0;
-
-        }
-
-        .profilepic__text::-webkit-file-upload-button {
-            visibility: hidden;
         }
 
         .profilepic__image {
@@ -128,21 +68,86 @@
             height: 100%
         }
 
+        .avatar-picker-section {
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .avatar-picker-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .avatar-item {
+            border: 2px solid #e7e7e7;
+            border-radius: 50%;
+            width: 58px;
+            height: 58px;
+            overflow: hidden;
+            background: #fff;
+            cursor: pointer;
+            padding: 0;
+            transition: border-color .2s ease, transform .2s ease;
+        }
+
+        .avatar-item:hover {
+            border-color: #3c9ee7;
+            transform: translateY(-1px);
+        }
+
+        .avatar-item.active {
+            border-color: #3c9ee7;
+            box-shadow: 0 0 0 2px rgba(60, 158, 231, 0.2);
+        }
+
+        .avatar-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
     </style>
 
     <form action="" method="post" enctype="multipart/form-data">
+        @csrf
         <input type="hidden" value="{{route('ajaxUploadProfilePic')}}" id="ajax-update-profile-image">
         <input type="hidden" value="{{url('/')}}" id="url">
+        <input type="hidden" value="{{$selectedAvatarKey ?: ''}}" id="selected_avatar" name="selected_avatar">
+        <input type="hidden" value="{{$selectedAvatarKey ?: ''}}" id="avatar_key">
         <div class="profilepic">
             <img class="profilepic__image" src="{{getProfileImage($profile->image,$profile->name)}}"
                  id="show_profile_image"
                  width="272" height="272" alt="Profibild"/>
-            <div class="profilepic__content">
-                <span class="profilepic__icon"><i class="fas fa-camera"></i></span>
-                <input type="file" id="pofile_image" title="" name="profile_pic" class="profilepic__text">
-                <i id="loading" class="fa fa-spinner fa-spin fa-3x fa-fw  site_image_spinner" style="display: none"></i>
-            </div>
+            <i id="loading" class="fa fa-spinner fa-spin fa-3x fa-fw  site_image_spinner" style="display: none"></i>
         </div>
+
+        @if(count($profileAvatars))
+            <div class="avatar-picker-section text-center">
+                <p class="avatar-picker-title mb-0">Choose Avatar</p>
+                <div class="avatar-grid">
+                    @foreach($profileAvatars as $avatarKey => $avatarPath)
+                        <button
+                            type="button"
+                            class="avatar-item {{ $selectedAvatarKey === $avatarKey ? 'active' : '' }}"
+                            data-avatar-key="{{$avatarKey}}"
+                            data-avatar-path="{{asset($avatarPath)}}"
+                            title="{{$avatarKey}}"
+                        >
+                            <img src="{{asset($avatarPath)}}" alt="{{$avatarKey}}">
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     </form>
 
 </div>

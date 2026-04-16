@@ -17,3 +17,4 @@ storage/*.key
 phpcs.xml
 modules_statuses.json
 code-generator
+/.composer/

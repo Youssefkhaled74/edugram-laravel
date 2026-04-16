@@ -212,14 +212,33 @@ class StudentController extends Controller
     public function ajaxUploadProfilePic(Request $request)
     {
         try {
-            $fileName = "";
+            $updatedImagePath = "";
             $user = Auth::user();
-            if ($request->file('file') != "") {
-                $user->image = $fileName = $this->saveImage($request->file('file'));
+
+            if ($request->hasFile('file')) {
+                $user->image = $updatedImagePath = $this->saveImage($request->file('file'));
+            } elseif ($request->filled('avatar_key')) {
+                $avatarPath = $this->resolveProfileAvatarPath($request->get('avatar_key'));
+                if (!$avatarPath) {
+                    return response()->json([
+                        'fail' => true,
+                        'errors' => [
+                            'file' => 'Invalid avatar selection.',
+                        ],
+                    ], 422);
+                }
+
+                $user->image = $updatedImagePath = $avatarPath;
+            } else {
+                $updatedImagePath = $user->image;
             }
+
             $user->save();
+
+            $imageUrl = getProfileImage($updatedImagePath, $user->name);
+
             if ($request->ajax()) {
-                return $fileName;
+                return $imageUrl;
             } else {
                 Toastr::success(trans('common.Operation successful'), trans('common.Success'));
                 return redirect()->back();
@@ -229,6 +248,22 @@ class StudentController extends Controller
             return $th;
         }
 
+    }
+
+    private function resolveProfileAvatarPath($avatarKey)
+    {
+        if (!$avatarKey) {
+            return null;
+        }
+
+        $avatars = config('profile_avatars.items', []);
+        $avatarPath = $avatars[$avatarKey] ?? null;
+
+        if (!$avatarPath || !file_exists(base_path($avatarPath))) {
+            return null;
+        }
+
+        return $avatarPath;
     }
 
     public function myProfileUpdate(Request $request)
@@ -304,8 +339,14 @@ class StudentController extends Controller
             $user->youtube = $request->youtube;
             $user->headline = $request->headline;
             $user->about = clean($request->about);
+            $avatarKey = $request->get('avatar_key', $request->get('selected_avatar'));
             if ($request->file('image') != "") {
                 $user->image = $this->saveImage($request->file('image'));
+            } elseif (!empty($avatarKey)) {
+                $avatarPath = $this->resolveProfileAvatarPath($avatarKey);
+                if ($avatarPath) {
+                    $user->image = $avatarPath;
+                }
             }
 
             if ($user->role_id==3){
