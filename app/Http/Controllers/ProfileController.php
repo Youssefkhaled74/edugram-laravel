@@ -558,8 +558,9 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         if ($user->role_id == 3) {
+            $avatarKeys = array_keys(config('profile_avatars.items', []));
             $rules = [
-                'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
+                'avatar_key' => ['nullable', Rule::in($avatarKeys)],
                 'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
             ];
             $request->validate($rules, validationMessage($rules));
@@ -567,14 +568,11 @@ class ProfileController extends Controller
 
         try {
             if ($user->role_id == 3) {
-                if ($request->file('profile_picture')) {
-                    $profile_url = $this->saveImage($request->file('profile_picture'));
-                    if ($user->image) {
-                        $this->deleteImage($user->image);
-                    }
-                    $user->image = $profile_url;
+                $selectedAvatarKey = $request->get('avatar_key');
+                $profileAvatars = config('profile_avatars.items', []);
+                if (!empty($selectedAvatarKey) && isset($profileAvatars[$selectedAvatarKey])) {
+                    $user->image = $profileAvatars[$selectedAvatarKey];
                     $user->save();
-
                 }
 
                 if ($request->file('cover_photo')) {
@@ -710,9 +708,10 @@ class ProfileController extends Controller
             DB::beginTransaction();
             User::where('id', Auth::id())->update([
                 'facebook' => $request->facebook,
-                'twitter' => $request->twitter,
-                'linkedin' => $request->linkedin,
                 'instagram' => $request->instagram,
+                'whatsapp' => $request->whatsapp,
+                'twitter' => $request->twitter,
+                'snapchat' => $request->snapchat,
                 'youtube' => $request->youtube,
             ]);
 

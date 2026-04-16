@@ -6,15 +6,6 @@
 
 @section('css')
     <style>
-        .profile-info ul li a i.fa-linkedin-in {
-            color: #0078b6;
-            transition: inherit;
-        }
-
-        .profile-info ul li a:hover i.fa-linkedin-in {
-            color: #ffffff;
-        }
-
         .profile-info .badges {
             display: block;
         }
@@ -354,55 +345,14 @@
                                     <ul class="social_media">
                                         <li><a href="{{@$user->facebook??"javascript:void(0)"}}"><i
                                                     class="fab fa-facebook-f"></i></a></li>
-                                        <li><a href="{{@$user->twitter??"javascript:void(0)"}}"><i
-                                                    class="fab fa-twitter"></i></a></li>
-                                        <li><a href="{{@$user->linkedin??"javascript:void(0)"}}"><i
-                                                    class="fab fa-linkedin-in"></i></a></li>
                                         <li><a href="{{@$user->instagram??"javascript:void(0)"}}"><i
                                                     class="fab fa-instagram"></i></a></li>
-                                        @if(isModuleActive('Chat'))
-
-                                            @if(Settings('chat_invitation_requirement') == 'none')
-                                                <li>
-                                                    <form action="{{ route('chat.invitation.open') }}" method="post" class="m-0">
-                                                        @csrf
-                                                        <input type="hidden" value="{{ $user->id }}" name="to">
-                                                        <a href="javascript:void(0)"
-                                                           onclick="event.preventDefault(); $(this).closest('form').submit();">
-                                                            <i class="far fa-comment-dots"></i>
-                                                        </a>
-                                                    </form>
-                                                </li>
-                                            @else
-                                                @if(!$user->connectedWithLoggedInUser())
-                                                    <li>
-                                                        <form action="{{ route('chat.invitation.create') }}" method="post" class="m-0">
-                                                            @csrf
-                                                            <input type="hidden" value="{{ $user->id }}" name="to">
-                                                            <a href="javascript:void(0)"
-                                                               onclick="event.preventDefault(); $(this).closest('form').submit();">
-                                                                <span class="ti-plus"></span>
-                                                            </a>
-                                                        </form>
-                                                    </li>
-                                                @else
-                                                    @if($user->connectionPending())
-                                                        <li class="connection-status d-flex align-items-center justify-content-center">
-                                                            <span class="ti-timer status"></span>
-                                                        </li>
-                                                    @elseif($user->connectionSuccess())
-                                                        <li class="connection-status d-flex align-items-center justify-content-center">
-                                                            <span class="ti-check status"></span>
-                                                        </li>
-                                                    @else
-                                                        <li class="connection-status d-flex align-items-center justify-content-center">
-                                                            <span class="ti-check status"></span>
-                                                        </li>
-                                                    @endif
-                                                @endif
-                                            @endif
-                                        @endif
-
+                                        <li><a href="{{@$user->whatsapp??"javascript:void(0)"}}"><i
+                                                    class="fab fa-whatsapp"></i></a></li>
+                                        <li><a href="{{@$user->twitter??"javascript:void(0)"}}"><i
+                                                    class="fab fa-x-twitter"></i></a></li>
+                                        <li><a href="{{@$user->snapchat??"javascript:void(0)"}}"><i
+                                                    class="fab fa-snapchat-ghost"></i></a></li>
                                     </ul>
                                 </div>
                             </div>

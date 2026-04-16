@@ -23,6 +23,31 @@
 
                 <div class="row mt_20">
                     <div class="col-lg-6">
+                        <label class="primary_label2" for="instagram">{{__('common.Instagram URL')}}</label>
+                        <input id="instagram" name="instagram" placeholder="{{__('common.Instagram URL')}}"
+                               onfocus="this.placeholder = ''"
+                               onblur="this.placeholder = '{{__('common.Instagram URL')}}'"
+                               class="primary_input" {{$errors->first('instagram') ? 'autofocus' : ''}}
+                               value="{{@$user->instagram}}" type="text">
+                        <span class="text-danger" role="alert">{{$errors->first('instagram')}}</span>
+                    </div>
+                </div>
+
+                <div class="row mt_20">
+                    <div class="col-lg-6">
+                        <label class="primary_label2" for="whatsapp">WhatsApp URL</label>
+                        <input id="whatsapp" name="whatsapp" placeholder="WhatsApp URL"
+                               onfocus="this.placeholder = ''"
+                               onblur="this.placeholder = 'WhatsApp URL'"
+                               class="primary_input" {{$errors->first('whatsapp') ? 'autofocus' : ''}}
+                               value="{{@$user->whatsapp}}" type="text">
+                        <span class="text-danger" role="alert">{{$errors->first('whatsapp')}}</span>
+                    </div>
+                </div>
+
+
+                <div class="row mt_20">
+                    <div class="col-lg-6">
                         <label class="primary_label2" for="twitter">{{__('common.Twitter URL')}}</label>
                         <input id="twitter" name="twitter" placeholder="{{__('common.Twitter URL')}}"
                                onfocus="this.placeholder = ''"
@@ -35,20 +60,19 @@
 
                 <div class="row mt_20">
                     <div class="col-lg-6">
-                        <label class="primary_label2" for="linkedin">{{__('common.LinkedIn URL')}}</label>
-                        <input id="linkedin" name="linkedin" placeholder="{{__('common.LinkedIn URL')}}"
+                        <label class="primary_label2" for="snapchat">Snapchat URL</label>
+                        <input id="snapchat" name="snapchat" placeholder="Snapchat URL"
                                onfocus="this.placeholder = ''"
-                               onblur="this.placeholder = '{{__('common.LinkedIn URL')}}'"
-                               class="primary_input" {{$errors->first('linkedin') ? 'autofocus' : ''}}
-                               value="{{@$user->linkedin}}" type="text">
-                        <span class="text-danger" role="alert">{{$errors->first('linkedin')}}</span>
+                               onblur="this.placeholder = 'Snapchat URL'"
+                               class="primary_input" {{$errors->first('snapchat') ? 'autofocus' : ''}}
+                               value="{{@$user->snapchat}}" type="text">
+                        <span class="text-danger" role="alert">{{$errors->first('snapchat')}}</span>
                     </div>
                 </div>
 
-
                 <div class="row mt_20">
                     <div class="col-lg-6">
-                        <label class="primary_label2" for="instagram">{{__('common.Youtube URL')}}</label>
+                        <label class="primary_label2" for="youtube">{{__('common.Youtube URL')}}</label>
                         <input id="youtube" name="youtube" placeholder="{{__('common.Youtube URL')}}"
                                onfocus="this.placeholder = ''"
                                onblur="this.placeholder = '{{__('common.Youtube URL')}}'"
@@ -57,19 +81,6 @@
                         <span class="text-danger" role="alert">{{$errors->first('youtube')}}</span>
                     </div>
                 </div>
-
-                <div class="row mt_20">
-                    <div class="col-lg-6">
-                        <label class="primary_label2" for="instagram">{{__('common.Instagram URL')}}</label>
-                        <input id="instagram" name="instagram" placeholder="{{__('common.Instagram URL')}}"
-                               onfocus="this.placeholder = ''"
-                               onblur="this.placeholder = '{{__('common.Instagram URL')}}'"
-                               class="primary_input" {{$errors->first('instagram') ? 'autofocus' : ''}}
-                               value="{{@$user->instagram}}" type="text">
-                        <span class="text-danger" role="alert">{{$errors->first('instagram')}}</span>
-                    </div>
-                </div>
-
 
                 <div class="row mt_20">
                     <div class="col-md-12 d-flex align-items-center">

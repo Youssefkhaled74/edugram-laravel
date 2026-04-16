@@ -184,9 +184,18 @@
                     $('a[href="' + activeSettingsTab + '"]').tab('show');
                 }
 
-                //onchange profile picture
-                $(document).on('change', '#profile_picture', function () {
-                    imageChangeWithFile($(this)[0], '#profile_picture_show');
+                //select avatar (settings)
+                $(document).on('click', '.settings-avatar-item', function () {
+                    let avatarKey = $(this).data('avatar-key');
+                    let avatarPath = $(this).data('avatar-path');
+
+                    $('.settings-avatar-item').removeClass('active');
+                    $(this).addClass('active');
+                    $('#settings_avatar_key').val(avatarKey);
+
+                    if (avatarPath) {
+                        $('#profile_picture_show').attr('src', avatarPath);
+                    }
                 });
 
                 //onchange cover photo
@@ -397,4 +406,3 @@
     </section>
 
 @endsection
-
