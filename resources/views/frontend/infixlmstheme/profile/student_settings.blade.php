@@ -15,6 +15,48 @@
             background: #e3e3e3;
         }
 
+        #social_tab .lmsSwitch_toggle {
+            --toggle-width: 46px;
+            --toggle-height: 24px;
+            --toggle-knob: 20px;
+            width: var(--toggle-width);
+            height: var(--toggle-height);
+            min-width: var(--toggle-width);
+        }
+
+        #social_tab .lmsSwitch_toggle .slider {
+            border-radius: 999px;
+            background: #d8d8d8;
+        }
+
+        #social_tab .lmsSwitch_toggle .slider:before {
+            width: var(--toggle-knob);
+            height: var(--toggle-knob);
+            top: 50%;
+            left: 2px;
+            right: auto;
+            transform: translateY(-50%);
+            border-radius: 50%;
+            background: var(--system_secendory_color);
+            box-shadow: 0 4px 8px rgba(130, 139, 178, .25);
+        }
+
+        #social_tab .lmsSwitch_toggle input:checked + .slider:before {
+            transform: translate(22px, -50%);
+            background: var(--system_primery_color);
+            box-shadow: 0 4px 8px rgba(108, 39, 255, .25);
+        }
+
+        html[dir=rtl] #social_tab .lmsSwitch_toggle .slider:before {
+            left: auto;
+            right: 2px;
+            transform: translateY(-50%);
+        }
+
+        html[dir=rtl] #social_tab .lmsSwitch_toggle input:checked + .slider:before {
+            transform: translate(-22px, -50%);
+        }
+
         .nice-select {
             border-radius: 100px !important;
             padding: 0 20px;

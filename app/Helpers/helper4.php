@@ -828,6 +828,17 @@ if (!function_exists('checkGamification')) {
             }
         }
 
+        if ($enable && $type === 'each_login') {
+            $alreadyGotLoginPointToday = UserGamificationPoint::where('user_id', $user_id)
+                ->where('type', 'each_login')
+                ->whereDate('created_at', Carbon::today())
+                ->exists();
+
+            if ($alreadyGotLoginPointToday) {
+                return false;
+            }
+        }
+
         if ($enable) {
             UserGamificationPoint::create([
                 'user_id' => $user_id,
@@ -962,5 +973,4 @@ if (!function_exists('createUserLevelHistory')) {
 
     }
 }
-
 
