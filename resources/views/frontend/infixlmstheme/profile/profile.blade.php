@@ -364,10 +364,11 @@
                                     @php
                                         $hasFacebook = $section_show_facebook && filled(@$user->facebook);
                                         $hasInstagram = $section_show_instagram && filled(@$user->instagram);
+                                        $hasLinkedin = $section_show_linkedin && filled(@$user->linkedin);
                                         $hasWhatsapp = $section_show_whatsapp && filled(@$user->whatsapp);
                                         $hasTwitter = $section_show_twitter && filled(@$user->twitter);
                                         $hasSnapchat = $section_show_snapchat && filled(@$user->snapchat);
-                                        $hasAnySocialLink = $hasFacebook || $hasInstagram || $hasWhatsapp || $hasTwitter || $hasSnapchat;
+                                        $hasAnySocialLink = $hasFacebook || $hasInstagram || $hasLinkedin || $hasWhatsapp || $hasTwitter || $hasSnapchat;
                                     @endphp
 
                                     @if($hasAnySocialLink)
@@ -379,6 +380,10 @@
                                             @if($hasInstagram)
                                                 <li><a href="{{ $user->instagram }}"><i
                                                             class="fab fa-instagram"></i></a></li>
+                                            @endif
+                                            @if($hasLinkedin)
+                                                <li><a href="{{ $user->linkedin }}"><i
+                                                            class="fab fa-linkedin-in"></i></a></li>
                                             @endif
                                             @if($hasWhatsapp)
                                                 <li><a href="{{ $user->whatsapp }}"><i

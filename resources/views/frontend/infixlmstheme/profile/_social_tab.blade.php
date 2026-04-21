@@ -3,6 +3,7 @@
         $socialInfo = $user->userInfo;
         $showFacebook = (int)($socialInfo->show_facebook ?? 1) === 1;
         $showInstagram = (int)($socialInfo->show_instagram ?? 1) === 1;
+        $showLinkedin = (int)($socialInfo->show_linkedin ?? 1) === 1;
         $showWhatsapp = (int)($socialInfo->show_whatsapp ?? 1) === 1;
         $showTwitter = (int)($socialInfo->show_twitter ?? 1) === 1;
         $showSnapchat = (int)($socialInfo->show_snapchat ?? 1) === 1;
@@ -52,6 +53,25 @@
                                class="primary_input" {{$errors->first('instagram') ? 'autofocus' : ''}}
                                value="{{@$user->instagram}}" type="text">
                         <span class="text-danger" role="alert">{{$errors->first('instagram')}}</span>
+                    </div>
+                </div>
+
+                <div class="row mt_20">
+                    <div class="col-lg-6">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label class="primary_label2 mb-0" for="linkedin">{{__('common.LinkedIn URL')}}</label>
+                            <label class="lmsSwitch_toggle pe-2" for="toggle_linkedin">
+                                <input value="{{ $showLinkedin ? 0 : 1 }}" class="hide_show_tab" data-filed="show_linkedin"
+                                       type="checkbox" id="toggle_linkedin" {{ $showLinkedin ? 'checked' : '' }}>
+                                <div class="slider round"></div>
+                            </label>
+                        </div>
+                        <input id="linkedin" name="linkedin" placeholder="{{__('common.LinkedIn URL')}}"
+                               onfocus="this.placeholder = ''"
+                               onblur="this.placeholder = '{{__('common.LinkedIn URL')}}'"
+                               class="primary_input" {{$errors->first('linkedin') ? 'autofocus' : ''}}
+                               value="{{@$user->linkedin}}" type="text">
+                        <span class="text-danger" role="alert">{{$errors->first('linkedin')}}</span>
                     </div>
                 </div>
 

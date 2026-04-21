@@ -157,6 +157,7 @@ class ProfileController extends Controller
 
             $data['section_show_facebook'] = (int)($data['user']->userInfo->show_facebook ?? 1) === 1;
             $data['section_show_instagram'] = (int)($data['user']->userInfo->show_instagram ?? 1) === 1;
+            $data['section_show_linkedin'] = (int)($data['user']->userInfo->show_linkedin ?? 1) === 1;
             $data['section_show_whatsapp'] = (int)($data['user']->userInfo->show_whatsapp ?? 1) === 1;
             $data['section_show_twitter'] = (int)($data['user']->userInfo->show_twitter ?? 1) === 1;
             $data['section_show_snapchat'] = (int)($data['user']->userInfo->show_snapchat ?? 1) === 1;
@@ -376,6 +377,7 @@ class ProfileController extends Controller
                 'show_experience',
                 'show_facebook',
                 'show_instagram',
+                'show_linkedin',
                 'show_whatsapp',
                 'show_twitter',
                 'show_snapchat',
@@ -727,6 +729,7 @@ class ProfileController extends Controller
             User::where('id', Auth::id())->update([
                 'facebook' => $request->facebook,
                 'instagram' => $request->instagram,
+                'linkedin' => $request->linkedin,
                 'whatsapp' => $request->whatsapp,
                 'twitter' => $request->twitter,
                 'snapchat' => $request->snapchat,
