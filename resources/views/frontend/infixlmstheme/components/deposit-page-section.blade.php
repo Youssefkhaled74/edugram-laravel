@@ -9,6 +9,8 @@
     }else{
       $symbol =     Settings('currency_symbol');
     }
+    $vodafoneCashNumber = Settings('student_vodafone_cash_number') ?: '01000000000';
+    $instaPayNumber = Settings('student_instapay_number') ?: 'instapay@yourbank';
 @endphp
 <div class="main_content_iner main_content_padding">
 
@@ -25,6 +27,16 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col-12">
+                                <div class="alert alert-info mb-4" role="alert">
+                                    <strong>{{ __('setting.Transfer instructions') }}:</strong>
+                                    <div class="mt-2">
+                                        <div>{{ __('setting.Vodafone Cash transfer number') }}: <strong>{{ $vodafoneCashNumber }}</strong></div>
+                                        <div>{{ __('setting.InstaPay transfer number') }}: <strong>{{ $instaPayNumber }}</strong></div>
+                                        <div class="mt-2">{{ __('setting.Deposit transfer note') }}</div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-xl-12">
                                 <form action="{{route('depositSelectOption')}}" method="post">
                                     <div class="single_totl_warp col-lg-12 ps-0">
