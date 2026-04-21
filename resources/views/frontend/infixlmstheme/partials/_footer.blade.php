@@ -392,6 +392,12 @@
         }
 
         $(document).on('click', '.cart_store', function (e) {
+            // Allow normal navigation for real links (e.g. wallet/deposit icon).
+            let href = ($(this).attr('href') || '').trim();
+            if (href && href !== '#' && !$(this).data('id')) {
+                return true;
+            }
+
             e.preventDefault();
             let btn = $(this);
             let id = $(this).data('id');

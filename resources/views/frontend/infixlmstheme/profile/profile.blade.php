@@ -131,6 +131,25 @@
             gap: 20px
         }
 
+        .profile-info .social-empty {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px dashed #d8dbe2;
+            background: #f7f9fc;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1;
+        }
+
+        .profile-info .social-empty i {
+            color: #9aa3b2;
+            font-size: 14px;
+        }
+
         @media (max-width: 576px) {
             .profile .nav-link {
                 font-size: 14px;
@@ -342,28 +361,44 @@
                                             @endforeach
                                         </ul>
                                     @endif
-                                    <ul class="social_media">
-                                        @if($section_show_facebook && filled(@$user->facebook))
-                                            <li><a href="{{ $user->facebook }}"><i
-                                                        class="fab fa-facebook-f"></i></a></li>
-                                        @endif
-                                        @if($section_show_instagram && filled(@$user->instagram))
-                                            <li><a href="{{ $user->instagram }}"><i
-                                                        class="fab fa-instagram"></i></a></li>
-                                        @endif
-                                        @if($section_show_whatsapp && filled(@$user->whatsapp))
-                                            <li><a href="{{ $user->whatsapp }}"><i
-                                                        class="fab fa-whatsapp"></i></a></li>
-                                        @endif
-                                        @if($section_show_twitter && filled(@$user->twitter))
-                                            <li><a href="{{ $user->twitter }}"><i
-                                                        class="fab fa-twitter"></i></a></li>
-                                        @endif
-                                        @if($section_show_snapchat && filled(@$user->snapchat))
-                                            <li><a href="{{ $user->snapchat }}"><i
-                                                        class="fab fa-snapchat-ghost"></i></a></li>
-                                        @endif
-                                    </ul>
+                                    @php
+                                        $hasFacebook = $section_show_facebook && filled(@$user->facebook);
+                                        $hasInstagram = $section_show_instagram && filled(@$user->instagram);
+                                        $hasWhatsapp = $section_show_whatsapp && filled(@$user->whatsapp);
+                                        $hasTwitter = $section_show_twitter && filled(@$user->twitter);
+                                        $hasSnapchat = $section_show_snapchat && filled(@$user->snapchat);
+                                        $hasAnySocialLink = $hasFacebook || $hasInstagram || $hasWhatsapp || $hasTwitter || $hasSnapchat;
+                                    @endphp
+
+                                    @if($hasAnySocialLink)
+                                        <ul class="social_media">
+                                            @if($hasFacebook)
+                                                <li><a href="{{ $user->facebook }}"><i
+                                                            class="fab fa-facebook-f"></i></a></li>
+                                            @endif
+                                            @if($hasInstagram)
+                                                <li><a href="{{ $user->instagram }}"><i
+                                                            class="fab fa-instagram"></i></a></li>
+                                            @endif
+                                            @if($hasWhatsapp)
+                                                <li><a href="{{ $user->whatsapp }}"><i
+                                                            class="fab fa-whatsapp"></i></a></li>
+                                            @endif
+                                            @if($hasTwitter)
+                                                <li><a href="{{ $user->twitter }}"><i
+                                                            class="fab fa-twitter"></i></a></li>
+                                            @endif
+                                            @if($hasSnapchat)
+                                                <li><a href="{{ $user->snapchat }}"><i
+                                                            class="fab fa-snapchat-ghost"></i></a></li>
+                                            @endif
+                                        </ul>
+                                    @else
+                                        <div class="social-empty">
+                                            <i class="fas fa-link"></i>
+                                            <span>{{ __('common.No data Found') }}</span>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>

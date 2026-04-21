@@ -424,7 +424,7 @@
                                     </div>
                                 @endif
                                 @if (permissionCheck('deposit') && showEcommerce() && Auth::user()->role_id==3)
-                                    <a href="{{route('deposit')}}" class="heading-cart-icon cart_store" title="محفظتي">
+                                    <a href="{{route('deposit')}}" class="heading-cart-icon" title="محفظتي">
                                         <svg width="20" height="22" viewBox="0 0 18 20" fill="none"
                                              xmlns="http://www.w3.org/2000/svg">
                                             <path
