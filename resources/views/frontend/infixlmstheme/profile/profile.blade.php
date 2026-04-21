@@ -150,6 +150,35 @@
             font-size: 14px;
         }
 
+        .profile-info .referral-box {
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #e3e8ef;
+            background: #f9fbff;
+        }
+
+        .profile-info .referral-code {
+            font-weight: 700;
+            color: #1f2937;
+            letter-spacing: .2px;
+        }
+
+        .profile-info .referral-copy-btn {
+            border: 0;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            background: var(--system_primery_color);
+            line-height: 1.2;
+        }
+
         @media (max-width: 576px) {
             .profile .nav-link {
                 font-size: 14px;
@@ -244,6 +273,31 @@
                     }
                 }
             });
+
+            $(document).on('click', '.referral-copy-btn', function () {
+                const btn = $(this);
+                const code = (btn.data('code') || '').toString();
+                if (!code) {
+                    return;
+                }
+
+                const copyDone = function () {
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success("{{ __('common.Copied Successfully') }}");
+                    }
+                };
+
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(code).then(copyDone);
+                } else {
+                    const temp = $('<textarea>');
+                    $('body').append(temp);
+                    temp.val(code).select();
+                    document.execCommand('copy');
+                    temp.remove();
+                    copyDone();
+                }
+            });
         });
     </script>
 
@@ -328,6 +382,17 @@
                             </div>
                             <div class="profile-info">
                                 <h4>{{@$user->name}}</h4>
+                                @if(filled(@$user->referral))
+                                    <div class="referral-box">
+                                        <span>{{ __('affiliate.Referral Code') }}:</span>
+                                        <span class="referral-code">{{ $user->referral }}</span>
+                                        <button type="button"
+                                                class="referral-copy-btn"
+                                                data-code="{{ $user->referral }}">
+                                            {{ __('common.Copy') }}
+                                        </button>
+                                    </div>
+                                @endif
                                 @if($section_review)
                                     <blockquote class="d-block"><span><i class="fa fa-star"></i> {{$user->total_rating}}</span>
                                     </blockquote>

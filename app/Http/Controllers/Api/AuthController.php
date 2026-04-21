@@ -709,16 +709,18 @@ class AuthController extends Controller
     public function multipleLogin($request)
     {
         $device_limit = Auth::user()->role_id == 3 ? 1 : (int)Settings('device_limit');
+        $autoForceForStudent = Auth::user()->role_id == 3;
+        $forceLogout = (int)$request->get('force', 0) === 1 || $autoForceForStudent;
         $logins = DB::table('user_logins')
             ->where('status', '=', 1)
             ->where('user_id', '=', Auth::id())
             ->latest()
             ->get();
         if ($device_limit != 0) {
-            if (count($logins) >= $device_limit && $request->get('force') != 1) {
+            if (count($logins) >= $device_limit && !$forceLogout) {
                 Auth::logout();
                 return false;
-            } elseif ($request->get('force') == 1) {
+            } elseif (count($logins) >= $device_limit && $forceLogout) {
 
                 $this->logoutFromOtherDevice(Auth::user());
 
