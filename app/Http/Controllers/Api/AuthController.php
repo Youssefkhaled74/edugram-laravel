@@ -708,7 +708,7 @@ class AuthController extends Controller
 
     public function multipleLogin($request)
     {
-        $device_limit = Settings('device_limit');
+        $device_limit = Auth::user()->role_id == 3 ? 1 : (int)Settings('device_limit');
         $logins = DB::table('user_logins')
             ->where('status', '=', 1)
             ->where('user_id', '=', Auth::id())
