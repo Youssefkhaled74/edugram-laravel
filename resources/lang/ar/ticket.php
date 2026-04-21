@@ -2,6 +2,7 @@
 
 return [
     'support_ticket' => 'تذكرة دعم فني',
+    'technical_support' => 'الدعم الفني',
     'my_tickets' => 'تذاكري',
     'ticket' => 'تذكرة',
     'priority' => 'الأولوية',

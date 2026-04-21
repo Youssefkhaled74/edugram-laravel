@@ -675,7 +675,14 @@
                     </li>
                 @endif
 
-                @if(isModuleActive('SupportTicket') && permissionCheck('student.support-ticket.index'))
+                @if(
+                    routeIsExist('student.support-ticket.index') &&
+                    (
+                        !function_exists('permissionCheck') ||
+                        permissionCheck('student.support-ticket.index') ||
+                        auth()->user()->role_id == 3
+                    )
+                )
                     <li>
                         <a href="{{route('student.support-ticket.index')}}"
                            class=" d-flex align-items-center {{ routeIs('student.support-ticket.index')  ? 'active' : '' }}">
@@ -688,7 +695,7 @@
                                 </svg>
 
                             </div>
-                            <span>{{__('ticket.support_ticket')}}</span>
+                            <span>{{__('ticket.technical_support')}}</span>
                         </a>
                     </li>
                 @endif

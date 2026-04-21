@@ -2,6 +2,7 @@
 
 return [
     'support_ticket' => 'Support Ticket',
+    'technical_support' => 'Technical Support',
     'my_tickets' => 'My Tickets',
     'ticket' => 'Ticket',
     'priority' => 'Priority',
