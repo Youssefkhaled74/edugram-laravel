@@ -154,6 +154,6 @@ return [
     'Specific Subscription'=>'Specific Subscription',
     'Commission Not Set For'=>'Commission Not Set For',
     'Referral Code'=>'Referral Code',
+    'Referral Link'=>'Referral Link',
 
 ];
-

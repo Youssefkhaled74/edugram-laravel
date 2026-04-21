@@ -17,6 +17,30 @@
                             <form action="{{route('myProfileUpdate')}}" method="POST"
                                   enctype="multipart/form-data">@csrf
                                 <div class="row">
+                                    @if(permissionCheck('referral') && showEcommerce() && routeIsExist('referral'))
+                                        <div class="col-lg-12 mb_30">
+                                            <div class="p-3 rounded border bg-light">
+                                                <h4 class="font_18 mb_20">{{__('common.Referral')}}</h4>
+                                                <div class="row">
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <label class="primary_label2">{{__('affiliate.Referral Code')}}</label>
+                                                        <input type="text" readonly class="primary_input"
+                                                               value="{{$profile->referral}}">
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 mt_20 mt-md-0">
+                                                        <label class="primary_label2">{{__('affiliate.Referral Link')}}</label>
+                                                        <input type="text" readonly class="primary_input"
+                                                               value="{{route('referralCode', $profile->referral)}}">
+                                                    </div>
+                                                </div>
+                                                <div class="mt_20">
+                                                    <a href="{{route('referral')}}" class="theme_btn small_btn4">
+                                                        {{__('common.Referral')}}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
                                                                         <input type="hidden" id="profile_form_avatar_key" name="avatar_key" value="{{ collect(config('profile_avatars.items', []))->search($profile->image) ?: '' }}">
                                     <input type="hidden" name="username" value="{{$profile->email}}">
                                     <div class="col-lg-12">

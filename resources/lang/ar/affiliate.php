@@ -154,6 +154,7 @@ return [
     'Specific Subscription' => 'اشتراك محدد',
     'Commission Not Set For' => 'العمولة غير محددة لـ',
     'Referral Code' => 'رمز الإحالة',
+    'Referral Link' => 'رابط الإحالة',
 
 ];
 
