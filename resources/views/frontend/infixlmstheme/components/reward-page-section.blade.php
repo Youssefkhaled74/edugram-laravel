@@ -1,5 +1,9 @@
 <div>
 
+    @php
+        $pointConversionRate = (float) Settings('gamification_reward_point_conversion_rate');
+        $pointValue = $pointConversionRate > 0 ? (1 / $pointConversionRate) : 0;
+    @endphp
 
     <div class="main_content_iner main_content_padding reward reward_page">
         <div class="container-fluild">
@@ -57,6 +61,18 @@
                     </div>
                 </div>
             </div>
+            @if (Settings('gamification_status') && Settings('gamification_reward_point_conversion_status') && $pointConversionRate > 0)
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-info mb-4 text-center">
+                            <strong>{{__('setting.Point value')}}</strong>:
+                            1 {{__('setting.Point')}} = {{getPriceFormat($pointValue, false)}}
+                            <span class="mx-1">|</span>
+                            {{__('setting.Conversion Rate')}}: {{$pointConversionRate}} {{__('setting.Points')}} = {{getPriceFormat(1,false)}}
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             @if (Settings('gamification_status') && Settings('gamification_reward_point_conversion_status') && Settings('gamification_reward_status'))
                 <div class="row">
