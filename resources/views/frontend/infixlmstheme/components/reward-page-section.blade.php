@@ -162,6 +162,11 @@
                     <div class="reward-card w-100 leader">
                         <div class="reward-leader">
                             <h4>{{__('frontend.Leaderboard')}}</h4>
+                            <div class="mb-3">
+                                <button type="button" class="theme_btn rounded-pill py-2 px-3" onclick="openLeaderboardGuideModal()">
+                                    {{__('setting.How to improve my rank?')}}
+                                </button>
+                            </div>
 
                             <ul class="nav nav-tabsms-0" id="myTab" role="tablist">
                                 @if(Settings('gamification_leaderboard_show_point_status'))
@@ -294,10 +299,60 @@
 
     </div>
 
+    <div class="modal reward-modal modal fade" id="showLeaderboardGuideModal" tabindex="-1" role="dialog"
+         aria-labelledby="showLeaderboardGuideModal"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4 class="mb-3 text-center">{{__('setting.Leaderboard guide')}}</h4>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">{{__('setting.Points rank tips')}}</h6>
+                        <ul class="mb-0">
+                            <li>{{__('setting.Points tip login')}}</li>
+                            <li>{{__('setting.Points tip complete content')}}</li>
+                            <li>{{__('setting.Points tip tests assignments discussions')}}</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">{{__('setting.Levels rank tips')}}</h6>
+                        <ul class="mb-0">
+                            <li>{{__('setting.Levels tip progress')}}</li>
+                            <li>{{__('setting.Levels tip consistency')}}</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">{{__('setting.Badges rank tips')}}</h6>
+                        <ul class="mb-0">
+                            <li>{{__('setting.Badges tip unlock')}}</li>
+                            <li>{{__('setting.Badges tip variety')}}</li>
+                        </ul>
+                    </div>
+
+                    <p class="mb-3">{{__('setting.Leaderboard guide note')}}</p>
+
+                    <div class="text-center">
+                        <button type="button" class="theme_btn rounded-pill"
+                                data-bs-dismiss="modal">{{__('common.Close')}}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
 
     <script>
         function openConvertModal() {
             $('#showConvertModal').modal('show');
+        }
+
+        function openLeaderboardGuideModal() {
+            $('#showLeaderboardGuideModal').modal('show');
         }
 
 
