@@ -6,6 +6,7 @@
         $showLinkedin = (int)($socialInfo->show_linkedin ?? 1) === 1;
         $showWhatsapp = (int)($socialInfo->show_whatsapp ?? 1) === 1;
         $showTwitter = (int)($socialInfo->show_twitter ?? 1) === 1;
+        $showTiktok = (int)($socialInfo->show_tiktok ?? 1) === 1;
         $showSnapchat = (int)($socialInfo->show_snapchat ?? 1) === 1;
     @endphp
     <div class="row">
@@ -111,6 +112,25 @@
                                class="primary_input" {{$errors->first('twitter') ? 'autofocus' : ''}}
                                value="{{@$user->twitter}}" type="text">
                         <span class="text-danger" role="alert">{{$errors->first('twitter')}}</span>
+                    </div>
+                </div>
+
+                <div class="row mt_20">
+                    <div class="col-lg-6">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label class="primary_label2 mb-0" for="tiktok">{{__('common.TikTok URL')}}</label>
+                            <label class="lmsSwitch_toggle pe-2" for="toggle_tiktok">
+                                <input value="{{ $showTiktok ? 0 : 1 }}" class="hide_show_tab" data-filed="show_tiktok"
+                                       type="checkbox" id="toggle_tiktok" {{ $showTiktok ? 'checked' : '' }}>
+                                <div class="slider round"></div>
+                            </label>
+                        </div>
+                        <input id="tiktok" name="tiktok" placeholder="{{__('common.TikTok URL')}}"
+                               onfocus="this.placeholder = ''"
+                               onblur="this.placeholder = '{{__('common.TikTok URL')}}'"
+                               class="primary_input" {{$errors->first('tiktok') ? 'autofocus' : ''}}
+                               value="{{@$user->tiktok}}" type="text">
+                        <span class="text-danger" role="alert">{{$errors->first('tiktok')}}</span>
                     </div>
                 </div>
 

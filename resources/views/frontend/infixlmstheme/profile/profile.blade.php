@@ -440,8 +440,10 @@
                                             $hasLinkedin = $section_show_linkedin && filled(@$user->linkedin);
                                             $hasWhatsapp = $section_show_whatsapp && filled(@$user->whatsapp);
                                             $hasTwitter = $section_show_twitter && filled(@$user->twitter);
+                                            $tiktokUrl = tiktokProfileUrl($user->tiktok);
+                                            $hasTiktok = $section_show_tiktok && !empty($tiktokUrl);
                                             $hasSnapchat = $section_show_snapchat && filled(@$user->snapchat);
-                                            $hasAnySocialLink = $hasFacebook || $hasInstagram || $hasLinkedin || $hasWhatsapp || $hasTwitter || $hasSnapchat;
+                                            $hasAnySocialLink = $hasFacebook || $hasInstagram || $hasLinkedin || $hasWhatsapp || $hasTwitter || $hasTiktok || $hasSnapchat;
                                         @endphp
 
                                         @if($hasAnySocialLink)
@@ -471,6 +473,16 @@
                                                                                               style="vertical-align: -0.125em;">
                                                                 <path
                                                                     d="M4 3h5.3l4.2 5.7L18.7 3H22l-6.8 9 6.9 9H16.8l-4.5-6.1L7.1 21H3.7l7.2-9.4L4 3z"
+                                                                    fill="currentColor"/>
+                                                            </svg></a></li>
+                                                @endif
+                                                @if($hasTiktok)
+                                                    <li><a href="{{ $tiktokUrl }}" target="_blank" rel="noopener noreferrer"><svg
+                                                                class="tiktok-icon" viewBox="0 0 24 24"
+                                                                aria-hidden="true" focusable="false" width="1em"
+                                                                height="1em" style="vertical-align: -0.125em;">
+                                                                <path
+                                                                    d="M19.589 6.686a4.998 4.998 0 0 1-3.33-1.266 4.995 4.995 0 0 1-1.465-3.305h-3.888v13.28a2.79 2.79 0 0 1-5.58 0 2.79 2.79 0 0 1 2.79-2.79c.278 0 .55.04.81.118V8.86a6.58 6.58 0 0 0-.81-.05 6.71 6.71 0 1 0 6.71 6.71V9.65a8.83 8.83 0 0 0 5.34 1.8V7.67a5.03 5.03 0 0 1-1.08-.98z"
                                                                     fill="currentColor"/>
                                                             </svg></a></li>
                                                 @endif

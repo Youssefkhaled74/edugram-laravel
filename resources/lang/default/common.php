@@ -157,6 +157,7 @@
     "Youtube URL" => "Youtube URL",
     "LinkedIn URL" => "LinkedIn URL",
     "Twitter URL" => "Twitter URL",
+    "TikTok URL" => "TikTok URL",
     "Facebook URL" => "Facebook URL",
     "Date of Birth" => "Date of Birth",
     "Change Status" => "Change Status",

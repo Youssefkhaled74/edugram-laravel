@@ -957,6 +957,7 @@ class WebsiteApiController extends Controller
             $user->currency_id = $request->get('currency_id', 112);
             $user->facebook = $request->facebook;
             $user->twitter = $request->twitter;
+            $user->tiktok = $request->tiktok;
             $user->linkedin = $request->linkedin;
             $user->instagram = $request->instagram;
             $user->about = $request->about;

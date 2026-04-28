@@ -285,6 +285,7 @@ class AuthUserRepository implements AuthUserRepositoryInterface
                 User::where('id', auth()->id())->update([
                     'facebook' => $request->facebook,
                     'twitter' => $request->twitter,
+                    'tiktok' => $request->tiktok,
                     'linkedin' => $request->linkedin,
                     'instagram' => $request->instagram,
                 ]);

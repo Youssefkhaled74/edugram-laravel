@@ -33,6 +33,8 @@ return [
     'Facebook URL' => 'Facebook URL',
     'Add your Twitter URL' => 'Add your Twitter URL',
     'Twitter URL' => 'Twitter URL',
+    'Add your TikTok URL' => 'Add your TikTok URL',
+    'TikTok URL' => 'TikTok URL',
     'Add your LinkedIn URL' => 'Add your LinkedIn URL',
     'LinkedIn profile' => 'LinkedIn profile',
     'Add your Youtube URL' => 'Add your Youtube URL',

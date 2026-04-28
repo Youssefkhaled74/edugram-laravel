@@ -182,7 +182,8 @@ class BasicInformationController extends Controller
     {
         $rules = [
             'instant_messaging.*.service' => 'required_with:instant_messaging.*.username',
-            'instant_messaging.*.username' => 'required_with:instant_messaging.*.service'
+            'instant_messaging.*.username' => 'required_with:instant_messaging.*.service',
+            'tiktok' => 'nullable|string|max:255'
         ];
 
         $request->validate($rules, validationMessage($rules));

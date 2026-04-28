@@ -60,6 +60,30 @@ if (!function_exists('socialIconList')) {
     }
 }
 
+if (!function_exists('tiktokProfileUrl')) {
+    function tiktokProfileUrl(?string $value): ?string
+    {
+        $value = trim((string)$value);
+        if ($value === '') {
+            return null;
+        }
+
+        if (preg_match('~^https?://~i', $value)) {
+            return $value;
+        }
+
+        if (preg_match('~^(www\.)?tiktok\.com~i', $value)) {
+            return 'https://' . $value;
+        }
+
+        if (str_starts_with($value, '@')) {
+            return 'https://www.tiktok.com/' . $value;
+        }
+
+        return 'https://www.tiktok.com/@' . $value;
+    }
+}
+
 
 if (!function_exists('getProfileImage')) {
     function getProfileImage($path, $name = 'User')

@@ -163,6 +163,7 @@ class ProfileController extends Controller
             $data['section_show_linkedin'] = (int)($data['user']->userInfo->show_linkedin ?? 1) === 1;
             $data['section_show_whatsapp'] = (int)($data['user']->userInfo->show_whatsapp ?? 1) === 1;
             $data['section_show_twitter'] = (int)($data['user']->userInfo->show_twitter ?? 1) === 1;
+            $data['section_show_tiktok'] = (int)($data['user']->userInfo->show_tiktok ?? 1) === 1;
             $data['section_show_snapchat'] = (int)($data['user']->userInfo->show_snapchat ?? 1) === 1;
 
 
@@ -276,6 +277,7 @@ class ProfileController extends Controller
                 $data['section_show_linkedin'] = false;
                 $data['section_show_whatsapp'] = false;
                 $data['section_show_twitter'] = false;
+                $data['section_show_tiktok'] = false;
                 $data['section_show_snapchat'] = false;
                 $data['section_badge'] = false;
                 $data['section_review'] = false;
@@ -419,6 +421,7 @@ class ProfileController extends Controller
                 'show_linkedin',
                 'show_whatsapp',
                 'show_twitter',
+                'show_tiktok',
                 'show_snapchat',
             ];
             $field = $request->get('field');
@@ -778,7 +781,8 @@ class ProfileController extends Controller
 
         $request->validate([
             'instant_messaging.*.service' => 'required_with:instant_messaging.*.username',
-            'instant_messaging.*.username' => 'required_with:instant_messaging.*.service'
+            'instant_messaging.*.username' => 'required_with:instant_messaging.*.service',
+            'tiktok' => 'nullable|string|max:255'
         ]);
 
         try {
@@ -789,6 +793,7 @@ class ProfileController extends Controller
                 'linkedin' => $request->linkedin,
                 'whatsapp' => $request->whatsapp,
                 'twitter' => $request->twitter,
+                'tiktok' => $request->tiktok,
                 'snapchat' => $request->snapchat,
                 'youtube' => $request->youtube,
             ]);

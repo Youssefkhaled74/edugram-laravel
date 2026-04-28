@@ -398,6 +398,26 @@
                                         </div>
                                     </div>
                                     <div class="col-lg-12">
+                                        <label class="primary_label2">{{__('student.Add your TikTok URL')}}</label>
+                                        <div class="input-group custom_input_group mb_20">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"> <svg class="tiktok-icon"
+                                                    viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+                                                    width="1em" height="1em" style="vertical-align: -0.125em;">
+                                                    <path
+                                                        d="M19.589 6.686a4.998 4.998 0 0 1-3.33-1.266 4.995 4.995 0 0 1-1.465-3.305h-3.888v13.28a2.79 2.79 0 0 1-5.58 0 2.79 2.79 0 0 1 2.79-2.79c.278 0 .55.04.81.118V8.86a6.58 6.58 0 0 0-.81-.05 6.71 6.71 0 1 0 6.71 6.71V9.65a8.83 8.83 0 0 0 5.34 1.8V7.67a5.03 5.03 0 0 1-1.08-.98z"
+                                                        fill="currentColor"/>
+                                                </svg> <span>tiktok.com/@</span> </span>
+                                            </div>
+                                            <input type="text" placeholder="{{__('student.TikTok URL')}}"
+                                                   name="tiktok"
+                                                   onfocus="this.placeholder = ''"
+                                                   onblur="this.placeholder = '{{__('student.TikTok URL')}}'"
+                                                   class="form-control"
+                                                   value="{{$profile->tiktok !=""? @$profile->tiktok:old('tiktok')}}">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
                                         <label class="primary_label2">{{__('student.Add your LinkedIn URL')}}</label>
                                         <div class="input-group custom_input_group mb_20">
                                             <div class="input-group-prepend">

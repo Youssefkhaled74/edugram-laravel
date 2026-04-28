@@ -33,6 +33,8 @@ return [
     'Facebook URL' => 'رابط فيسبوك',
     'Add your Twitter URL' => 'أضف رابط حسابك على تويتر',
     'Twitter URL' => 'رابط تويتر',
+    'Add your TikTok URL' => 'أضف رابط حسابك على تيك توك',
+    'TikTok URL' => 'رابط تيك توك',
     'Add your LinkedIn URL' => 'أضف رابط ملفك الشخصي على لينكدإن',
     'LinkedIn profile' => 'الملف الشخصي على لينكدإن',
     'Add your Youtube URL' => 'أضف رابط قناتك على يوتيوب',

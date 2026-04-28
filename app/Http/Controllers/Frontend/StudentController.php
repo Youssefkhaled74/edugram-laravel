@@ -292,6 +292,7 @@ class StudentController extends Controller
                 'job_title' => $custom_field->required_job_title ? 'required' : 'nullable',
                 'gender' => $custom_field->required_gender ? 'required' : 'nullable',
                 'dob' => $custom_field->required_dob ? 'required' : 'nullable',
+                'tiktok' => 'nullable|string|max:255',
             ];
         }
 
@@ -334,6 +335,7 @@ class StudentController extends Controller
             $user->currency_id = (int)Settings('currency_id');
             $user->facebook = $request->facebook;
             $user->twitter = $request->twitter;
+            $user->tiktok = $request->tiktok;
             $user->linkedin = $request->linkedin;
             $user->instagram = $request->instagram;
             $user->youtube = $request->youtube;

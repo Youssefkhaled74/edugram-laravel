@@ -109,6 +109,7 @@ class UserDetailsResource extends JsonResource
             'social_and_contact'  => [
                 'facebook'  => (string)$this->facebook,
                 'twitter'   => (string)$this->twitter,
+                'tiktok'    => (string)$this->tiktok,
                 'linkedin'  => (string)$this->linkedin,
                 'instagram'   => (string)$this->instagram,
                 'others' => $this->otherSocialInfo->pluck('username', 'service'),
