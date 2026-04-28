@@ -308,7 +308,7 @@
     <!-- profile cover photo -->
     <div class="profile-cover">
         <img
-            src="{{(@$user->userInfo && @$user->userInfo->cover_photo)? showImage(@$user->userInfo->cover_photo):showImage(null,'cover_photo')}}"
+            src="{{ $user->role_id == 3 ? getStudentDashboardBanner() : ((@$user->userInfo && @$user->userInfo->cover_photo) ? showImage(@$user->userInfo->cover_photo) : showImage(null,'cover_photo')) }}"
             alt="cover photo">
     </div>
     <!-- profile cover photo -->

@@ -581,7 +581,6 @@ class ProfileController extends Controller
             $avatarKeys = array_keys(config('profile_avatars.items', []));
             $rules = [
                 'avatar_key' => ['nullable', Rule::in($avatarKeys)],
-                'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
             ];
             $request->validate($rules, validationMessage($rules));
         }
@@ -593,21 +592,6 @@ class ProfileController extends Controller
                 if (!empty($selectedAvatarKey) && isset($profileAvatars[$selectedAvatarKey])) {
                     $user->image = $profileAvatars[$selectedAvatarKey];
                     $user->save();
-                }
-
-                if ($request->file('cover_photo')) {
-                    $cover_url = $this->saveImage($request->file('cover_photo'));
-                    if ($user->userInfo && $user->userInfo->cover_photo) {
-                        $this->deleteImage($user->userInfo->cover_photo);
-                    }
-                    $user->userInfo()->updateOrCreate(
-                        ['user_id' => Auth::id()],
-                        [
-                            'user_id' => Auth::id(),
-                            'cover_photo' => $cover_url,
-                        ]
-                    );
-
                 }
 
             } else {

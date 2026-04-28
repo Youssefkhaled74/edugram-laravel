@@ -152,6 +152,19 @@ if (!function_exists('showImage')) {
     }
 }
 
+if (!function_exists('getStudentDashboardBanner')) {
+    function getStudentDashboardBanner()
+    {
+        $bannerPath = 'public/assets/profile/cover.jpg';
+
+        if (File::exists($bannerPath)) {
+            return asset($bannerPath);
+        }
+
+        return showImage(null, 'cover_photo');
+    }
+}
+
 if (!function_exists('showPreview')) {
     function showPreview($path = null, $type = 'image')
     {

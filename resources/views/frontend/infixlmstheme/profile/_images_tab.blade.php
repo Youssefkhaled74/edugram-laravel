@@ -75,24 +75,25 @@
 
                         <div class="profile-image-div text-center w-100">
                             <p> {{__('common.Recommend size')}} (1920 x 500) px</p>
-                            <label for="cover_photo"
-                                   class="cover-photo position-relative overflow-hidden mt-3 mt-md-4 rounded-2">
-                                <img id="cover_photo_show" class="h-100 object-fit-cover w-100"
-                                     src="{{@$user->userInfo->cover_photo? showImage(@$user->userInfo->cover_photo):showImage(null,'cover_photo')}}"
-                                     alt="Cover Photo">
-                                <input type="file" class="d-none" name="cover_photo" id="cover_photo"
-                                       accept=".png, .jpg, .jpeg">
-                                <span
-                                    class="overlay d-flex align-items-center justify-content-center fs-2 w-100 h-100 position-absolute top-0 left-0 bg-black bg-opacity-50 text-white"><i
-                                        class="fa fa-camera"></i></span>
-                            </label>
-
-                            {{-- <button class="pointer-event link_value theme_btn small_btn4 mt_20" type="button">
-                                <label class="currentColor fix-gr-bg cursor-pointer for_student mb-0" for="cover_photo">
-                                    <i class="fas fa-arrow-up"></i> {{__('profile.select_cover_photo')}}
+                            @if(auth()->check() && auth()->user()->role_id == 3)
+                                <div class="cover-photo position-relative overflow-hidden mt-3 mt-md-4 rounded-2">
+                                    <img class="h-100 object-fit-cover w-100"
+                                         src="{{ getStudentDashboardBanner() }}"
+                                         alt="Cover Photo">
+                                </div>
+                            @else
+                                <label for="cover_photo"
+                                       class="cover-photo position-relative overflow-hidden mt-3 mt-md-4 rounded-2">
+                                    <img id="cover_photo_show" class="h-100 object-fit-cover w-100"
+                                         src="{{@$user->userInfo->cover_photo? showImage(@$user->userInfo->cover_photo):showImage(null,'cover_photo')}}"
+                                         alt="Cover Photo">
+                                    <input type="file" class="d-none" name="cover_photo" id="cover_photo"
+                                           accept=".png, .jpg, .jpeg">
+                                    <span
+                                        class="overlay d-flex align-items-center justify-content-center fs-2 w-100 h-100 position-absolute top-0 left-0 bg-black bg-opacity-50 text-white"><i
+                                            class="fa fa-camera"></i></span>
                                 </label>
-                                <input type="file" class="d-none" name="cover_photo" id="cover_photo">
-                            </button> --}}
+                            @endif
                         </div>
 
                     </div>
