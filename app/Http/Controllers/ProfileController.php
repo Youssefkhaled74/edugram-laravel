@@ -124,6 +124,9 @@ class ProfileController extends Controller
         }
 
         $data['user'] = $query->firstOrFail();
+        $viewer = Auth::user();
+        $data['can_view_full_profile'] = $data['user']->canViewFullStudentProfile($viewer);
+        $data['is_limited_profile'] = !$data['can_view_full_profile'];
         try {
 
             $id = $data['user']->id;
@@ -267,10 +270,46 @@ class ProfileController extends Controller
                 $data['total_review'] = userRating($id)['total'];
             }
 
+            if ($data['is_limited_profile']) {
+                $data['section_show_facebook'] = false;
+                $data['section_show_instagram'] = false;
+                $data['section_show_linkedin'] = false;
+                $data['section_show_whatsapp'] = false;
+                $data['section_show_twitter'] = false;
+                $data['section_show_snapchat'] = false;
+                $data['section_badge'] = false;
+                $data['section_review'] = false;
+                $data['section_comment'] = false;
+                $data['section_total_instructor'] = false;
+                $data['section_total_course'] = false;
+                $data['section_total_review'] = false;
+                $data['section_total_student'] = false;
+                $data['section_instructor_tab'] = false;
+                $data['section_course_tab'] = false;
+                $data['section_blog_tab'] = false;
+                $data['section_certificate_tab'] = false;
+                $data['section_course_badge_tab'] = false;
+                $data['section_education_tab'] = false;
+                $data['section_experience_tab'] = false;
+                $data['total_courses'] = 0;
+                $data['total_instructors'] = 0;
+                $data['total_students'] = 0;
+                $data['total_blogs'] = 0;
+                $data['total_certificates'] = 0;
+                $data['total_review'] = 0;
+                $data['courses'] = collect();
+                $data['instructors'] = collect();
+                $data['badges'] = collect();
+            }
+
 
             $data['can_follow_btn'] = true;
             if (\auth()->check()) {
                 if ((int)Auth::id() === (int)$id) {
+                    $data['can_follow_btn'] = false;
+                    $data['follow_btn_route'] = null;
+                    $data['follow_btn_text'] = null;
+                } elseif (Auth::user()->isStudent() && !$data['user']->isStudent()) {
                     $data['can_follow_btn'] = false;
                     $data['follow_btn_route'] = null;
                     $data['follow_btn_text'] = null;
@@ -410,16 +449,24 @@ class ProfileController extends Controller
     public function unfollow($id)
     {
         try {
-            if ((int)$id === (int)Auth::id()) {
-                Toastr::error(trans('common.Operation failed'), trans('common.Failed'));
-                return back();
+            $viewer = Auth::user();
+            $target = User::find($id);
+            if (!$target) {
+                return $this->followResponse(false, trans('common.User not found'), 404);
             }
-            $check = UserFollower::where('following_id', $id)->where('follower_id', Auth::id())->first();
+            if ((int)$id === (int)$viewer->id) {
+                return $this->followResponse(false, trans('common.Operation failed'), 422);
+            }
+            if ($viewer->isStudent() && !$target->isStudent()) {
+                return $this->followResponse(false, trans('common.Operation failed'), 403);
+            }
+
+            $check = UserFollower::where('following_id', $id)->where('follower_id', $viewer->id)->first();
             if ($check) {
                 $check->delete();
             }
-            Toastr::success(trans('common.Operation successful'), trans('common.Success'));
-            return back();
+
+            return $this->followResponse(true, trans('common.Operation successful'));
         } catch (Exception $e) {
             GettingError($e->getMessage(), url()->current(), request()->ip(), request()->userAgent());
         }
@@ -432,22 +479,48 @@ class ProfileController extends Controller
     public function follow($id)
     {
         try {
-            if ((int)$id === (int)Auth::id()) {
-                Toastr::error(trans('common.Operation failed'), trans('common.Failed'));
-                return back();
+            $viewer = Auth::user();
+            $target = User::find($id);
+            if (!$target) {
+                return $this->followResponse(false, trans('common.User not found'), 404);
             }
-            $check = UserFollower::where('following_id', $id)->where('follower_id', Auth::id())->first();
+            if ((int)$id === (int)$viewer->id) {
+                return $this->followResponse(false, trans('common.Operation failed'), 422);
+            }
+            if ($viewer->isStudent() && !$target->isStudent()) {
+                return $this->followResponse(false, trans('common.Operation failed'), 403);
+            }
+
+            $check = UserFollower::where('following_id', $id)->where('follower_id', $viewer->id)->first();
             if (!$check) {
                 UserFollower::create([
                     'following_id' => $id,
-                    'follower_id' => Auth::id(),
+                    'follower_id' => $viewer->id,
                 ]);
             }
-            Toastr::success(trans('common.Operation successful'), trans('common.Success'));
-            return back();
+
+            return $this->followResponse(true, trans('common.Operation successful'));
         } catch (Exception $e) {
             GettingError($e->getMessage(), url()->current(), request()->ip(), request()->userAgent());
         }
+    }
+
+    private function followResponse(bool $success, string $message, int $status = 200)
+    {
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => $success,
+                'message' => $message,
+            ], $status);
+        }
+
+        if ($success) {
+            Toastr::success($message, trans('common.Success'));
+        } else {
+            Toastr::error($message, trans('common.Failed'));
+        }
+
+        return back();
     }
 
     /**

@@ -65,6 +65,7 @@ use Modules\UserGroup\Entities\UserGroupUser;
 use Modules\Zoom\Entities\ZoomSetting;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use App\Models\UserFollower;
 
 
 //class User extends Authenticatable
@@ -140,6 +141,44 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(UserInfo::class, 'user_id', 'id')->withDefault([
             'short_description' => ' '
         ]);
+    }
+
+    public function followers()
+    {
+        return $this->hasMany(UserFollower::class, 'following_id', 'id');
+    }
+
+    public function followings()
+    {
+        return $this->hasMany(UserFollower::class, 'follower_id', 'id');
+    }
+
+    public function isFollowedBy(?self $viewer): bool
+    {
+        if (!$viewer) {
+            return false;
+        }
+
+        return UserFollower::where('following_id', $this->id)
+            ->where('follower_id', $viewer->id)
+            ->exists();
+    }
+
+    public function canViewFullStudentProfile(?self $viewer): bool
+    {
+        if (!$this->isStudent()) {
+            return true;
+        }
+
+        if (!$viewer) {
+            return false;
+        }
+
+        if ((int)$viewer->id === (int)$this->id) {
+            return true;
+        }
+
+        return !$viewer->isStudent();
     }
 
     public function userPayoutAccount()
