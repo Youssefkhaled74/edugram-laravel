@@ -16,7 +16,13 @@
                                     <i class="fab fa-facebook-f"></i>
                                 </a>
                                 <a href="{{$instructor->twitter}}" class="twitter" target="_blank">
-                                    <i class="fab fa-twitter"></i>
+                                    <svg class="x-twitter-icon" viewBox="0 0 24 24" aria-hidden="true"
+                                         focusable="false" width="1em" height="1em"
+                                         style="vertical-align: -0.125em;">
+                                        <path
+                                            d="M4 3h5.3l4.2 5.7L18.7 3H22l-6.8 9 6.9 9H16.8l-4.5-6.1L7.1 21H3.7l7.2-9.4L4 3z"
+                                            fill="currentColor"/>
+                                    </svg>
                                 </a>
                                 <a href="{{$instructor->instagram}}" class="pinterest" target="_blank">
                                     <i class="fab fa-instagram"></i>

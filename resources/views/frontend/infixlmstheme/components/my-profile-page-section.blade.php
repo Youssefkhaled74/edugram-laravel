@@ -380,8 +380,14 @@
                                         <label class="primary_label2">{{__('student.Add your Twitter URL')}}</label>
                                         <div class="input-group custom_input_group mb_20">
                                             <div class="input-group-prepend">
-                                                    <span class="input-group-text twitter_bg"> <i
-                                                            class="ti-twitter-alt"></i> <span>www.twitter.com/</span> </span>
+                                                <span class="input-group-text twitter_bg"> <svg
+                                                    class="x-twitter-icon" viewBox="0 0 24 24"
+                                                    aria-hidden="true" focusable="false" width="1em"
+                                                    height="1em" style="vertical-align: -0.125em;">
+                                                    <path
+                                                    d="M4 3h5.3l4.2 5.7L18.7 3H22l-6.8 9 6.9 9H16.8l-4.5-6.1L7.1 21H3.7l7.2-9.4L4 3z"
+                                                    fill="currentColor"/>
+                                                </svg> <span>x.com/</span> </span>
                                             </div>
                                             <input type="text" placeholder="{{__('student.Twitter URL')}}"
                                                    name="twitter"

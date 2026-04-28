@@ -111,9 +111,15 @@
                                                 </a>
 
                                                 <a target="_blank"
-                                                href="https://twitter.com/intent/tweet?text={{__('frontend.I earned the') . ' ' . $badge->course->title . ' ' . __('frontend.badge on') . ' ' . Settings('site_title')}}&amp;url={{route('profileGetCourseBadge',[$badge->user->username,encrypt($badge->id)])}}"
+                                                href="https://x.com/intent/tweet?text={{__('frontend.I earned the') . ' ' . $badge->course->title . ' ' . __('frontend.badge on') . ' ' . Settings('site_title')}}&amp;url={{route('profileGetCourseBadge',[$badge->user->username,encrypt($badge->id)])}}"
                                                 class="btn theme_btn small">
-                                                    <i class="fab fa-twitter"></i>
+                                                    <svg class="x-twitter-icon" viewBox="0 0 24 24" aria-hidden="true"
+                                                         focusable="false" width="1em" height="1em"
+                                                         style="vertical-align: -0.125em;">
+                                                        <path
+                                                            d="M4 3h5.3l4.2 5.7L18.7 3H22l-6.8 9 6.9 9H16.8l-4.5-6.1L7.1 21H3.7l7.2-9.4L4 3z"
+                                                            fill="currentColor"/>
+                                                    </svg>
                                                 </a>
 
                                                 <a target="_blank" href="https://www.instagram.com/?url={{route('profileGetCourseBadge',[$badge->user->username,encrypt($badge->id)])}}"

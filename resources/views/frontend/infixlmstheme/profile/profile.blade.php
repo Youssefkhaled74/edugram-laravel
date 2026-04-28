@@ -463,8 +463,16 @@
                                                                 class="fab fa-whatsapp"></i></a></li>
                                                 @endif
                                                 @if($hasTwitter)
-                                                    <li><a href="{{ $user->twitter }}"><i
-                                                                class="fab fa-twitter"></i></a></li>
+                                                    <li><a href="{{ $user->twitter }}"><svg class="x-twitter-icon"
+                                                                                              viewBox="0 0 24 24"
+                                                                                              aria-hidden="true"
+                                                                                              focusable="false"
+                                                                                              width="1em" height="1em"
+                                                                                              style="vertical-align: -0.125em;">
+                                                                <path
+                                                                    d="M4 3h5.3l4.2 5.7L18.7 3H22l-6.8 9 6.9 9H16.8l-4.5-6.1L7.1 21H3.7l7.2-9.4L4 3z"
+                                                                    fill="currentColor"/>
+                                                            </svg></a></li>
                                                 @endif
                                                 @if($hasSnapchat)
                                                     <li><a href="{{ $user->snapchat }}"><i

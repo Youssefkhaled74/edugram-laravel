@@ -246,9 +246,16 @@
                                                                     class="fab fa-facebook-f"></i>
                                                                 {{__('frontend.Facebook')}}   </a>
                                                             <a target="_blank"
-                                                               href="https://twitter.com/intent/tweet?text={{$course->title}}&amp;url={{URL::current()}}"
-                                                               class="social_btn Twitter_bg"> <i
-                                                                    class="fab fa-twitter"></i> {{__('frontend.Twitter')}}
+                                                               href="https://x.com/intent/tweet?text={{$course->title}}&amp;url={{URL::current()}}"
+                                                               class="social_btn Twitter_bg"> <svg
+                                                                    class="x-twitter-icon" viewBox="0 0 24 24"
+                                                                    aria-hidden="true" focusable="false" width="1em"
+                                                                    height="1em"
+                                                                    style="vertical-align: -0.125em;">
+                                                                    <path
+                                                                        d="M4 3h5.3l4.2 5.7L18.7 3H22l-6.8 9 6.9 9H16.8l-4.5-6.1L7.1 21H3.7l7.2-9.4L4 3z"
+                                                                        fill="currentColor"/>
+                                                                </svg> {{__('frontend.Twitter')}}
                                                             </a>
                                                             <a target="_blank"
                                                                href="https://pinterest.com/pin/create/link/?url={{URL::current()}}&amp;description={{$course->title}}"
@@ -640,9 +647,16 @@
                                                                     <li class="facebook"><a target="_blank"
                                                                                             href="{{$course->user->facebook}}"><i
                                                                                 class="fab fa-facebook-f"></i></a></li>
-                                                                    <li class="twitter"><a target="_blank"
-                                                                                           href="{{$course->user->twitter}}"><i
-                                                                                class="fab fa-twitter"></i></a></li>
+                                                                        <li class="twitter"><a target="_blank"
+                                                                                   href="{{$course->user->twitter}}"><svg
+                                                                            class="x-twitter-icon"
+                                                                            viewBox="0 0 24 24" aria-hidden="true"
+                                                                            focusable="false" width="1em" height="1em"
+                                                                            style="vertical-align: -0.125em;">
+                                                                            <path
+                                                                                d="M4 3h5.3l4.2 5.7L18.7 3H22l-6.8 9 6.9 9H16.8l-4.5-6.1L7.1 21H3.7l7.2-9.4L4 3z"
+                                                                                fill="currentColor"/>
+                                                                            </svg></a></li>
                                                                     <li class="youtube"><a target="_blank"
                                                                                            href="{{$course->user->youtube}}"><i
                                                                                 class="fab fa-youtube"></i></a></li>
@@ -2212,9 +2226,15 @@
                                         </li>
                                         <li>
                                             <a target="_blank"
-                                               href="https://twitter.com/intent/tweet?text={{$course->title}}&amp;url={{URL::current()}}"
+                                               href="https://x.com/intent/tweet?text={{$course->title}}&amp;url={{URL::current()}}"
                                                class="share_item">
-                                                <i class="fab fa-twitter"></i>
+                                                <svg class="x-twitter-icon" viewBox="0 0 24 24" aria-hidden="true"
+                                                     focusable="false" width="1em" height="1em"
+                                                     style="vertical-align: -0.125em;">
+                                                    <path
+                                                        d="M4 3h5.3l4.2 5.7L18.7 3H22l-6.8 9 6.9 9H16.8l-4.5-6.1L7.1 21H3.7l7.2-9.4L4 3z"
+                                                        fill="currentColor"/>
+                                                </svg>
                                             </a>
                                         </li>
                                         <li>
@@ -2507,9 +2527,15 @@
                                            class="social_btn fb_bg"> <i class="fab fa-facebook-f"></i>
                                             {{__('frontend.Facebook')}}   </a>
                                         <a target="_blank"
-                                           href="https://twitter.com/intent/tweet?text={{$course->title}}&amp;url={{URL::current()}}"
-                                           class="social_btn Twitter_bg"> <i
-                                                class="fab fa-twitter"></i> {{__('frontend.Twitter')}}
+                                           href="https://x.com/intent/tweet?text={{$course->title}}&amp;url={{URL::current()}}"
+                                           class="social_btn Twitter_bg"> <svg
+                                            class="x-twitter-icon" viewBox="0 0 24 24" aria-hidden="true"
+                                            focusable="false" width="1em" height="1em"
+                                            style="vertical-align: -0.125em;">
+                                            <path
+                                                d="M4 3h5.3l4.2 5.7L18.7 3H22l-6.8 9 6.9 9H16.8l-4.5-6.1L7.1 21H3.7l7.2-9.4L4 3z"
+                                                fill="currentColor"/>
+                                            </svg> {{__('frontend.Twitter')}}
                                         </a>
                                         <a target="_blank"
                                            href="https://pinterest.com/pin/create/link/?url={{URL::current()}}&amp;description={{$course->title}}"
