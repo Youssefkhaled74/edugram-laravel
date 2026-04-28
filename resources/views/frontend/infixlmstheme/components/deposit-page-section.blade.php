@@ -37,6 +37,41 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12">
+                                <div class="dashboard_lg_card p-4 mb-4">
+                                    <div class="section__title3 mb_20">
+                                        <h3 class="mb-0">الشحن باستخدام النقاط</h3>
+                                    </div>
+                                    <p class="mb-2">نقاطك الحالية: <strong>{{ $currentPoints }}</strong> نقطة</p>
+                                    <p class="mb-3">كل {{ $conversionRate }} نقاط = 1 {{ $symbol }}</p>
+                                    <form action="{{ route('student.deposit.points') }}" method="POST">
+                                        @csrf
+                                        <div class="single_totl_warp col-lg-12 ps-0">
+                                            <h3 class="font_18 mb-2">عدد النقاط المراد تحويلها <span class="text-danger">*</span></h3>
+                                            <div class="input-group mb-3 input-group-lg deposit_save_info row-gap-4">
+                                                <input
+                                                    id="points_to_convert"
+                                                    data-rate="{{ $conversionRate }}"
+                                                    placeholder="مثال: 100"
+                                                    name="points"
+                                                    type="number"
+                                                    min="{{ $conversionRate }}"
+                                                    max="{{ $currentPoints }}"
+                                                    step="1"
+                                                    value="{{ old('points') }}"
+                                                    class="primary_input w-75"
+                                                    required>
+                                                <div class="input-group-prepend">
+                                                    <button type="submit" style="margin-bottom: 30px;"
+                                                            class="theme_btn btn-sm small_btn2">شحن الرصيد بالنقاط</button>
+                                                </div>
+                                                <strong class="text-danger">{{ $errors->first('points') }}</strong>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <p class="mb-0">سيتم إضافة: <strong><span id="points-convert-preview">0</span> {{ $symbol }}</strong> إلى محفظتك</p>
+                                </div>
+                            </div>
                             <div class="col-xl-12">
                                 <form action="{{route('depositSelectOption')}}" method="post">
                                     <div class="single_totl_warp col-lg-12 ps-0">

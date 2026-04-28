@@ -177,6 +177,7 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['student']], function 
 
     Route::get('deposit', 'StudentController@deposit')->name('deposit');
     Route::post('deposit', 'StudentController@deposit')->name('depositSelectOption');
+    Route::post('deposit/points', 'StudentController@convertPointsToWallet')->name('student.deposit.points');
     Route::get('logged-in/devices', 'StudentController@loggedInDevices')->name('logged.in.devices');
     Route::get('invoice/{id}', 'StudentController@Invoice')->name('invoice');
     Route::get('my-purchase-order-detail/{id}', 'StudentController@my_purchase_order_detail')->name('my_purchase_order_detail');
@@ -519,5 +520,4 @@ Route::get('scorm/video/{lesson_id}/{id}', 'Frontend\WebsiteController@scormPlay
 Route::get('document/video/{lesson_id}', 'Frontend\WebsiteController@documentPlayer')->name('documentPlayer');
 Route::get('get-dynamic-data', 'Frontend\ThemeDynamicData')->name('getDynamicData');
 Route::get('read-some-part-of-books/{id}', 'Frontend\WebsiteController@readSomePartOfBooks')->name('readSomePartOfBooks');
-
 

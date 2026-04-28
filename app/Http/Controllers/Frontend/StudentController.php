@@ -1314,6 +1314,93 @@ class StudentController extends Controller
 
     }
 
+    public function convertPointsToWallet(Request $request)
+    {
+        if (demoCheck()) {
+            return redirect()->back();
+        }
+
+        if (!(Settings('gamification_status') && Settings('gamification_reward_point_conversion_status') && Settings('gamification_reward_status'))) {
+            Toastr::error(trans('common.Something Went Wrong'), trans('common.Failed'));
+            return redirect()->back();
+        }
+
+        $rate = (int)(config('wallet.points_to_money_rate') ?: Settings('gamification_reward_point_conversion_rate') ?: 10);
+        if ($rate < 1) {
+            $rate = 10;
+        }
+
+        $request->validate([
+            'points' => ['required', 'integer', 'min:' . $rate],
+        ], validationMessage([
+            'points' => 'required|integer|min:' . $rate,
+        ]));
+
+        $points = (int)$request->points;
+        if ($points % $rate !== 0) {
+            Toastr::error('عدد النقاط غير صالح', trans('common.Failed'));
+            return redirect()->back()->withInput();
+        }
+
+        try {
+            DB::transaction(function () use ($points, $rate) {
+                $user = User::where('id', Auth::id())->lockForUpdate()->firstOrFail();
+
+                $currentPoints = max(0, (int)$user->gamification_total_points - (int)$user->gamification_total_spent_points);
+                if ($currentPoints < $points) {
+                    throw new Exception('INSUFFICIENT_POINTS');
+                }
+
+                $amount = $points / $rate;
+                $user->gamification_total_spent_points = (int)$user->gamification_total_spent_points + $points;
+                $user->balance = (float)$user->balance + (float)$amount;
+                $user->save();
+
+                UserGamificationPoint::create([
+                    'user_id' => $user->id,
+                    'type' => 'convert',
+                    'badge_type' => 'reward',
+                    'point' => $points,
+                    'status' => 2,
+                ]);
+
+                $depositRecord = new \App\DepositRecord();
+                $depositRecord->user_id = $user->id;
+                $depositRecord->method = 'Points Conversion';
+                $depositRecord->amount = (float)$amount;
+                $depositRecord->status = 1;
+                $depositRecord->response = json_encode([
+                    'source' => 'points_conversion',
+                    'points_used' => $points,
+                    'rate' => $rate,
+                    'note' => 'Wallet recharge using points',
+                    'status' => 'completed',
+                ]);
+                $depositRecord->save();
+
+                $tran = new OfflinePayment();
+                $tran->user_id = $user->id;
+                $tran->role_id = $user->role_id;
+                $tran->amount = (float)$amount;
+                $tran->status = 1;
+                $tran->type = 'Reward';
+                $tran->after_bal = $user->balance;
+                $tran->save();
+            });
+
+            Toastr::success('تم شحن الرصيد بنجاح باستخدام النقاط', trans('common.Success'));
+        } catch (Exception $e) {
+            if ($e->getMessage() === 'INSUFFICIENT_POINTS') {
+                Toastr::error('ليس لديك نقاط كافية', trans('common.Failed'));
+                return redirect()->back()->withInput();
+            }
+            Toastr::error('عدد النقاط غير صالح', trans('common.Failed'));
+            return redirect()->back()->withInput();
+        }
+
+        return redirect()->back();
+    }
+
     public function myBadges()
     {
         try {

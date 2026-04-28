@@ -19,9 +19,12 @@ class DepositPageSection extends Component
 
     public function render()
     {
+        $user = Auth::user();
+        $currentPoints = max(0, (int)$user->gamification_total_points - (int)$user->gamification_total_spent_points);
+        $conversionRate = (int)(config('wallet.points_to_money_rate') ?: Settings('gamification_reward_point_conversion_rate') ?: 10);
         $records = DepositRecord::where('user_id', Auth::user()->id)->latest()->paginate(5);
         $methods = PaymentMethod::where('active_status', 1)->where('module_status', 1)->where('method', '!=', 'Wallet')->where('method', '!=', 'Offline Payment')->get(['method', 'logo']);
         $amount = $this->request->deposit_amount;
-        return view(theme('components.deposit-page-section'), compact('amount', 'records', 'methods'));
+        return view(theme('components.deposit-page-section'), compact('amount', 'records', 'methods', 'currentPoints', 'conversionRate'));
     }
 }
