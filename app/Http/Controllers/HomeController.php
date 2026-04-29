@@ -56,6 +56,51 @@ class HomeController extends Controller
                 return redirect()->route('affiliate.my_affiliate.index');
             }
 
+            if (isInstructor()) {
+                $teacherCoursesQuery = Course::query()->where('user_id', $user->id);
+                $teacherCourseIds = (clone $teacherCoursesQuery)->pluck('id');
+                $hasPublishStatusColumn = Schema::hasColumn('courses', 'publish_status');
+
+                $recentEnroll = CourseEnrolled::query()
+                    ->whereIn('course_id', $teacherCourseIds)
+                    ->latest()
+                    ->take(5)
+                    ->select('reveune', 'course_id', 'user_id', 'purchase_price', 'created_at')
+                    ->with('course', 'user')
+                    ->get();
+
+                $pendingReviewCoursesQuery = (clone $teacherCoursesQuery)->where('status', 0);
+                if ($hasPublishStatusColumn) {
+                    $pendingReviewCoursesQuery->where(function ($query) {
+                        $query->whereNull('publish_status')
+                            ->orWhere('publish_status', 'pending');
+                    });
+                }
+
+                $teacherDashboard = [
+                    'my_courses' => (clone $teacherCoursesQuery)->count(),
+                    'pending_review_courses' => $pendingReviewCoursesQuery->count(),
+                    'draft_courses' => (clone $teacherCoursesQuery)
+                        ->where(function ($query) {
+                            $query->where('status', 0)
+                                ->where('publish', 0);
+                        })->count(),
+                    'enrolled_students' => CourseEnrolled::query()->whereIn('course_id', $teacherCourseIds)->count(),
+                    'total_sales' => (float) CourseEnrolled::query()->whereIn('course_id', $teacherCourseIds)->sum('purchase_price'),
+                    'total_revenue' => (float) CourseEnrolled::query()->whereIn('course_id', $teacherCourseIds)->sum('reveune'),
+                    'pending_withdrawals' => Withdraw::query()
+                        ->where('instructor_id', $user->id)
+                        ->where('status', 0)
+                        ->count(),
+                    'approved_withdrawals' => Withdraw::query()
+                        ->where('instructor_id', $user->id)
+                        ->where('status', 1)
+                        ->count(),
+                ];
+
+                return view('dashboard_teacher', compact('teacherDashboard', 'recentEnroll'));
+            }
+
             $currentYear = Carbon::now()->year;
             $currentMonth = Carbon::now()->month;
             $data = [];

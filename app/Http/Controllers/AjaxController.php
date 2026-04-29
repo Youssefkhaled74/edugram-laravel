@@ -101,6 +101,9 @@ class AjaxController extends Controller
             //========= End For Chat Module ========
 
             if ($table == "courses") {
+                if (isInstructor()) {
+                    return response()->json(['error' => 'Permission Denied'], 403);
+                }
                 $course = Course::find($id);
                 $course->updated_at = now();
                 $course->save();
