@@ -1,7 +1,98 @@
 @php
-    $user =\Illuminate\Support\Facades\Auth::user();
+    $user = \Illuminate\Support\Facades\Auth::user();
+    $isTeacherSidebar = (int) $user->role_id === 2;
+
+    /**
+     * Instructor sidebar labels are display-only aliases.
+     * Routes, permissions and menu records stay unchanged, so admin behavior is not affected.
+     */
+    $containsAny = function ($value, array $needles) {
+        $value = strtolower((string) $value);
+
+        foreach ($needles as $needle) {
+            if (strpos($value, strtolower($needle)) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    $teacherMenuLabel = function ($item, $fallback) use ($isTeacherSidebar, $containsAny) {
+        if (!$isTeacherSidebar) {
+            return $fallback;
+        }
+
+        $route = (string) ($item->route ?? '');
+        $label = (string) $fallback;
+        $haystack = $route . ' ' . $label;
+
+        if ($route === 'dashboard' || $containsAny($haystack, ['dashboard', 'لوحة التحكم'])) {
+            return 'لوحة التحكم';
+        }
+
+        if ($containsAny($haystack, ['profile', 'setting', 'settings', 'my_panel', 'account', 'الملف', 'حساب'])) {
+            return 'الملف الشخصي';
+        }
+
+        if ($containsAny($haystack, ['payout', 'withdraw', 'withdrawal', 'payment', 'paid', 'unpaid', 'earnings', 'earning', 'revenue', 'المدفوعات', 'السحب', 'الأرباح'])) {
+            return 'طلبات السحب';
+        }
+
+        if ($containsAny($haystack, ['instructor', 'teacher', 'المدرسون', 'المدرسين', 'المدربون'])) {
+            return 'الأرباح';
+        }
+
+        if ($containsAny($haystack, ['enroll', 'student', 'students', 'student-list', 'students-list', 'الطلاب', 'المسجلين'])) {
+            return 'الطلاب المسجلون';
+        }
+
+        if ($containsAny($haystack, ['course', 'courses', 'course-list', 'class-course', 'الدورات', 'المواد'])) {
+            return 'دوراتي';
+        }
+
+        if ($containsAny($haystack, ['quiz', 'test', 'exam', 'question', 'bank', 'اختبار', 'اختبارات'])) {
+            return 'الاختبارات';
+        }
+
+        if ($containsAny($haystack, ['virtual', 'online', 'zoom', 'bbb', 'jitsi', 'class', 'classes', 'live', 'meeting', 'حصص', 'اونلاين', 'أونلاين'])) {
+            return 'الحصص الأونلاين';
+        }
+
+        if ($containsAny($haystack, ['report', 'reports', 'analytics', 'statistics', 'التقارير', 'تقرير'])) {
+            return 'تقارير الأداء';
+        }
+
+        return $fallback;
+    };
+
+    $teacherSectionLabel = function ($section, $fallback) use ($isTeacherSidebar, $containsAny) {
+        if (!$isTeacherSidebar) {
+            return $fallback;
+        }
+
+        $haystack = (string) $fallback . ' ' . (string) ($section->name ?? '');
+
+        foreach ($section->activeMenus as $sectionMenu) {
+            $haystack .= ' ' . (string) ($sectionMenu->route ?? '') . ' ' . (string) ($sectionMenu->name ?? '');
+        }
+
+        if ($containsAny($haystack, ['payout', 'withdraw', 'payment', 'earning', 'revenue', 'instructor', 'teacher', 'users', 'USERS', 'المدرسون', 'الأرباح', 'السحب'])) {
+            return 'الأرباح';
+        }
+
+        if ($containsAny($haystack, ['course', 'education', 'quiz', 'test', 'class', 'report', 'EDUCATION', 'الدورات', 'التقارير', 'التعليم'])) {
+            return 'التدريس';
+        }
+
+        if ($containsAny($haystack, ['profile', 'setting', 'account', 'my_panel', 'حساب', 'الملف'])) {
+            return 'حسابي';
+        }
+
+        return $fallback;
+    };
 @endphp
-    <!-- sidebar part here -->
+<!-- sidebar part here -->
 <nav id="sidebar" class="sidebar  {{$user->sidebar!=1?'d-none':''}}">
 
     <div class="sidebar-header update_sidebar">
@@ -96,12 +187,13 @@
                         if ($count == 0){
                             continue;
                         }
+                        $sectionName = $section->getTranslation('name', app()->getLocale());
+                        $sectionName = $teacherSectionLabel($section, $sectionName);
                     @endphp
                     @if(!empty($section->name))
                         <span class="menu_seperator">
-                    {{ $section->getTranslation('name', app()->getLocale()) }}
-					
-                </span>
+                            {{ $sectionName }}
+                        </span>
                     @endif
                     @if($section->activeMenus->count())
                         @foreach($section->activeMenus as  $menu)
@@ -144,7 +236,7 @@
                             @if(permissionCheck($menu->route))
 
                                 @if(!$menu->module ||  isModuleActive($menu->module))
-								
+
                                     @php
                                         $hasChild =$submenus->count();
 
@@ -152,6 +244,9 @@
                                             $hasChild--;
                                             continue;
                                         }
+
+                                        $menuName = $menu->getTranslation('name', app()->getLocale());
+                                        $menuName = $teacherMenuLabel($menu, $menuName);
                                     @endphp
 
                                     <li class="{{spn_active_link(childrenRoute($menu))}}">
@@ -162,8 +257,7 @@
                                                 <span class="{{@$menu->icon??'fas fa-th'}}"></span>
                                             </div>
                                             <div class="nav_title">
-                                                <span>
-												{{ $menu->getTranslation('name', app()->getLocale()) }}</span>
+                                                <span>{{ $menuName }}</span>
                                                 @if((env('APP_SYNC') || config('app.demo_mode'))&& !empty($menu->module))
                                                     <span class="demo_addons">Addon</span>
                                                 @endif
@@ -186,12 +280,14 @@
                                                                 if ($submenu->theme && $submenu->theme!=currentTheme()){
                                                                       continue;
                                                                   }
+
+                                                                $submenuName = $submenu->getTranslation('name', app()->getLocale());
+                                                                $submenuName = $teacherMenuLabel($submenu, $submenuName);
                                                             @endphp
                                                             <li class="{{spn_active_link(childrenRoute($submenu))}}">
-                                                                <a href="@if(!empty(validRouteUrl($submenu->route))) {{validRouteUrl($submenu->route)}} @else # @endif"> 
-																
-																{{ $submenu->getTranslation('name', app()->getLocale()) }}
-																</a>
+                                                                <a href="@if(!empty(validRouteUrl($submenu->route))) {{validRouteUrl($submenu->route)}} @else # @endif">
+                                                                    {{ $submenuName }}
+                                                                </a>
                                                             </li>
                                                         @endif
                                                     @endif
@@ -210,4 +306,3 @@
     </ul>
 
 </nav>
-
