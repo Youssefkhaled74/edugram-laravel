@@ -1,5 +1,9 @@
 @extends('backend.master')
 @section('mainContent')
+    @php
+        $isTeacherQuestionPage = request()->routeIs('teacher.questions.*');
+        $teacherBankIdForForm = old('group', request('group', isset($bank) ? $bank->q_group_id : null));
+    @endphp
     <style>
         @media only screen and (min-width: 992px) {
             .drawflow-node.ans {
@@ -102,13 +106,13 @@
 
                             @if(isset($bank))
 
-                                <form method="POST" action="{{ route('question-bank-update', $bank->id) }}"
+                                <form method="POST" action="{{ $isTeacherQuestionPage ? route('teacher.questions.update', $bank->id) : route('question-bank-update', $bank->id) }}"
                                       class="form-horizontal" enctype="multipart/form-data" id="question_bank">
                                     @method('PUT')
                                     @csrf
                                     @else
-                                        @if (permissionCheck('question-bank.store'))
-                                            <form method="POST" action="{{ route('question-bank.store') }}"
+                                        @if ($isTeacherQuestionPage || permissionCheck('question-bank.store'))
+                                            <form method="POST" action="{{ $isTeacherQuestionPage ? route('teacher.questions.store', ['bank' => $teacherBankIdForForm]) : route('question-bank.store') }}"
                                                   class="form-horizontal" enctype="multipart/form-data"
                                                   id="question_bank">
                                                 @csrf

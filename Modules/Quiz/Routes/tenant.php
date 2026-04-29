@@ -93,3 +93,21 @@ Route::prefix('quiz')->middleware(['auth', 'admin'])->group(function () {
     Route::get('quiz-re-test/{id}', 'OnlineQuizController@quizReTest')->name('quizReTest')->middleware('RoutePermissionCheck:quizReTest');
 
 });
+
+Route::prefix('teacher')->middleware(['auth'])->group(function () {
+    Route::get('question-banks', 'QuizController@teacherIndex')->name('teacher.question-banks.index');
+    Route::get('question-banks/create', 'QuizController@teacherCreate')->name('teacher.question-banks.create');
+    Route::post('question-banks', 'QuizController@teacherStore')->name('teacher.question-banks.store');
+    Route::get('question-banks/{bank}', 'QuestionBankController@teacherBankQuestions')->name('teacher.question-banks.show');
+    Route::get('question-banks/{bank}/data', 'QuestionBankController@teacherBankData')->name('teacher.question-banks.data');
+    Route::get('question-banks/{bank}/edit', 'QuizController@teacherEdit')->name('teacher.question-banks.edit');
+    Route::put('question-banks/{bank}', 'QuizController@teacherUpdate')->name('teacher.question-banks.update');
+    Route::delete('question-banks/{bank}', 'QuizController@teacherDestroy')->name('teacher.question-banks.destroy');
+
+    Route::get('question-banks/{bank}/questions/create', 'QuestionBankController@teacherQuestionCreate')->name('teacher.questions.create');
+    Route::post('question-banks/{bank}/questions', 'QuestionBankController@teacherQuestionStore')->name('teacher.questions.store');
+    Route::get('questions/{question}/edit', 'QuestionBankController@teacherQuestionEdit')->name('teacher.questions.edit');
+    Route::put('questions/{question}', 'QuestionBankController@teacherQuestionUpdate')->name('teacher.questions.update');
+    Route::delete('questions/{question}', 'QuestionBankController@teacherQuestionDestroy')->name('teacher.questions.destroy');
+    Route::post('questions/delete', 'QuestionBankController@teacherQuestionDestroyPost')->name('teacher.questions.destroy-post');
+});

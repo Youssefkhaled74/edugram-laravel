@@ -1,5 +1,9 @@
 @extends('backend.master')
 @section('mainContent')
+    @php
+        $isTeacherBankPage = request()->routeIs('teacher.question-banks.*');
+        $storeRoute = $isTeacherBankPage ? route('teacher.question-banks.store') : route('question-group.store');
+    @endphp
     {!! generateBreadcrumb() !!}
 
     <section class="admin-visitor-area up_st_admin_visitor">
@@ -11,14 +15,14 @@
                         <div class="col-lg-12">
                             @if(isset($group) && permissionCheck('question-group.edit'))
 
-                                <form method="POST" action="{{ route('question-group-update', @$group->id) }}"
+                                <form method="POST" action="{{ $isTeacherBankPage ? route('teacher.question-banks.update', @$group->id) : route('question-group-update', @$group->id) }}"
                                       class="form-horizontal" enctype="multipart/form-data">
                                     @method('PUT')
                                     @csrf
                                     @else
-                                        @if (permissionCheck('question-group.store'))
+                                        @if ($isTeacherBankPage || permissionCheck('question-group.store'))
 
-                                            <form method="POST" action="{{ route('question-group.store') }}"
+                                            <form method="POST" action="{{ $storeRoute }}"
                                                   class="form-horizontal" enctype="multipart/form-data">
                                                 @csrf
                                                 @endif
@@ -125,19 +129,19 @@
                                                         </button>
                                                         <div class="dropdown-menu dropdown-menu-right"
                                                              aria-labelledby="dropdownMenu2">
-                                                            @if (permissionCheck('question-group.edit'))
+                                                            @if ($isTeacherBankPage || permissionCheck('question-group.edit'))
                                                                 <a class="dropdown-item edit_brand"
-                                                                   href="{{route('question-group.edit',$group->id)}}">{{__('common.Edit')}}</a>
+                                                                   href="{{ $isTeacherBankPage ? route('teacher.question-banks.edit',$group->id) : route('question-group.edit',$group->id) }}">{{__('common.Edit')}}</a>
                                                             @endif
-                                                            @if (permissionCheck('question-bank'))
+                                                            @if ($isTeacherBankPage || permissionCheck('question-bank'))
                                                                 <a class="dropdown-item"
-                                                                   href="{{route('question-bank', ['group' => $group->id])}}">{{ __('quiz.Add') }} {{ __('quiz.Question') }}</a>
+                                                                   href="{{ $isTeacherBankPage ? route('teacher.questions.create', ['bank' => $group->id]) : route('question-bank', ['group' => $group->id]) }}">{{ __('quiz.Add') }} {{ __('quiz.Question') }}</a>
                                                             @endif
-                                                            @if (permissionCheck('question-bank-list'))
+                                                            @if ($isTeacherBankPage || permissionCheck('question-bank-list'))
                                                                 <a class="dropdown-item"
-                                                                   href="{{route('question-bank-list', ['group' => $group->id])}}">{{ __('common.View') }}</a>
+                                                                   href="{{ $isTeacherBankPage ? route('teacher.question-banks.show', ['bank' => $group->id]) : route('question-bank-list', ['group' => $group->id]) }}">{{ __('common.View') }}</a>
                                                             @endif
-                                                            @if (permissionCheck('question-group.delete'))
+                                                            @if ($isTeacherBankPage || permissionCheck('question-group.delete'))
                                                                 <a class="dropdown-item" data-bs-toggle="modal"
                                                                    data-bs-target="#deleteQuestionGroupModal{{$group->id}}"
                                                                    href="#">{{__('common.Delete')}}</a>
@@ -170,9 +174,13 @@
                                                                 <button type="button" class="primary-btn tr-bg"
                                                                         data-bs-dismiss="modal">{{__('common.Cancel')}}</button>
                                                                 <form method="POST"
-                                                                      action="{{ route('question-group-delete', $group->id) }}"
+                                                                      action="{{ $isTeacherBankPage ? route('teacher.question-banks.destroy', $group->id) : route('question-group-delete', $group->id) }}"
                                                                       enctype="multipart/form-data">
-                                                                    @method('DELETE')
+                                                                    @if($isTeacherBankPage)
+                                                                        @method('DELETE')
+                                                                    @else
+                                                                        @method('DELETE')
+                                                                    @endif
                                                                     @csrf
                                                                     <button class="primary-btn fix-gr-bg"
                                                                             type="submit">{{__('common.Delete')}}</button>

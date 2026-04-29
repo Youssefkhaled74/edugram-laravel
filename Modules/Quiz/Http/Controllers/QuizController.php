@@ -12,6 +12,13 @@ use Modules\Quiz\Entities\QuestionGroup;
 
 class QuizController extends Controller
 {
+    private function ensureTeacher()
+    {
+        if ((int)Auth::user()->role_id !== 2) {
+            abort(403);
+        }
+    }
+
     private function canAccessGroup(QuestionGroup $group): bool
     {
         $user = Auth::user();
@@ -20,6 +27,98 @@ class QuizController extends Controller
         }
         // Allow teacher owned groups and intentionally global groups (user_id = 1).
         return (int)$group->user_id === (int)$user->id || (int)$group->user_id === 1;
+    }
+
+    private function canManageOwnGroup(QuestionGroup $group): bool
+    {
+        return (int)$group->user_id === (int)Auth::id();
+    }
+
+    public function teacherIndex()
+    {
+        $this->ensureTeacher();
+        $groups = QuestionGroup::where('active_status', 1)
+            ->where('user_id', Auth::id())
+            ->withCount('questions')
+            ->latest()
+            ->get();
+        return view('quiz::index', compact('groups'));
+    }
+
+    public function teacherCreate()
+    {
+        return $this->teacherIndex();
+    }
+
+    public function teacherStore(Request $request)
+    {
+        $this->ensureTeacher();
+        $request->validate(['title' => 'required|string|max:255']);
+        $group = new QuestionGroup();
+        $group->title = $request->title;
+        $group->user_id = Auth::id();
+        $group->save();
+        Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+        return redirect()->route('teacher.question-banks.index');
+    }
+
+    public function teacherEdit($bank)
+    {
+        $this->ensureTeacher();
+        $group = QuestionGroup::findOrFail($bank);
+        if (!$this->canManageOwnGroup($group)) {
+            abort(403);
+        }
+        $groups = QuestionGroup::where('active_status', 1)
+            ->where('user_id', Auth::id())
+            ->withCount('questions')
+            ->latest()
+            ->get();
+        return view('quiz::index', compact('groups', 'group'));
+    }
+
+    public function teacherShow($bank)
+    {
+        return $this->teacherEdit($bank);
+    }
+
+    public function teacherUpdate(Request $request, $bank)
+    {
+        $this->ensureTeacher();
+        $request->validate(['title' => 'required|string|max:255']);
+        $group = QuestionGroup::findOrFail($bank);
+        if (!$this->canManageOwnGroup($group)) {
+            abort(403);
+        }
+        $group->title = $request->title;
+        $group->save();
+        Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+        return redirect()->route('teacher.question-banks.index');
+    }
+
+    public function teacherDestroy($bank)
+    {
+        $this->ensureTeacher();
+        $group = QuestionGroup::with('questions.quizAssign')->findOrFail($bank);
+        if (!$this->canManageOwnGroup($group)) {
+            abort(403);
+        }
+        $used = $group->questions->filter(function ($q) {
+            return $q->quizAssign->count() > 0;
+        })->count();
+        if ($used > 0) {
+            Toastr::error(trans('quiz.You cannot delete this question because it has been used in') . ' quiz', trans('common.Failed'));
+            return redirect()->back();
+        }
+        $questionIds = $group->questions->pluck('id')->toArray();
+        if (!empty($questionIds)) {
+            \Modules\Quiz\Entities\QuestionBankMuOption::whereIn('question_bank_id', $questionIds)->delete();
+            \Modules\Quiz\Entities\MatchingTypeQuestionAssign::whereIn('question_id', $questionIds)->delete();
+            \Modules\Quiz\Entities\QuestionBank::whereIn('id', $questionIds)->delete();
+        }
+        $group->delete();
+        Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+        return redirect()->route('teacher.question-banks.index');
     }
 
     public function index()

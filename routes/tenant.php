@@ -262,6 +262,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/home', 'HomeController@index')->name('home');
     Route::get('dashboard', 'HomeController@dashboard')->name('dashboard');
     Route::get('teacher/statement/export', 'TeacherStatementController@export')->name('teacher.statement.export');
+    Route::get('teacher/statistics', 'TeacherStatisticsController@index')->name('teacher.statistics.index');
+    Route::get('teacher/courses/{course}/analytics', 'TeacherStatisticsController@courseAnalytics')->name('teacher.courses.analytics');
     Route::get('getDashboardData', 'HomeController@getDashboardData')->name('getDashboardData')->middleware('RoutePermissionCheck:dashboard');
     Route::get('userLoginChartByDays', 'HomeController@userLoginChartByDays')->name('userLoginChartByDays');
     Route::get('userLoginChartByTime', 'HomeController@userLoginChartByTime')->name('userLoginChartByTime');

@@ -1,5 +1,8 @@
 @extends('backend.master')
 @section('mainContent')
+    @php
+        $isTeacherBankPage = request()->routeIs('teacher.question-banks.*', 'teacher.questions.*');
+    @endphp
     <style>
         .select2-container {
             width: unset;
@@ -188,10 +191,10 @@
                                                 @endforeach
                                             </select>
                                         </li>
-                                        @if(permissionCheck('question-bank'))
+                                        @if($isTeacherBankPage || permissionCheck('question-bank'))
                                             <li>
                                                 <a class="primary-btn radius_30px fix-gr-bg"
-                                                   href="{{route('question-bank')}}">
+                                                   href="{{ $isTeacherBankPage ? route('teacher.questions.create', ['bank' => request('group')]) : route('question-bank') }}">
                                                     <i class="ti-plus"></i>{{__('common.Add')}} {{__('quiz.Question')}}
                                                 </a>
                                             </li>
@@ -285,7 +288,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <form action="{{route('question-bank-delete')}}" method="post">
+                    <form action="{{ $isTeacherBankPage ? route('teacher.questions.destroy-post') : route('question-bank-delete') }}" method="post">
                         @csrf
 
                         <div class="text-center">
@@ -401,7 +404,7 @@
     </script>
 
     @php
-        $url = route('getAllQuizData').'?group='.request('group');
+        $url = ($isTeacherBankPage ? route('teacher.question-banks.data', ['bank' => request('group')]) : route('getAllQuizData')).'?group='.request('group');
     @endphp
 
     <script>

@@ -67,6 +67,12 @@
                 </a>
             @endif
 
+            @if(isInstructor() && (int)$query->user_id === (int)auth()->id())
+                <a href="{{ route('teacher.courses.analytics', $query->id) }}" class="dropdown-item">
+                    عرض الإحصائيات
+                </a>
+            @endif
+
             @if(isModuleActive('UpcomingCourse') && permissionCheck('admin.upcoming_courses.followers') && $query->is_upcoming_course)
                 <a href="{{route('admin.upcoming_courses.followers', $query->id)}}"
                    class="dropdown-item">{{trans('courses.Followers')}}</a>
@@ -90,5 +96,4 @@
         @endif
     </div>
 </div>
-
 

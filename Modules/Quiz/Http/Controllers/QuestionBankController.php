@@ -40,6 +40,22 @@ class QuestionBankController extends Controller
         return (int)Auth::user()->role_id === 2;
     }
 
+    private function ensureTeacher()
+    {
+        if (!$this->isTeacher()) {
+            abort(403);
+        }
+    }
+
+    private function teacherOwnGroupOrFail($groupId): QuestionGroup
+    {
+        $group = QuestionGroup::findOrFail($groupId);
+        if ((int)$group->user_id !== (int)Auth::id()) {
+            abort(403);
+        }
+        return $group;
+    }
+
     private function teacherCanUseGroup(?int $groupId): bool
     {
         if (!$this->isTeacher()) {
@@ -370,6 +386,9 @@ class QuestionBankController extends Controller
                 }
             }
             Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+            if ((int)$request->get('teacher_flow', 0) === 1) {
+                return redirect()->route('teacher.question-banks.show', ['bank' => (int)$request->group]);
+            }
             return redirect(route('question-bank-list'));
         } catch (Exception $e) {
             dd($e);
@@ -832,6 +851,9 @@ class QuestionBankController extends Controller
 
 
             Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+            if ((int)$request->get('teacher_flow', 0) === 1) {
+                return redirect()->route('teacher.question-banks.show', ['bank' => (int)$request->get('teacher_bank_id', $request->group)]);
+            }
             return redirect('quiz/question-bank-list');
 
         } catch (Exception $e) {
@@ -865,6 +887,9 @@ class QuestionBankController extends Controller
 
             if ($result) {
                 Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+                if ((int)$request->get('teacher_flow', 0) === 1) {
+                    return redirect()->route('teacher.question-banks.show', ['bank' => (int)$request->get('teacher_bank_id')]);
+                }
                 return redirect()->to(route('question-bank-list'));
             } else {
                 Toastr::error(trans('common.Operation failed'), trans('common.Failed'));
@@ -1094,5 +1119,102 @@ class QuestionBankController extends Controller
         $bank->save();
         return true;
 
+    }
+
+    public function teacherBankQuestions($bank)
+    {
+        $this->ensureTeacher();
+        $group = $this->teacherOwnGroupOrFail($bank);
+        $groups = QuestionGroup::where('active_status', 1)->where('user_id', Auth::id())->get();
+        $group = $group->id;
+        return view('quiz::question_bank_list', compact('group', 'groups'));
+    }
+
+    public function teacherBankData(Request $request, $bank)
+    {
+        $this->ensureTeacher();
+        $group = $this->teacherOwnGroupOrFail($bank);
+        $request->merge(['group' => $group->id]);
+        return $this->getAllQuizData($request);
+    }
+
+    public function teacherQuestionCreate($bank)
+    {
+        $this->ensureTeacher();
+        $group = $this->teacherOwnGroupOrFail($bank);
+        request()->merge(['group' => $group->id]);
+        $groups = QuestionGroup::where('active_status', 1)->where('user_id', Auth::id())->get();
+        $categories = Category::where('status', 1)->orderBy('position_order')->get();
+        $data['levels'] = [];
+        if (isModuleActive('AdvanceQuiz')) {
+            $data['levels'] = QuestionLevel::where('status', 1)->get();
+        }
+        return view('quiz::question_bank', $data, compact('groups', 'categories'));
+    }
+
+    public function teacherQuestionStore(Request $request, $bank)
+    {
+        $this->ensureTeacher();
+        $group = $this->teacherOwnGroupOrFail($bank);
+        $request->merge([
+            'group' => $group->id,
+            'teacher_flow' => 1,
+        ]);
+        return $this->store($request);
+    }
+
+    public function teacherQuestionEdit($question)
+    {
+        $this->ensureTeacher();
+        $bank = QuestionBank::findOrFail($question);
+        if ((int)$bank->user_id !== (int)Auth::id()) {
+            abort(403);
+        }
+        return $this->show($bank->id);
+    }
+
+    public function teacherQuestionUpdate(Request $request, $question)
+    {
+        $this->ensureTeacher();
+        $bank = QuestionBank::findOrFail($question);
+        if ((int)$bank->user_id !== (int)Auth::id()) {
+            abort(403);
+        }
+        $request->merge([
+            'teacher_flow' => 1,
+            'teacher_bank_id' => $bank->q_group_id,
+        ]);
+        return $this->update($request, $question);
+    }
+
+    public function teacherQuestionDestroy(Request $request, $question)
+    {
+        $this->ensureTeacher();
+        $bank = QuestionBank::findOrFail($question);
+        if ((int)$bank->user_id !== (int)Auth::id()) {
+            abort(403);
+        }
+        $request->merge([
+            'id' => $question,
+            'teacher_flow' => 1,
+            'teacher_bank_id' => $bank->q_group_id,
+        ]);
+        return $this->destroy($request);
+    }
+
+    public function teacherQuestionDestroyPost(Request $request)
+    {
+        $this->ensureTeacher();
+        $question = (int)$request->id;
+        $bank = QuestionBank::findOrFail($question);
+        if ((int)$bank->user_id !== (int)Auth::id()) {
+            abort(403);
+        }
+        $request->merge([
+            'id' => $question,
+            'teacher_flow' => 1,
+            'teacher_bank_id' => $bank->q_group_id,
+        ]);
+        return $this->destroy($request);
     }
 }
