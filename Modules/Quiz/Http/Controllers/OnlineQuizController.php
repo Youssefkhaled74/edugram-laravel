@@ -190,7 +190,15 @@ class OnlineQuizController extends Controller
 
             // Fetch course and chapter based on user role
             $course = $this->getCourseByRole($request->course_id, $user->role_id);
-            $chapter = Chapter::find($request->chapterId);
+            $chapter = Chapter::where('course_id', optional($course)->id)->find($request->chapterId);
+
+            if (!$isType2 && $user->role_id == 2) {
+                $ownedQuiz = OnlineQuiz::where('id', $request->quiz)->where('created_by', $user->id)->first();
+                if (!$ownedQuiz) {
+                    Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                    return redirect()->back();
+                }
+            }
 
             if ($course && $chapter) {
                 $lesson = $this->createOrUpdateLesson($request, $isType2);
@@ -238,9 +246,18 @@ class OnlineQuizController extends Controller
      */
     private function createOrUpdateLesson(Request $request, $isType2)
     {
-        $lesson = new Lesson();
-        $lesson->course_id = $request->course_id;
-        $lesson->chapter_id = $request->chapterId;
+        $lesson = null;
+        if (!empty($request->lesson_id)) {
+            $lesson = Lesson::where('id', (int)$request->lesson_id)
+                ->where('course_id', (int)$request->course_id)
+                ->where('chapter_id', (int)$request->chapterId)
+                ->first();
+        }
+        if (!$lesson) {
+            $lesson = new Lesson();
+            $lesson->course_id = $request->course_id;
+            $lesson->chapter_id = $request->chapterId;
+        }
         $lesson->is_quiz = $request->is_quiz;
         $lesson->is_lock = (int)$request->lock;
         if (!$isType2) {
@@ -324,12 +341,27 @@ class OnlineQuizController extends Controller
         ];
         $this->validate($request, $rules, validationMessage($rules));
 
-         try {
+        try {
+            if (Auth::user()->role_id == 2) {
+                $course = Course::where('id', (int)$request->course_id)->where('user_id', Auth::id())->first();
+                if (!$course) {
+                    Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                    return redirect()->back();
+                }
+            }
             $sub = $request->sub_category;
             if (empty($sub)) {
                 $sub = null;
             }
             $online_exam = OnlineQuiz::find($request->quiz_id);
+            if (!$online_exam) {
+                Toastr::error(trans('frontend.Invalid Request'), trans('common.Failed'));
+                return redirect()->back();
+            }
+            if (Auth::user()->role_id == 2 && (int)$online_exam->created_by !== (int)Auth::id()) {
+                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                return redirect()->back();
+            }
             foreach ((array)$request->title as $key => $title) {
                 $online_exam->setTranslation('title', $key, $title);
             }

@@ -305,6 +305,18 @@
                                                                     @else
                                                                         [{{trans('courses.Lesson')}}]
                                                                     @endif
+                                                                    @if($lesson->host && in_array($lesson->host, ['Youtube','Vimeo','VdoCipher','Self','URL','Editor','Iframe','BunnyStorage','m3u8','Storage','AmazonS3','GoogleDrive']))
+                                                                        [فيديو]
+                                                                    @endif
+                                                                    @if($lesson->host=='PDF')
+                                                                        [PDF]
+                                                                    @endif
+                                                                    @if(isModuleActive('Assignment') && !empty($lesson->assignment_id))
+                                                                        [واجب]
+                                                                    @endif
+                                                                    @if(!empty($lesson->quiz_id))
+                                                                        [اختبار]
+                                                                    @endif
 
                                                                 </span>
 
@@ -329,6 +341,16 @@
                                                                         <a target="_blank"
                                                                            href="{{route('set-quiz.set-question', [$lesson->quiz_id])}}"
                                                                            class="dropdown-item">{{__('common.Add')}} {{__('common.Question')}}</a>
+                                                                    @endif
+                                                                    <a
+                                                                        data-container="#commonModal" type="button"
+                                                                        href="{{route('courseModal',[$course->id,'quiz'])}}?chapter_id={{$chapter->id}}&id={{$lesson->id}}"
+                                                                        class="dropdown-item btn-modal">إضافة/تعديل اختبار</a>
+                                                                    @if (isModuleActive('Assignment'))
+                                                                        <a
+                                                                            data-container="#commonModal" type="button"
+                                                                            href="{{route('courseModal',[$course->id,'assignment'])}}?chapter_id={{$chapter->id}}&id={{$lesson->id}}"
+                                                                            class="dropdown-item btn-modal">إضافة/تعديل واجب</a>
                                                                     @endif
 
                                                                     <a

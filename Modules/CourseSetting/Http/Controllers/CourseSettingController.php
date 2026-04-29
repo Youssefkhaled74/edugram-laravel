@@ -277,6 +277,8 @@ class CourseSettingController extends Controller
         try {
 
             $course = new Course();
+            $isInstructor = Auth::user()->role_id == 2;
+            $submitForReview = (int)$request->get('submit_for_review', 0) === 1;
 
             if (isModuleActive('Membership')) {
                 if ($request->filled('is_membership')) {
@@ -367,8 +369,17 @@ class CourseSettingController extends Controller
                 $course->required_type = 0;
             }
 
-            $course->publish = 1;
-            $course->status = 0;
+            if ($isInstructor) {
+                // Teacher flow: draft by default, pending review when explicitly submitted.
+                $course->publish = $submitForReview ? 1 : 0;
+                $course->status = 0;
+                if (Schema::hasColumn('courses', 'publish_status')) {
+                    $course->publish_status = $submitForReview ? 'pending' : 'draft';
+                }
+            } else {
+                $course->publish = 1;
+                $course->status = 0;
+            }
             $course->level = $request->level;
             $course->school_subject_id = $request->get('school_subject_id', 0);
             if ($request->iap) {
@@ -497,12 +508,20 @@ class CourseSettingController extends Controller
                 $forumService->autoTopic('topic', $course);
             }
 
-            Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+            Toastr::success(
+                $isInstructor && $submitForReview
+                    ? trans('common.Operation successful') . ' - ' . trans('courses.Pending')
+                    : trans('common.Operation successful'),
+                trans('common.Success')
+            );
 
             if (isModuleActive('UpcomingCourse') && isset($request->is_upcoming_course)) {
                 return redirect()->to(route('admin.upcoming_courses.index'));
             }
 
+            if ($isInstructor && !$submitForReview) {
+                return redirect()->to(route('courseDetails', [$course->id]) . '?type=courses');
+            }
             return redirect()->to(route('getAllCourse'));
 
         } catch (Exception $e) {
@@ -591,6 +610,8 @@ class CourseSettingController extends Controller
         try {
 
             $course = Course::find($request->id);
+            $isInstructor = Auth::user()->role_id == 2;
+            $submitForReview = (int)$request->get('submit_for_review', 0) === 1;
             $course->scope = (int)$request->scope;
             $course->access_limit = (int)$request->access_limit;
 
@@ -713,6 +734,15 @@ class CourseSettingController extends Controller
             $course->trailer_link = null;
             $course->save();
 
+            if ($isInstructor) {
+                $course->status = 0;
+                $course->publish = $submitForReview ? 1 : 0;
+                if (Schema::hasColumn('courses', 'publish_status')) {
+                    $course->publish_status = $submitForReview ? 'pending' : 'draft';
+                }
+                $course->save();
+            }
+
             if ($request->get('host') == "Vimeo") {
                 if (config('vimeo.connections.main.upload_type') == "Direct") {
                     $vimeoController = new VimeoController();
@@ -773,7 +803,16 @@ class CourseSettingController extends Controller
             }
             $this->updateTotalCountForCategory($category);
 
-            Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+            Toastr::success(
+                $isInstructor && $submitForReview
+                    ? trans('common.Operation successful') . ' - ' . trans('courses.Pending')
+                    : trans('common.Operation successful'),
+                trans('common.Success')
+            );
+
+            if ($isInstructor && !$submitForReview) {
+                return redirect()->to(route('courseDetails', [$course->id]) . '?type=courses');
+            }
             return redirect()->to(route('getAllCourse'));
 
         } catch (Exception $e) {
@@ -1594,6 +1633,13 @@ class CourseSettingController extends Controller
     public function courseModal($course_id, $type, Request $request)
     {
         $chapter_id = $request->chapter_id;
+        $course = Course::find($course_id);
+        if (!$course) {
+            return false;
+        }
+        if (Auth::user()->role_id == 2 && (int)$course->user_id !== (int)Auth::id()) {
+            abort(403, 'Permission Denied');
+        }
 
         if ($type == 'chapter') {
             $edit = Chapter::find($request->id);

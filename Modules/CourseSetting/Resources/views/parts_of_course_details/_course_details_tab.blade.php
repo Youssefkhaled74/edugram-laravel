@@ -1,5 +1,16 @@
 @php use Illuminate\Support\Facades\Auth; @endphp
 <div class="white-box  ">
+    @if(Auth::user()->role_id == 2)
+        <div class="alert alert-info mb-20">
+            <strong>Course Builder Steps:</strong>
+            Step 1: Basic Info
+            | Step 2: Course Components
+            | Step 3: Video / PDF
+            | Step 4: Quiz
+            | Step 5: Assignment
+            | Step 6: Submit for Admin Review
+        </div>
+    @endif
     <form action="{{ route('AdminUpdateCourse') }}" method="POST"
           enctype="multipart/form-data">
         @csrf
@@ -1017,11 +1028,22 @@
             </div>
 
             <div class="col-lg-12 text-center pt_15">
-                <div class="d-flex justify-content-center">
-                    <button class="primary-btn semi_large2  fix-gr-bg"
-                            id="save_button_parent" type="submit"><i
-                            class="ti-check"></i> {{__('common.Update')}} {{__('courses.Course')}}
-                    </button>
+                <div class="d-flex justify-content-center flex-wrap gap-2">
+                    @if(Auth::user()->role_id == 2)
+                        <button class="primary-btn semi_large2"
+                                id="save_button_parent" type="submit" name="submit_for_review" value="0">
+                            <i class="ti-save"></i> حفظ التعديلات كمسودة
+                        </button>
+                        <button class="primary-btn semi_large2  fix-gr-bg"
+                                type="submit" name="submit_for_review" value="1">
+                            <i class="ti-check"></i> إرسال للمراجعة
+                        </button>
+                    @else
+                        <button class="primary-btn semi_large2  fix-gr-bg"
+                                id="save_button_parent" type="submit"><i
+                                class="ti-check"></i> {{__('common.Update')}} {{__('courses.Course')}}
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>

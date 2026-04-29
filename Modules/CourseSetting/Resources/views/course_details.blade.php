@@ -131,6 +131,17 @@
                             $pageType = Session::get('type', request()->get('type'))
                                 ?? ($course->type == 1 ? 'courses' : 'courseDetails');
                         @endphp
+                        @if(auth()->user()->role_id == 2 && $course->type == 1)
+                            <div class="alert alert-info mb-20">
+                                <strong>ترتيب إنشاء الكورس:</strong>
+                                Step 1: Basic Info
+                                | Step 2: Course Components (Lectures)
+                                | Step 3: Video / PDF
+                                | Step 4: Quiz
+                                | Step 5: Assignment
+                                | Step 6: Submit for Admin Review
+                            </div>
+                        @endif
                         <div class="row pt-0">
                             <ul class="nav nav-tabs no-bottom-border  mt-sm-md-20 mb-10 ms-3" role="tablist">
                                 @if ($course->type == 1)
