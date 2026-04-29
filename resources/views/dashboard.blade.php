@@ -3,6 +3,9 @@
     <link rel="stylesheet" href="{{asset('public/backend/css/daterangepicker.css')}}">
 @endpush
 @section('mainContent')
+    @php
+        $isInstructorDashboard = isInstructor();
+    @endphp
 
     <section class="sms-breadcrumb mb-10 white-box">
         <div class="container-fluid p-0">
@@ -174,7 +177,12 @@
                         @if (permissionCheck('dashboard.payment_statistic'))
                             <div class="col-xl-4 col-lg-6 col-md-6">
                                 <div class="white_box chart_box">
-                                    <h4>{{__('dashboard.Payment Statistics for')}} {{\Carbon\Carbon::now()->translatedFormat('F')}}</h4>
+                                    <h4>
+                                        {{ $isInstructorDashboard ? 'إحصائيات طلبات السحب' : __('dashboard.Payment Statistics for') }}
+                                        @if(!$isInstructorDashboard)
+                                            {{\Carbon\Carbon::now()->translatedFormat('F')}}
+                                        @endif
+                                    </h4>
                                     <div class="">
                                         <div class="chartjs-size-monitor">
                                             <div class="chartjs-size-monitor-expand">
@@ -830,7 +838,7 @@
             data: {
                 labels: ['{{__('dashboard.Completed')}}', '{{__('dashboard.Pending')}}'],
                 datasets: [{
-                    label: '{{__('dashboard.Payment Statistics for')}} {{@$payment_statistics['month']}}',
+                    label: '{{ $isInstructorDashboard ? 'طلبات السحب' : __('dashboard.Payment Statistics for') }} {{@$payment_statistics['month']}}',
                     data: [{{$payment_statistics['paid']->count()}}, {{$payment_statistics['unpaid']->count()}}],
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     borderColor: 'rgba(255, 99, 132, 1)',
