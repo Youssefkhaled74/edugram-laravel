@@ -2,6 +2,7 @@
 @section('mainContent')
     @php
         $isTeacherBankPage = request()->routeIs('teacher.question-banks.*', 'teacher.questions.*');
+        $teacherBankId = request()->route('bank') ?? request('group') ?? (isset($group) ? $group : null);
     @endphp
     <style>
         .select2-container {
@@ -194,7 +195,7 @@
                                         @if($isTeacherBankPage || permissionCheck('question-bank'))
                                             <li>
                                                 <a class="primary-btn radius_30px fix-gr-bg"
-                                                   href="{{ $isTeacherBankPage ? route('teacher.questions.create', ['bank' => request('group')]) : route('question-bank') }}">
+                                                   href="{{ $isTeacherBankPage ? route('teacher.questions.create', ['bank' => $teacherBankId]) : route('question-bank') }}">
                                                     <i class="ti-plus"></i>{{__('common.Add')}} {{__('quiz.Question')}}
                                                 </a>
                                             </li>
@@ -404,7 +405,9 @@
     </script>
 
     @php
-        $url = ($isTeacherBankPage ? route('teacher.question-banks.data', ['bank' => request('group')]) : route('getAllQuizData')).'?group='.request('group');
+        $url = ($isTeacherBankPage
+            ? route('teacher.question-banks.data', ['bank' => $teacherBankId])
+            : route('getAllQuizData')) . '?group=' . ($teacherBankId ?? request('group'));
     @endphp
 
     <script>
