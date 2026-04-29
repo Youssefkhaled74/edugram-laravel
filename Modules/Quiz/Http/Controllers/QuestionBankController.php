@@ -35,6 +35,33 @@ class QuestionBankController extends Controller
 {
     use UploadMedia;
 
+    private function isTeacher(): bool
+    {
+        return (int)Auth::user()->role_id === 2;
+    }
+
+    private function teacherCanUseGroup(?int $groupId): bool
+    {
+        if (!$this->isTeacher()) {
+            return true;
+        }
+        if (empty($groupId)) {
+            return false;
+        }
+        return QuestionGroup::where('id', $groupId)
+            ->where(function ($q) {
+                $q->where('user_id', Auth::id())->orWhere('user_id', 1);
+            })->exists();
+    }
+
+    private function teacherCanAccessQuestion(QuestionBank $question): bool
+    {
+        if (!$this->isTeacher()) {
+            return true;
+        }
+        return (int)$question->user_id === (int)Auth::id();
+    }
+
 
     public function form()
     {
@@ -57,9 +84,18 @@ class QuestionBankController extends Controller
     {
         $user = Auth::user();
         if (isModuleActive('AdvanceQuiz') && $user->role_id == 2) {
-            $groups = QuestionGroup::where('parent_id', 0)->with('parent', 'childs')->orderBy('order', 'asc')->get();
+            $groups = QuestionGroup::where('parent_id', 0)
+                ->where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id)->orWhere('user_id', 1);
+                })
+                ->with('parent', 'childs')->orderBy('order', 'asc')->get();
         } else {
             $query = QuestionGroup::where('active_status', 1);
+            if ((int)$user->role_id === 2) {
+                $query->where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id)->orWhere('user_id', 1);
+                });
+            }
             if (isModuleActive('Organization') && $user->isOrganization()) {
                 $query->whereHas('user', function ($q) {
                     $q->where('organization_id', Auth::id());
@@ -144,6 +180,10 @@ class QuestionBankController extends Controller
         $this->validate($request, $rules, validationMessage($rules));
 
         try {
+            if (!$this->teacherCanUseGroup((int)$request->group)) {
+                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                return redirect()->back();
+            }
 
             $online_question = new QuestionBank();
             $online_question->type = $request->question_type;
@@ -442,7 +482,11 @@ class QuestionBankController extends Controller
             $levels = QuestionLevel::get();
             $groups = $this->questionGroups();
             $banks = [];
-            $bank = QuestionBank::with('category', 'subCategory', 'questionGroup')->find($id);
+            $bank = QuestionBank::with('category', 'subCategory', 'questionGroup')->findOrFail($id);
+            if (!$this->teacherCanAccessQuestion($bank)) {
+                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                return redirect()->route('question-bank-list');
+            }
             $categories = Category::where('status', 1)->orderBy('position_order', 'asc')->get();
 
             return view('quiz::question_bank', compact('levels', 'groups', 'banks', 'bank', 'categories'));
@@ -594,7 +638,15 @@ class QuestionBankController extends Controller
         $this->validate($request, $rules, validationMessage($rules));
 
         try {
-            $online_question = QuestionBank::find($id);
+            $online_question = QuestionBank::findOrFail($id);
+            if (!$this->teacherCanAccessQuestion($online_question)) {
+                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                return redirect()->route('question-bank-list');
+            }
+            if (!$this->teacherCanUseGroup((int)$request->group)) {
+                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                return redirect()->back();
+            }
             $online_question->type = $request->question_type;
             $online_question->q_group_id = $request->group;
             $online_question->category_id = (int)$request->category;
@@ -800,6 +852,10 @@ class QuestionBankController extends Controller
         try {
 
             $online_question = QuestionBank::findOrFail($id);
+            if (!$this->teacherCanAccessQuestion($online_question)) {
+                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                return redirect()->route('question-bank-list');
+            }
 
             if ($online_question->type == "M") {
                 QuestionBankMuOption::where('question_bank_id', $online_question->id)->delete();
@@ -1003,6 +1059,9 @@ class QuestionBankController extends Controller
                     $online_question = QuestionBank::withCount('quizAssign')->find($question);
 
                     if ($online_question) {
+                        if (!$this->teacherCanAccessQuestion($online_question)) {
+                            continue;
+                        }
                         if ($online_question->quiz_assign_count == 0) {
                             if ($online_question->type == "M") {
                                 QuestionBankMuOption::where('question_bank_id', $online_question->id)->delete();
@@ -1028,6 +1087,9 @@ class QuestionBankController extends Controller
     public function removeImageAjax(Request $request)
     {
         $bank = QuestionBank::findOrFail($request->id);
+        if (!$this->teacherCanAccessQuestion($bank)) {
+            abort(403);
+        }
         $bank->image = '';
         $bank->save();
         return true;

@@ -150,7 +150,7 @@
                                                                                     value="{{$group->id}}" {{$group->id == $bank->q_group_id? 'selected': ''}}>{{$group->title}}</option>
                                                                             @else
                                                                                 <option
-                                                                                    value="{{$group->id}}" {{old('group')!=''? (old('group') == $group->id? 'selected':''):''}} >{{$group->title}}</option>
+                                                                                    value="{{$group->id}}" {{old('group')!='' ? (old('group') == $group->id ? 'selected':'') : ((request('group') == $group->id) ? 'selected' : '')}} >{{$group->title}}</option>
                                                                             @endif
                                                                         @endforeach
                                                                     @endif

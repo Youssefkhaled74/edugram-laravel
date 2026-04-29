@@ -36,6 +36,27 @@ class OnlineQuizController extends Controller
 {
     use SendNotification;
 
+    private function isTeacher(): bool
+    {
+        return (int)Auth::user()->role_id === 2;
+    }
+
+    private function teacherOwnsQuiz(OnlineQuiz $quiz): bool
+    {
+        if (!$this->isTeacher()) {
+            return true;
+        }
+        return (int)$quiz->created_by === (int)Auth::id();
+    }
+
+    private function teacherCanUseQuestion(int $questionId): bool
+    {
+        if (!$this->isTeacher()) {
+            return true;
+        }
+        return QuestionBank::where('id', $questionId)->where('user_id', Auth::id())->exists();
+    }
+
     public function index()
     {
 
@@ -285,8 +306,9 @@ class OnlineQuizController extends Controller
         $online_exam->sub_category_id = (int)$request->sub_category ?? null;
         $online_exam->course_id = (int)$request->course_id;
         $online_exam->percentage = $request->percentage;
-        $online_exam->status = 1;
-        $online_exam->created_by = Auth::id();
+            // Teacher-created quiz should wait for review/publish.
+            $online_exam->status = $this->isTeacher() ? 0 : 1;
+            $online_exam->created_by = Auth::id();
 
         $setup = QuizeSetup::getData();
         $online_exam->random_question = $setup->random_question == 1 ? 1 : 0;
@@ -435,7 +457,8 @@ class OnlineQuizController extends Controller
             $online_exam->sub_category_id = (int)$sub;
             $online_exam->course_id = $request->course;
             $online_exam->percentage = $request->percentage;
-            $online_exam->status = 1;
+            // Teacher-created quiz should remain pending until admin approval/publish.
+            $online_exam->status = $this->isTeacher() ? 0 : 1;
             $online_exam->created_by = Auth::user()->id;
             $online_exam->default_setting = (int)$request->change_default_settings;
 
@@ -571,6 +594,10 @@ class OnlineQuizController extends Controller
 
                 $categories = Category::where('status', 1)->orderBy('position_order', 'asc')->get();
                 $online_exam = OnlineQuiz::find($id);
+                if (!$online_exam || !$this->teacherOwnsQuiz($online_exam)) {
+                    Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                    return redirect()->route('online-quiz');
+                }
                 $groups_query = QuestionGroup::where('active_status', 1);
                 if (isModuleActive('Organization') && $user->isOrganization()) {
                     $groups_query->whereHas('user', function ($q) {
@@ -619,6 +646,10 @@ class OnlineQuizController extends Controller
                 $group = null;
             }
             $online_exam = OnlineQuiz::find($id);
+            if (!$online_exam || !$this->teacherOwnsQuiz($online_exam)) {
+                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                return redirect()->route('online-quiz');
+            }
             foreach ($request->title as $key => $title) {
                 $online_exam->setTranslation('title', $key, $title);
             }
@@ -718,6 +749,10 @@ class OnlineQuizController extends Controller
         if (!$online_exam){
             abort(404);
         }
+        if (!$this->teacherOwnsQuiz($online_exam)) {
+            Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+            return redirect()->route('online-quiz');
+        }
         try {
             $user = Auth::user();
 
@@ -777,6 +812,13 @@ class OnlineQuizController extends Controller
     {
         try {
             $publish = OnlineQuiz::find($id);
+            if (!$publish) {
+                abort(404);
+            }
+            if ($this->isTeacher()) {
+                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                return redirect()->back();
+            }
             $publish->status = 1;
             $publish->save();
             Toastr::success(trans('common.Operation successful'), trans('common.Success'));
@@ -896,6 +938,19 @@ class OnlineQuizController extends Controller
     public function onlineExamQuestionAssign(Request $request)
     {
         try {
+            $quiz = OnlineQuiz::findOrFail($request->online_exam_id);
+            if (!$this->teacherOwnsQuiz($quiz)) {
+                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                return redirect()->back();
+            }
+            if ($this->isTeacher() && isset($request->questions)) {
+                foreach ((array)$request->questions as $questionId) {
+                    if (!$this->teacherCanUseQuestion((int)$questionId)) {
+                        Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                        return redirect()->back();
+                    }
+                }
+            }
             OnlineExamQuestionAssign::where('online_exam_id', $request->online_exam_id)->delete();
             if (isset($request->questions)) {
                 foreach ($request->questions as $question) {
@@ -903,6 +958,11 @@ class OnlineQuizController extends Controller
                     $assign->online_exam_id = $request->online_exam_id;
                     $assign->question_bank_id = $question;
                     $assign->save();
+                }
+                if ($this->isTeacher()) {
+                    // Keep teacher quiz as pending review after question assignment updates.
+                    $quiz->status = 0;
+                    $quiz->save();
                 }
                 Toastr::success(trans('common.Operation successful'), trans('common.Success'));
                 return redirect()->back();
@@ -928,8 +988,13 @@ class OnlineQuizController extends Controller
         }
 
         try {
+            $quiz = OnlineQuiz::findOrFail($request->id);
+            if (!$this->teacherOwnsQuiz($quiz)) {
+                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                return redirect()->route('online-quiz');
+            }
 
-            $delete_query = OnlineQuiz::destroy($request->id);
+            $delete_query = $quiz->delete();
 
             if ($delete_query) {
                 Lesson::where('quiz_id', $request->id)->delete();
@@ -951,6 +1016,16 @@ class OnlineQuizController extends Controller
         try {
 
             $online_exam = OnlineQuiz::findOrFail($request->online_exam_id);
+            if (!$this->teacherOwnsQuiz($online_exam)) {
+                return response()->json(['error' => 'Invalid Access'], 403);
+            }
+            if ($this->isTeacher() && isset($request->questions)) {
+                foreach ((array)$request->questions as $questionId) {
+                    if (!$this->teacherCanUseQuestion((int)$questionId)) {
+                        return response()->json(['error' => 'Invalid Access'], 403);
+                    }
+                }
+            }
 
             if (saasPlanCheck('quiz', $online_exam->totalQuestions())) {
                 return response()->json([
@@ -972,6 +1047,10 @@ class OnlineQuizController extends Controller
                 $totalMarks = $online_exam->total_marks = $online_exam->totalMarks() ?? 0;
                 $totalQus = $online_exam->total_questions = $online_exam->totalQuestions() ?? 0;
                 $online_exam->save();
+                if ($this->isTeacher()) {
+                    $online_exam->status = 0;
+                    $online_exam->save();
+                }
                 return response()->json([
                     'success' => 'Operation successful',
                     'totalQus' => $totalQus,

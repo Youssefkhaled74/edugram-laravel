@@ -100,6 +100,8 @@
                                         <tr>
                                             <th scope="col">{{ __('common.SL') }}</th>
                                             <th scope="col">{{ __('coupons.Title') }}</th>
+                                            <th scope="col">{{ __('quiz.Total Questions') }}</th>
+                                            <th scope="col">{{ __('common.Date') }}</th>
                                             <th scope="col">{{ __('common.Action') }}</th>
                                         </tr>
                                         </thead>
@@ -109,6 +111,8 @@
                                                 <th>{{ $key+1 }}</th>
 
                                                 <td>{{@$group->title }}</td>
+                                                <td>{{ $group->questions_count ?? 0 }}</td>
+                                                <td>{{ showDate($group->created_at) }}</td>
                                                 <td>
 
                                                     <div class="dropdown CRM_dropdown">
@@ -124,6 +128,14 @@
                                                             @if (permissionCheck('question-group.edit'))
                                                                 <a class="dropdown-item edit_brand"
                                                                    href="{{route('question-group.edit',$group->id)}}">{{__('common.Edit')}}</a>
+                                                            @endif
+                                                            @if (permissionCheck('question-bank'))
+                                                                <a class="dropdown-item"
+                                                                   href="{{route('question-bank', ['group' => $group->id])}}">{{ __('quiz.Add') }} {{ __('quiz.Question') }}</a>
+                                                            @endif
+                                                            @if (permissionCheck('question-bank-list'))
+                                                                <a class="dropdown-item"
+                                                                   href="{{route('question-bank-list', ['group' => $group->id])}}">{{ __('common.View') }}</a>
                                                             @endif
                                                             @if (permissionCheck('question-group.delete'))
                                                                 <a class="dropdown-item" data-bs-toggle="modal"

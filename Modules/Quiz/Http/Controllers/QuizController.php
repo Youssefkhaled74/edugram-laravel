@@ -12,6 +12,16 @@ use Modules\Quiz\Entities\QuestionGroup;
 
 class QuizController extends Controller
 {
+    private function canAccessGroup(QuestionGroup $group): bool
+    {
+        $user = Auth::user();
+        if ((int)$user->role_id !== 2) {
+            return true;
+        }
+        // Allow teacher owned groups and intentionally global groups (user_id = 1).
+        return (int)$group->user_id === (int)$user->id || (int)$group->user_id === 1;
+    }
+
     public function index()
     {
         try {
@@ -20,13 +30,18 @@ class QuizController extends Controller
                 return $AdvanceQuizGroupController->index();
             } else {
                 $query = QuestionGroup::query();
+                if ((int)Auth::user()->role_id === 2) {
+                    $query->where(function ($q) {
+                        $q->where('user_id', Auth::id())->orWhere('user_id', 1);
+                    });
+                }
                 if (isModuleActive('Organization') && Auth::user()->isOrganization()) {
                     $query->whereHas('user', function ($q) {
                         $q->where('organization_id', Auth::id());
                         $q->orWhere('user_id', Auth::id());
                     });
                 }
-                $groups = $query->latest()->get();
+                $groups = $query->withCount('questions')->latest()->get();
                 return view('quiz::index', compact('groups'));
             }
 
@@ -84,15 +99,24 @@ class QuizController extends Controller
         }
         try {
             $user = Auth::user();
-            $group = QuestionGroup::find($id);
+            $group = QuestionGroup::findOrFail($id);
+            if (!$this->canAccessGroup($group)) {
+                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                return redirect()->route('question-group');
+            }
             $query = QuestionGroup::where('active_status', 1);
+            if ((int)$user->role_id === 2) {
+                $query->where(function ($q) {
+                    $q->where('user_id', Auth::id())->orWhere('user_id', 1);
+                });
+            }
             if (isModuleActive('Organization') && $user->isOrganization()) {
                 $query->whereHas('user', function ($q) {
                     $q->where('organization_id', Auth::id());
                     $q->orWhere('user_id', Auth::id());
                 });
             }
-            $groups = $query->latest()->get();
+            $groups = $query->withCount('questions')->latest()->get();
             return view('quiz::index', compact('groups', 'group'));
         } catch (\Exception $e) {
             GettingError($e->getMessage(), url()->current(), request()->ip(), request()->userAgent());
@@ -112,7 +136,11 @@ class QuizController extends Controller
                 $AdvanceQuizGroupController = new AdvanceQuizGroupController();
                 $result = $AdvanceQuizGroupController->createOrUpdate($request, $request->id);
             } else {
-                $group = QuestionGroup::find($request->id);
+                $group = QuestionGroup::findOrFail($request->id);
+                if (!$this->canAccessGroup($group) || (int)$group->user_id === 1) {
+                    Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                    return redirect()->route('question-group');
+                }
                 $group->title = $request->title;
                 $result = $group->save();
             }
@@ -138,6 +166,10 @@ class QuizController extends Controller
         try {
             if (isModuleActive('AdvanceQuiz')) {
                 $group = QuestionGroup::findOrFail($id);
+                if (!$this->canAccessGroup($group) || ((int)Auth::user()->role_id === 2 && (int)$group->user_id === 1)) {
+                    Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                    return redirect()->route('question-group');
+                }
                 $childs = $group->getAllChildIds($group);
                 $group->delete();
                 foreach ($childs as $child) {
@@ -145,7 +177,12 @@ class QuizController extends Controller
                     $b->delete();
                 }
             } else {
-                $group = QuestionGroup::destroy($id);
+                $group = QuestionGroup::findOrFail($id);
+                if (!$this->canAccessGroup($group) || ((int)Auth::user()->role_id === 2 && (int)$group->user_id === 1)) {
+                    Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                    return redirect()->route('question-group');
+                }
+                $group = $group->delete();
             }
 
             if ($group) {
