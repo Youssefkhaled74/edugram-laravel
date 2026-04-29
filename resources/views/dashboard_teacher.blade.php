@@ -65,8 +65,11 @@
         <div class="row row-gap-4 mt-3">
             <div class="col-lg-6">
                 <div class="white_box chart_box h-100">
-                    <div class="white_box_tittle list_header">
+                    <div class="white_box_tittle list_header d-flex justify-content-between align-items-center">
                         <h4>ملخص الإيرادات</h4>
+                        <a href="{{ route('teacher.statement.export') }}" class="primary-btn small fix-gr-bg text-nowrap">
+                            تحميل كشف الحساب Excel
+                        </a>
                     </div>
                     <div class="d-flex justify-content-between py-2">
                         <span>إجمالي المبيعات</span>
@@ -145,3 +148,4 @@
         </div>
     </div>
 @endsection
+

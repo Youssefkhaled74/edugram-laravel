@@ -261,6 +261,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/home', 'HomeController@index')->name('home');
     Route::get('dashboard', 'HomeController@dashboard')->name('dashboard');
+    Route::get('teacher/statement/export', 'TeacherStatementController@export')->name('teacher.statement.export');
     Route::get('getDashboardData', 'HomeController@getDashboardData')->name('getDashboardData')->middleware('RoutePermissionCheck:dashboard');
     Route::get('userLoginChartByDays', 'HomeController@userLoginChartByDays')->name('userLoginChartByDays');
     Route::get('userLoginChartByTime', 'HomeController@userLoginChartByTime')->name('userLoginChartByTime');
@@ -520,4 +521,3 @@ Route::get('scorm/video/{lesson_id}/{id}', 'Frontend\WebsiteController@scormPlay
 Route::get('document/video/{lesson_id}', 'Frontend\WebsiteController@documentPlayer')->name('documentPlayer');
 Route::get('get-dynamic-data', 'Frontend\ThemeDynamicData')->name('getDynamicData');
 Route::get('read-some-part-of-books/{id}', 'Frontend\WebsiteController@readSomePartOfBooks')->name('readSomePartOfBooks');
-
