@@ -177,34 +177,6 @@
                         <span class="menu_seperator">
                             {{$section->getTranslation('name', app()->getLocale())}}
                         </span>
-                        @php
-                            $sectionName = mb_strtolower((string)$section->getTranslation('name', app()->getLocale()));
-                            $isLearningSection = str_contains($sectionName, 'المحتوى التعليمي')
-                                || str_contains($sectionName, 'learning')
-                                || str_contains($sectionName, 'course');
-                        @endphp
-                        @if($isTeacherSidebar && $isLearningSection)
-                            <li class="{{request()->routeIs('teacher.question-banks.*','teacher.questions.*') ? 'mm-active' : ''}}">
-                                <a href="{{ route('teacher.question-banks.index') }}" aria-expanded="false">
-                                    <div class="nav_icon_small">
-                                        <span class="fas fa-question-circle"></span>
-                                    </div>
-                                    <div class="nav_title">
-                                        <span>بنك الأسئلة</span>
-                                    </div>
-                                </a>
-                            </li>
-                            <li class="{{request()->routeIs('teacher.statistics.*','teacher.courses.analytics') ? 'mm-active' : ''}}">
-                                <a href="{{ route('teacher.statistics.index') }}" aria-expanded="false">
-                                    <div class="nav_icon_small">
-                                        <span class="fas fa-chart-line"></span>
-                                    </div>
-                                    <div class="nav_title">
-                                        <span>الإحصائيات</span>
-                                    </div>
-                                </a>
-                            </li>
-                        @endif
                     @endif
                     @if($section->activeMenus->count())
                         @foreach($section->activeMenus as  $menu)

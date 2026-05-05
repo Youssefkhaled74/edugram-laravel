@@ -2,7 +2,10 @@
 @section('mainContent')
     @php
         $isTeacherBankPage = request()->routeIs('teacher.question-banks.*', 'teacher.questions.*');
-        $teacherBankId = request()->route('bank') ?? request('group') ?? (isset($group) ? $group : null);
+        $teacherBankId = request()->route('bank')
+            ?? request('group')
+            ?? request()->segment(3)
+            ?? (isset($group) ? $group : null);
     @endphp
     <style>
         .select2-container {
