@@ -1651,10 +1651,24 @@ class CourseSettingController extends Controller
             $edit = Lesson::find($request->id);
             $course = Course::find($course_id);
             $user = Auth::user();
+            $quizQuery = OnlineQuiz::select('id', 'title', 'category_id')
+                ->where('status', 1);
             if ($user->role_id == 2) {
-                $quizzes = OnlineQuiz::select('id', 'title')->where('status', 1)->where('category_id', $course->category_id)->where('created_by', $user->id)->latest()->get();
+                $quizQuery->where('created_by', $user->id);
+            }
+
+            // Prefer same-category quizzes, but don't hide other teacher quizzes if category mapping differs.
+            if (!empty($course->category_id)) {
+                $quizzes = (clone $quizQuery)
+                    ->where('category_id', $course->category_id)
+                    ->latest()
+                    ->get();
+
+                if ($quizzes->isEmpty()) {
+                    $quizzes = $quizQuery->latest()->get();
+                }
             } else {
-                $quizzes = OnlineQuiz::select('id', 'title')->where('status', 1)->where('category_id', $course->category_id)->latest()->get();
+                $quizzes = $quizQuery->latest()->get();
             }
 
 
