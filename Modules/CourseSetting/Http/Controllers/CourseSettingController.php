@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
 use Modules\Assignment\Entities\InfixAssignment;
@@ -1650,27 +1651,30 @@ class CourseSettingController extends Controller
         } elseif ($type == 'quiz') {
             $edit = Lesson::find($request->id);
             $course = Course::find($course_id);
-            $user = Auth::user();
-            $quizQuery = OnlineQuiz::select('id', 'title', 'category_id')
-                ->where('status', 1);
-            if ($user->role_id == 2) {
-                $quizQuery->where('created_by', $user->id);
+            // Maximum compatibility: list any existing quiz record to avoid empty selector due legacy filters.
+            $quizzes = OnlineQuiz::select('id', 'title', 'category_id')->latest()->get();
+
+            try {
+                Log::info('courseModal.quiz.debug', [
+                    'course_id' => (int)$course_id,
+                    'chapter_id' => $chapter_id,
+                    'request_id' => $request->id,
+                    'auth_id' => Auth::id(),
+                    'auth_role_id' => Auth::user()->role_id ?? null,
+                    'course_user_id' => $course->user_id ?? null,
+                    'course_category_id' => $course->category_id ?? null,
+                    'quizzes_count' => $quizzes->count(),
+                    'quizzes_sample' => $quizzes->take(10)->map(function ($quiz) {
+                        return [
+                            'id' => $quiz->id,
+                            'title' => (string)$quiz->title,
+                            'category_id' => $quiz->category_id,
+                        ];
+                    })->toArray(),
+                ]);
+            } catch (\Throwable $e) {
+                Log::error('courseModal.quiz.debug.failed', ['message' => $e->getMessage()]);
             }
-
-            // Prefer same-category quizzes, but don't hide other teacher quizzes if category mapping differs.
-            if (!empty($course->category_id)) {
-                $quizzes = (clone $quizQuery)
-                    ->where('category_id', $course->category_id)
-                    ->latest()
-                    ->get();
-
-                if ($quizzes->isEmpty()) {
-                    $quizzes = $quizQuery->latest()->get();
-                }
-            } else {
-                $quizzes = $quizQuery->latest()->get();
-            }
-
 
             return view('coursesetting::parts_of_course_details.modal._quiz', compact('course_id', 'chapter_id', 'edit', 'quizzes', 'course'));
         } elseif ($type == 'assignment' && isModuleActive('Assignment')) {

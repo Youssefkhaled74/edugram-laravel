@@ -89,10 +89,19 @@
                                         data-display="{{__('common.Select')}} {{__('quiz.Quiz')}}"
                                         value="">{{__('common.Select')}} {{__('quiz.Quiz')}} </option>
                                     @foreach ($quizzes as $quiz)
+                                        @php
+                                            $quizTitle = trim((string)($quiz->title ?? ''));
+                                            if ($quizTitle === '') {
+                                                $quizTitle = 'Quiz #' . $quiz->id;
+                                            }
+                                        @endphp
                                         <option
-                                            value="{{@$quiz->id}}" {{isset($editLesson)? ($editLesson->quiz_id == $quiz->id? 'selected':''):''}} >{{@$quiz->title}}</option>
+                                            value="{{@$quiz->id}}" {{isset($editLesson)? ($editLesson->quiz_id == $quiz->id? 'selected':''):''}} >{{ $quizTitle }}</option>
                                     @endforeach
                                 </select>
+                                @if(isset($quizzes) && $quizzes->count() === 0)
+                                    <small class="text-danger d-block mt-1">No quizzes found in `online_quizzes`.</small>
+                                @endif
                                 @if ($errors->has('quiz'))
                                     <span class="invalid-feedback invalid-select" role="alert">
                             <strong>{{ $errors->first('quiz') }}</strong>
