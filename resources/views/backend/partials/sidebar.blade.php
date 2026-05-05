@@ -116,13 +116,23 @@
                     </div>
                 </a>
             </li>
-            <li class="{{request()->routeIs('teacher.statistics.*','teacher.courses.analytics') ? 'mm-active' : ''}}">
+            <li class="{{request()->routeIs('teacher.statistics.index','teacher.courses.analytics') ? 'mm-active' : ''}}">
                 <a href="{{ route('teacher.statistics.index') }}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <span class="fas fa-chart-line"></span>
                     </div>
                     <div class="nav_title">
                         <span>الإحصائيات</span>
+                    </div>
+                </a>
+            </li>
+            <li class="{{request()->routeIs('teacher.statistics.courses') ? 'mm-active' : ''}}">
+                <a href="{{ route('teacher.statistics.courses') }}" aria-expanded="false">
+                    <div class="nav_icon_small">
+                        <span class="fas fa-chart-bar"></span>
+                    </div>
+                    <div class="nav_title">
+                        <span>إحصائيات الكورسات</span>
                     </div>
                 </a>
             </li>

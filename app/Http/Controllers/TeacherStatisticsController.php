@@ -38,14 +38,30 @@ class TeacherStatisticsController extends Controller
             $courseRows[] = $this->buildCourseMetrics($course);
         }
 
+        $allStudentIds = [];
+        foreach ($courseRows as $row) {
+            $allStudentIds = array_merge($allStudentIds, $row['student_ids']);
+        }
         $summary = [
             'total_courses' => $courses->count(),
             'total_enrolled_students' => array_sum(array_column($courseRows, 'students_count')),
+            'unique_students_count' => count(array_unique($allStudentIds)),
             'total_revenue' => array_sum(array_column($courseRows, 'total_revenue')),
+            'total_sales' => array_sum(array_column($courseRows, 'total_sales')),
+            'paid_enrollments' => array_sum(array_column($courseRows, 'paid_enrollments')),
+            'free_enrollments' => array_sum(array_column($courseRows, 'free_enrollments')),
+            'active_students' => array_sum(array_column($courseRows, 'active_students')),
+            'completed_students' => array_sum(array_column($courseRows, 'completed_students')),
             'avg_completion' => $this->avg(array_column($courseRows, 'completion_percentage')),
             'avg_quiz_score' => $this->avg(array_column($courseRows, 'quiz_avg_score')),
             'assignments_submitted' => array_sum(array_column($courseRows, 'assignments_submitted')),
         ];
+        $summary['avg_order_value'] = $summary['paid_enrollments'] > 0
+            ? round($summary['total_sales'] / $summary['paid_enrollments'], 2)
+            : 0;
+        $summary['completion_students_rate'] = $summary['total_enrolled_students'] > 0
+            ? round(($summary['completed_students'] / $summary['total_enrolled_students']) * 100, 2)
+            : 0;
 
         $recentEnrollments = CourseEnrolled::query()
             ->whereIn('course_id', $courseIds)
@@ -64,6 +80,11 @@ class TeacherStatisticsController extends Controller
             'recentEnrollments' => $recentEnrollments,
             'selectedCourseId' => $selectedCourseId,
         ]);
+    }
+
+    public function courseStatistics(Request $request)
+    {
+        return $this->index($request);
     }
 
     public function courseAnalytics(Course $course)
@@ -106,6 +127,7 @@ class TeacherStatisticsController extends Controller
     {
         $enrolls = CourseEnrolled::query()->where('course_id', $course->id)->get();
         $studentsCount = $enrolls->count();
+        $studentIds = $enrolls->pluck('user_id')->filter()->unique()->values()->toArray();
         $lessonCount = Lesson::query()->where('course_id', $course->id)->count();
 
         $quizIds = Lesson::query()->where('course_id', $course->id)
@@ -119,8 +141,17 @@ class TeacherStatisticsController extends Controller
         $quizIds = array_values(array_unique(array_filter($quizIds)));
 
         $completionPercentages = [];
+        $activeStudents = 0;
+        $completedStudents = 0;
         foreach ($enrolls as $enroll) {
-            $completionPercentages[] = (float)$course->userTotalPercentage($enroll->user_id, $course->id);
+            $completion = (float)$course->userTotalPercentage($enroll->user_id, $course->id);
+            $completionPercentages[] = $completion;
+            if ($completion > 0) {
+                $activeStudents++;
+            }
+            if ($completion >= 100) {
+                $completedStudents++;
+            }
         }
         $completionPercentage = $this->avg($completionPercentages);
 
@@ -131,9 +162,12 @@ class TeacherStatisticsController extends Controller
 
         $assignmentsSubmitted = $this->getAssignmentsSubmittedCount($course->id);
         $courseRevenue = (float)$enrolls->sum('reveune');
+        $courseSales = (float)$enrolls->sum('purchase_price');
         if ($courseRevenue <= 0) {
             $courseRevenue = (float)$enrolls->sum('purchase_price');
         }
+        $paidEnrollments = (int)$enrolls->where('purchase_price', '>', 0)->count();
+        $freeEnrollments = (int)$enrolls->where('purchase_price', '<=', 0)->count();
 
         $ratingAvg = (float)CourseReveiw::query()
             ->where('course_id', $course->id)
@@ -147,12 +181,18 @@ class TeacherStatisticsController extends Controller
         return [
             'course' => $course,
             'students_count' => $studentsCount,
+            'student_ids' => $studentIds,
+            'paid_enrollments' => $paidEnrollments,
+            'free_enrollments' => $freeEnrollments,
+            'active_students' => $activeStudents,
+            'completed_students' => $completedStudents,
             'completion_percentage' => round($completionPercentage, 2),
             'lectures_count' => $lessonCount,
             'quizzes_count' => count($quizIds),
             'quiz_avg_score' => round($quizAverage, 2),
             'assignments_submitted' => $assignmentsSubmitted,
             'total_revenue' => round($courseRevenue, 2),
+            'total_sales' => round($courseSales, 2),
             'rating_avg' => round($ratingAvg, 2),
             'rating_count' => $ratingCount,
         ];
@@ -190,6 +230,14 @@ class TeacherStatisticsController extends Controller
             'quiz_avg' => [
                 'labels' => array_map(fn($row) => strip_tags((string)$row['course']->title), $courseRows),
                 'data' => array_map(fn($row) => (float)$row['quiz_avg_score'], $courseRows),
+            ],
+            'top_revenue_courses' => [
+                'labels' => array_map(fn($row) => strip_tags((string)$row['course']->title), collect($courseRows)->sortByDesc('total_revenue')->take(8)->values()->all()),
+                'data' => array_map(fn($row) => (float)$row['total_revenue'], collect($courseRows)->sortByDesc('total_revenue')->take(8)->values()->all()),
+            ],
+            'top_students_courses' => [
+                'labels' => array_map(fn($row) => strip_tags((string)$row['course']->title), collect($courseRows)->sortByDesc('students_count')->take(8)->values()->all()),
+                'data' => array_map(fn($row) => (int)$row['students_count'], collect($courseRows)->sortByDesc('students_count')->take(8)->values()->all()),
             ],
         ];
     }
@@ -253,4 +301,3 @@ class TeacherStatisticsController extends Controller
         return (float)(array_sum($values) / $count);
     }
 }
-
