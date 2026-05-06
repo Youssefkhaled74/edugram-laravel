@@ -1116,6 +1116,7 @@ class QuestionBankController extends Controller
         }
 
         $importPath = '';
+        $beforeCount = QuestionBank::count();
         try {
             $importPath = $this->prepareXlsxForImport($request, $extension ?? '');
             if (isModuleActive('AdvanceQuiz')) {
@@ -1134,6 +1135,13 @@ class QuestionBankController extends Controller
 
         } catch (\Throwable $e) {
             report($e);
+            if (str_contains($e->getMessage(), 'children() on null')) {
+                $afterCount = QuestionBank::count();
+                if ($afterCount > $beforeCount) {
+                    Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+                    return redirect('quiz/question-bank-list');
+                }
+            }
             Toastr::error(trans('common.Operation failed') . ': ' . $e->getMessage(), trans('common.Failed'));
             return redirect()->back();
         } finally {
