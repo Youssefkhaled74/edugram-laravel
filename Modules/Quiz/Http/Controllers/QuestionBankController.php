@@ -29,6 +29,7 @@ use Modules\Quiz\Entities\QuestionGroup;
 use Modules\Quiz\Entities\QuestionLevel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use ZipArchive;
 use Yajra\DataTables\Facades\DataTables;
 
 class QuestionBankController extends Controller
@@ -1021,6 +1022,58 @@ class QuestionBankController extends Controller
         return response()->download($tempFilePath, $xlsxFileName)->deleteFileAfterSend(true);
     }
 
+    private function normalizeXlsxRelationships(string $xml): string
+    {
+        // Some generators store relationship Target as absolute (/xl/...) which breaks under open_basedir.
+        return preg_replace('/Target=(["\'])\/+([^"\']+)\1/i', 'Target=$1$2$1', $xml) ?? $xml;
+    }
+
+    private function prepareXlsxForImport(Request $request, string $extension): string
+    {
+        $sourcePath = $request->file('excel_file')->getRealPath();
+        if ($sourcePath === false) {
+            throw new Exception('Uploaded file path is invalid');
+        }
+
+        if ($extension !== 'xlsx') {
+            return $sourcePath;
+        }
+
+        $tempDir = storage_path('app/tmp');
+        if (!File::exists($tempDir)) {
+            File::makeDirectory($tempDir, 0755, true);
+        }
+
+        $sanitizedPath = $tempDir . DIRECTORY_SEPARATOR . 'quiz-import-' . uniqid('', true) . '.xlsx';
+        if (!copy($sourcePath, $sanitizedPath)) {
+            return $sourcePath;
+        }
+
+        $zip = new ZipArchive();
+        if ($zip->open($sanitizedPath) !== true) {
+            return $sourcePath;
+        }
+
+        $targets = ['_rels/.rels'];
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $name = $zip->getNameIndex($i);
+            if (is_string($name) && str_starts_with($name, 'xl/_rels/') && str_ends_with($name, '.rels')) {
+                $targets[] = $name;
+            }
+        }
+
+        foreach (array_unique($targets) as $relsPath) {
+            $content = $zip->getFromName($relsPath);
+            if ($content === false) {
+                continue;
+            }
+            $zip->addFromString($relsPath, $this->normalizeXlsxRelationships($content));
+        }
+
+        $zip->close();
+        return $sanitizedPath;
+    }
+
     public function questionBulkImportSubmit(Request $request)
     {
 
@@ -1053,11 +1106,13 @@ class QuestionBankController extends Controller
             return redirect()->back();
         }
 
+        $importPath = '';
         try {
+            $importPath = $this->prepareXlsxForImport($request, $extension ?? '');
             if (isModuleActive('AdvanceQuiz')) {
-                Excel::import(new AdvanceQuestionBankImport(), $request->excel_file);
+                Excel::import(new AdvanceQuestionBankImport(), $importPath);
             } else {
-                Excel::import(new QuestionBankImport($request->group, $request->category, $request->sub_category), $request->excel_file);
+                Excel::import(new QuestionBankImport($request->group, $request->category, $request->sub_category), $importPath);
             }
 
             if (Session::has('failed')) {
@@ -1070,7 +1125,10 @@ class QuestionBankController extends Controller
 
         } catch (Exception $e) {
             GettingError($e->getMessage(), url()->current(), request()->ip(), request()->userAgent());
-
+        } finally {
+            if (!empty($importPath) && str_starts_with($importPath, storage_path('app/tmp')) && File::exists($importPath)) {
+                File::delete($importPath);
+            }
         }
     }
 
