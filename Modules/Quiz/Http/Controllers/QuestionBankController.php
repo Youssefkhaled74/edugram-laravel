@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
@@ -1083,6 +1084,94 @@ class QuestionBankController extends Controller
         return $sanitizedPath;
     }
 
+    private function fallbackImportQuestions(string $filePath, int $groupId, int $userId): int
+    {
+        $spreadsheet = IOFactory::load($filePath);
+        $rows = $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
+        if (count($rows) < 2) {
+            return 0;
+        }
+
+        $headers = array_map(function ($h) {
+            $h = strtolower(trim((string)$h));
+            return str_replace(' ', '_', $h);
+        }, $rows[0]);
+
+        $imported = 0;
+        foreach (array_slice($rows, 1) as $values) {
+            $row = [];
+            foreach ($headers as $idx => $key) {
+                if ($key !== '') {
+                    $row[$key] = $values[$idx] ?? null;
+                }
+            }
+
+            $type = trim((string)($row['type'] ?? ''));
+            $questionText = trim((string)($row['question'] ?? ''));
+            $mark = $row['mark'] ?? null;
+            if ($type === '' || $questionText === '' || $mark === null || $mark === '') {
+                continue;
+            }
+
+            $now = now();
+            $questionData = [
+                'question' => $questionText,
+                'marks' => (float)$mark,
+                'type' => $type,
+                'q_group_id' => $groupId,
+                'user_id' => $userId,
+                'number_of_option' => 0,
+                'explanation' => (string)($row['explanation'] ?? ''),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+            if (Schema::hasColumn('question_banks', 'lms_id')) {
+                $questionData['lms_id'] = Auth::user()->lms_id ?? 1;
+            }
+
+            $questionId = DB::table('question_banks')->insertGetId($questionData);
+            $imported++;
+
+            if ($type !== 'M') {
+                continue;
+            }
+
+            $correct = trim((string)($row['correct_ans'] ?? ''));
+            $correctOptions = array_filter(array_map('trim', explode('|', $correct)));
+            $optionCount = 0;
+
+            foreach ($row as $k => $v) {
+                if (!str_starts_with($k, 'option_')) {
+                    continue;
+                }
+                $title = trim((string)$v);
+                if ($title === '') {
+                    continue;
+                }
+                $index = str_replace('option_', '', $k);
+                $optionData = [
+                    'question_bank_id' => $questionId,
+                    'title' => $title,
+                    'status' => in_array($index, $correctOptions) ? 1 : 0,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+                if (Schema::hasColumn('question_bank_mu_options', 'lms_id')) {
+                    $optionData['lms_id'] = Auth::user()->lms_id ?? 1;
+                }
+                DB::table('question_bank_mu_options')->insert($optionData);
+                $optionCount++;
+            }
+
+            DB::table('question_banks')->where('id', $questionId)->update([
+                'number_of_option' => $optionCount,
+                'updated_at' => $now,
+            ]);
+        }
+
+        return $imported;
+    }
+
     public function questionBulkImportSubmit(Request $request)
     {
 
@@ -1136,6 +1225,13 @@ class QuestionBankController extends Controller
         } catch (\Throwable $e) {
             report($e);
             if (str_contains($e->getMessage(), 'children() on null')) {
+                if (!isModuleActive('AdvanceQuiz')) {
+                    $fallbackImported = $this->fallbackImportQuestions($importPath, (int)$request->group, (int)Auth::id());
+                    if ($fallbackImported > 0) {
+                        Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+                        return redirect('quiz/question-bank-list');
+                    }
+                }
                 $afterCount = QuestionBank::count();
                 if ($afterCount > $beforeCount) {
                     Toastr::success(trans('common.Operation successful'), trans('common.Success'));
