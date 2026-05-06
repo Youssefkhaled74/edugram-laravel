@@ -66,56 +66,57 @@ class QuestionBankImport implements WithHeadingRow, SkipsOnFailure, WithStartRow
 
     public function onRow(Row $row)
     {
-        $row = $row->toArray();
+        QuestionBank::withoutEvents(function () use ($row) {
+            $row = $row->toArray();
 
-        if (!empty($row['type']) && !empty($row['question']) && !empty($row['mark'])) {
-            $options = [];
-            $regex = 'option_';
-            foreach ($row as $key => $value) {
-                if (str_starts_with($key, $regex)) {
-                    $options[str_replace($regex, '', $key)] = $value;
-                }
-            }
-
-            $correct = trim($row['correct_ans'] ?? '');
-            $correct_options = explode('|', $correct);
-
-
-            $total = 0;
-
-
-            $question = new QuestionBank([
-                'question' => $row['question'],
-                'marks' => $row['mark'],
-                'type' => $row['type'],
-                'q_group_id' => $this->group,
-                'user_id' => Auth::id(),
-                'number_of_option' => $total,
-                'explanation' => $row['explanation']??""
-            ]);
-            $question->save();
-            if ($row['type'] == "M") {
-                $i = 1;
-                foreach ($options as $key => $option) {
-                    if (!empty($option)) {
-                        $online_question_option = new QuestionBankMuOption();
-                        $online_question_option->question_bank_id = $question->id;
-                        $online_question_option->title = $option;
-                        if (in_array($key, $correct_options)) {
-                            $online_question_option->status = 1;
-                        } else {
-                            $online_question_option->status = 0;
-                        }
-                        $online_question_option->save();
-
-                        $question->number_of_option = $i;
-                        $question->save();
-                        $i++;
+            if (!empty($row['type']) && !empty($row['question']) && !empty($row['mark'])) {
+                $options = [];
+                $regex = 'option_';
+                foreach ($row as $key => $value) {
+                    if (str_starts_with($key, $regex)) {
+                        $options[str_replace($regex, '', $key)] = $value;
                     }
+                }
 
+                $correct = trim($row['correct_ans'] ?? '');
+                $correct_options = explode('|', $correct);
+
+
+                $total = 0;
+
+
+                $question = new QuestionBank([
+                    'question' => $row['question'],
+                    'marks' => $row['mark'],
+                    'type' => $row['type'],
+                    'q_group_id' => $this->group,
+                    'user_id' => Auth::id(),
+                    'number_of_option' => $total,
+                    'explanation' => $row['explanation'] ?? ""
+                ]);
+                $question->save();
+                if ($row['type'] == "M") {
+                    $i = 1;
+                    foreach ($options as $key => $option) {
+                        if (!empty($option)) {
+                            $online_question_option = new QuestionBankMuOption();
+                            $online_question_option->question_bank_id = $question->id;
+                            $online_question_option->title = $option;
+                            if (in_array($key, $correct_options)) {
+                                $online_question_option->status = 1;
+                            } else {
+                                $online_question_option->status = 0;
+                            }
+                            $online_question_option->save();
+
+                            $question->number_of_option = $i;
+                            $question->save();
+                            $i++;
+                        }
+                    }
                 }
             }
-        }
+        });
 
 
     }

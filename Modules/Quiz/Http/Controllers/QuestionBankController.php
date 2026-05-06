@@ -196,6 +196,15 @@ class QuestionBankController extends Controller
 
         $this->validate($request, $rules, validationMessage($rules));
 
+        if (!isModuleActive('AdvanceQuiz')) {
+            $groupId = (int)$request->group;
+            $group = QuestionGroup::find($groupId);
+            if (!$group || !$this->teacherCanUseGroup($groupId)) {
+                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                return redirect()->back();
+            }
+        }
+
         try {
             if (!$this->teacherCanUseGroup((int)$request->group)) {
                 Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
@@ -1123,8 +1132,10 @@ class QuestionBankController extends Controller
                 return redirect('quiz/question-bank-list');
             }
 
-        } catch (Exception $e) {
-            GettingError($e->getMessage(), url()->current(), request()->ip(), request()->userAgent());
+        } catch (\Throwable $e) {
+            report($e);
+            Toastr::error(trans('common.Operation failed') . ': ' . $e->getMessage(), trans('common.Failed'));
+            return redirect()->back();
         } finally {
             if (!empty($importPath) && str_starts_with($importPath, storage_path('app/tmp')) && File::exists($importPath)) {
                 File::delete($importPath);

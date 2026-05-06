@@ -18,12 +18,13 @@ class AdvanceQuestionBankImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows)
     {
-        $questions = [];
-        $total_options = 0;
-        $total_qus = 0;
-        $total_ans = 0;
-        $data = $connection = '';
-        $opt = [];
+        QuestionBank::withoutEvents(function () use ($rows) {
+            $questions = [];
+            $total_options = 0;
+            $total_qus = 0;
+            $total_ans = 0;
+            $data = $connection = '';
+            $opt = [];
 
             foreach ($rows as $key => $row) {
                 if (!empty($row['no'] ?? "")) {
@@ -159,8 +160,7 @@ class AdvanceQuestionBankImport implements ToCollection, WithHeadingRow
                 $newQus->connection = $connection;
                 $newQus->save();
             }
-
-        
+        });
     }
 
     public function headingRow(): int
