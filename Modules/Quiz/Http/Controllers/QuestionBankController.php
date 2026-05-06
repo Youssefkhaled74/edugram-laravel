@@ -1043,11 +1043,14 @@ class QuestionBankController extends Controller
         $this->validate($request, $rules, validationMessage($rules));
 
         if ($request->hasFile('excel_file')) {
-            $extension = File::extension($request->excel_file->getClientOriginalName());
+            $extension = strtolower(File::extension($request->excel_file->getClientOriginalName()));
             if ($extension != "xlsx" && $extension != "xls") {
                 Toastr::error(trans('frontend.Excel File is Required'), trans('common.Failed'));
                 return redirect()->back();
             }
+        } else {
+            Toastr::error(trans('frontend.Excel File is Required'), trans('common.Failed'));
+            return redirect()->back();
         }
 
         try {

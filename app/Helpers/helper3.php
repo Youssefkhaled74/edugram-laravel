@@ -911,17 +911,26 @@ if (!function_exists('transformExcelDate')) {
     function transformExcelDate($value, $format = 'd/m/Y')
     {
         try {
-            if (is_string($value)) {
-                $date = Carbon::createFromFormat($format, $value);
-                return $date->translatedFormat($format);
-            } else {
+            if ($value === null || $value === '') {
+                return '';
+            }
+
+            if (is_numeric($value)) {
                 $date = Carbon::instance(Date::excelToDateTimeObject($value));
                 return $date->translatedFormat($format);
             }
 
-        } catch (ErrorException $e) {
-            $date = Carbon::createFromFormat($format, $value);
+            $value = trim((string)$value);
+
+            try {
+                $date = Carbon::createFromFormat($format, $value);
+            } catch (\Throwable $e) {
+                $date = Carbon::parse($value);
+            }
+
             return $date->translatedFormat($format);
+        } catch (\Throwable $e) {
+            return (string)$value;
         }
     }
 }
