@@ -1084,7 +1084,7 @@ class QuestionBankController extends Controller
         return $sanitizedPath;
     }
 
-    private function fallbackImportQuestions(string $filePath, int $groupId, int $userId): int
+    private function fallbackImportQuestions(string $filePath, int $groupId, int $userId, ?int $lmsId = null): int
     {
         $spreadsheet = IOFactory::load($filePath);
         $rows = $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
@@ -1126,7 +1126,7 @@ class QuestionBankController extends Controller
                 'updated_at' => $now,
             ];
             if (Schema::hasColumn('question_banks', 'lms_id')) {
-                $questionData['lms_id'] = Auth::user()->lms_id ?? 1;
+                $questionData['lms_id'] = $lmsId ?? 1;
             }
 
             $questionId = DB::table('question_banks')->insertGetId($questionData);
@@ -1157,7 +1157,7 @@ class QuestionBankController extends Controller
                     'updated_at' => $now,
                 ];
                 if (Schema::hasColumn('question_bank_mu_options', 'lms_id')) {
-                    $optionData['lms_id'] = Auth::user()->lms_id ?? 1;
+                    $optionData['lms_id'] = $lmsId ?? 1;
                 }
                 DB::table('question_bank_mu_options')->insert($optionData);
                 $optionCount++;
@@ -1226,10 +1226,15 @@ class QuestionBankController extends Controller
             report($e);
             if (str_contains($e->getMessage(), 'children() on null')) {
                 if (!isModuleActive('AdvanceQuiz')) {
-                    $fallbackImported = $this->fallbackImportQuestions($importPath, (int)$request->group, (int)Auth::id());
-                    if ($fallbackImported > 0) {
-                        Toastr::success(trans('common.Operation successful'), trans('common.Success'));
-                        return redirect('quiz/question-bank-list');
+                    try {
+                        $lmsId = Auth::check() ? (int)(Auth::user()->lms_id ?? 1) : 1;
+                        $fallbackImported = $this->fallbackImportQuestions($importPath, (int)$request->group, (int)Auth::id(), $lmsId);
+                        if ($fallbackImported > 0) {
+                            Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+                            return redirect('quiz/question-bank-list');
+                        }
+                    } catch (\Throwable $fallbackException) {
+                        report($fallbackException);
                     }
                 }
                 $afterCount = QuestionBank::count();

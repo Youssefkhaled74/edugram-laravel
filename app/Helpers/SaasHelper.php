@@ -51,12 +51,16 @@ if (!function_exists('SaasDomain')) {
     {
 
         $domain = 'main';
-        $saas_module = 'Modules/LmsSaas/Providers/LmsSaasServiceProvider.php';
-        $saas_module2 = 'Modules/LmsSaasMD/Providers/LmsSaasMDServiceProvider.php';
+        $saas_module = base_path('Modules/LmsSaas/Providers/LmsSaasServiceProvider.php');
+        $saas_module2 = base_path('Modules/LmsSaasMD/Providers/LmsSaasMDServiceProvider.php');
+        $module_status_file = base_path('modules_statuses.json');
 
-        if (file_exists($saas_module) || file_exists($saas_module2)) {
+        if (is_file($saas_module) || is_file($saas_module2)) {
 
-            $module_status = json_decode(file_get_contents('modules_statuses.json'), true);
+            $module_status = [];
+            if (is_file($module_status_file)) {
+                $module_status = json_decode((string)file_get_contents($module_status_file), true) ?: [];
+            }
             if ((isset($module_status['LmsSaas']) && $module_status['LmsSaas']) || (isset($module_status['LmsSaasMD']) && $module_status['LmsSaasMD'])) {
                 if (config('app.short_url') != request()->getHost()) {
                     $short_url = preg_replace('#^https?://#', '', rtrim(env('APP_URL', 'http://localhost'), '/'));
@@ -574,7 +578,6 @@ if (!function_exists('DbConnect')) {
         DB::reconnect('mysql_md');
     }
 }
-
 
 
 

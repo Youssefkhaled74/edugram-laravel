@@ -85,6 +85,83 @@
             margin-left: 0;
         }
 
+        .math-keyboard-toggle {
+            position: fixed;
+            left: 24px;
+            bottom: 24px;
+            z-index: 1200;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 0;
+            color: #fff;
+            background: #0d6efd;
+            box-shadow: 0 8px 20px rgba(13, 110, 253, .3);
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        .math-keyboard-panel {
+            position: fixed;
+            left: 24px;
+            bottom: 82px;
+            width: 340px;
+            max-width: calc(100vw - 24px);
+            max-height: 50vh;
+            overflow: auto;
+            background: #fff;
+            border: 1px solid #ececec;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+            z-index: 1201;
+        }
+
+        .math-keyboard-panel.d-none {
+            display: none !important;
+        }
+
+        .math-keyboard-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .math-keyboard-grid {
+            display: grid;
+            grid-template-columns: repeat(8, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        .math-key-btn {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fafafa;
+            color: #222;
+            padding: 7px 4px;
+            font-size: 15px;
+            line-height: 1.2;
+            text-align: center;
+        }
+
+        .math-key-btn:hover {
+            background: #f1f5ff;
+        }
+
+        @media (max-width: 575px) {
+            .math-keyboard-toggle {
+                left: 12px;
+                bottom: 12px;
+            }
+
+            .math-keyboard-panel {
+                left: 12px;
+                width: auto;
+                bottom: 70px;
+            }
+        }
+
     </style>
     {!! generateBreadcrumb() !!}
     <section class="admin-visitor-area up_st_admin_visitor">
@@ -853,6 +930,11 @@
             </div>
         </div>
     </section>
+    <button type="button" class="math-keyboard-toggle" id="mathKeyboardToggle" title="Math Keyboard">∑</button>
+    <div class="math-keyboard-panel d-none" id="mathKeyboardPanel">
+        <div class="math-keyboard-title">Math Symbols</div>
+        <div class="math-keyboard-grid" id="mathKeyboardGrid"></div>
+    </div>
 
     {{--
         <div class="modal fade admin-query" id="deleteBank">
@@ -1394,6 +1476,118 @@
             console.log(`Answer ${index + 1} changed to: "${newValue}"`);
             // Add any additional logic you want to perform on change
         });
+
+        (function () {
+            const symbols = [
+                '±', '×', '÷', '=', '≠', '<', '>', '≤',
+                '≥', '≈', '∞', '√', '∛', '∑', '∏', '∫',
+                '∂', '∆', 'π', 'θ', 'α', 'β', 'γ', 'λ',
+                'μ', 'σ', 'ω', '°', '^', '√()', '()', '[]',
+                '{}', '→', '←', '↔', '∈', '∉', '⊂', '⊆'
+            ];
+            let activeInput = null;
+
+            const $panel = $('#mathKeyboardPanel');
+            const $grid = $('#mathKeyboardGrid');
+            let activeEditable = null;
+
+            symbols.forEach(function (symbol) {
+                $grid.append('<button type="button" class="math-key-btn" data-symbol="' + symbol.replace(/"/g, '&quot;') + '">' + symbol + '</button>');
+            });
+
+            function canUseMathKeyboard($el) {
+                if (!$el || !$el.length) return false;
+                if ($el.is('[readonly], [disabled]')) return false;
+                if (!$el.is('input, textarea')) return false;
+                if ($el.is('input')) {
+                    const type = ($el.attr('type') || 'text').toLowerCase();
+                    const allowed = ['text', 'search', 'tel', 'url', 'email'];
+                    return allowed.indexOf(type) !== -1;
+                }
+                return true;
+            }
+
+            function canUseEditableKeyboard($el) {
+                if (!$el || !$el.length) return false;
+                if ($el.is('[readonly], [disabled]')) return false;
+                if ($el.is('[contenteditable="true"]')) return true;
+                return $el.closest('[contenteditable="true"]').length > 0;
+            }
+
+            function insertAtCursor(el, value) {
+                const start = el.selectionStart || 0;
+                const end = el.selectionEnd || 0;
+                const text = el.value || '';
+                el.value = text.slice(0, start) + value + text.slice(end);
+                const cursor = start + value.length;
+                el.focus();
+                if (typeof el.setSelectionRange === 'function') {
+                    el.setSelectionRange(cursor, cursor);
+                }
+                $(el).trigger('input').trigger('change');
+            }
+
+            function insertIntoEditable(el, value) {
+                el.focus();
+                if (window.getSelection && document.execCommand) {
+                    const selection = window.getSelection();
+                    if (!selection || selection.rangeCount === 0) {
+                        document.execCommand('insertText', false, value);
+                        return;
+                    }
+                    document.execCommand('insertText', false, value);
+                } else {
+                    el.textContent += value;
+                }
+                $(el).trigger('input').trigger('change');
+            }
+
+            $(document).on('focusin click', 'input, textarea', function () {
+                const $el = $(this);
+                if (canUseMathKeyboard($el)) {
+                    activeInput = this;
+                }
+            });
+
+            $(document).on('focusin click', '[contenteditable="true"], .note-editable', function () {
+                const $el = $(this);
+                if (canUseEditableKeyboard($el)) {
+                    activeEditable = $el.closest('[contenteditable="true"]').length ? $el.closest('[contenteditable="true"]')[0] : this;
+                }
+            });
+
+            $('#mathKeyboardToggle').on('click', function () {
+                $panel.toggleClass('d-none');
+            });
+
+            $(document).on('click', '.math-key-btn', function () {
+                const focused = document.activeElement ? $(document.activeElement) : $();
+                if (canUseMathKeyboard(focused)) {
+                    activeInput = focused[0];
+                } else if (canUseEditableKeyboard(focused)) {
+                    activeEditable = focused.closest('[contenteditable="true"]').length ? focused.closest('[contenteditable="true"]')[0] : focused[0];
+                }
+
+                if (!activeInput || !canUseMathKeyboard($(activeInput))) {
+                    if (activeEditable && canUseEditableKeyboard($(activeEditable))) {
+                        const symbolForEditable = $(this).data('symbol') || '';
+                        insertIntoEditable(activeEditable, symbolForEditable);
+                        return;
+                    }
+                    toastr.warning('اختار أي input الأول');
+                    return;
+                }
+                const symbol = $(this).data('symbol') || '';
+                insertAtCursor(activeInput, symbol);
+            });
+
+            $(document).on('click', function (e) {
+                const $target = $(e.target);
+                if (!$target.closest('#mathKeyboardPanel, #mathKeyboardToggle').length) {
+                    $panel.addClass('d-none');
+                }
+            });
+        })();
     </script>
     <script src="{{asset('/')}}/Modules/CourseSetting/Resources/assets/js/course.js"></script>
 
