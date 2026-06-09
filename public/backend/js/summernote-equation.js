@@ -247,14 +247,7 @@
                 groupedTemplates[t.group].push(t);
             });
 
-            self.events = {
-                'summernote.keyup summernote.mouseup summernote.change summernote.scroll': function () {
-                    self.update();
-                },
-                'summernote.disable summernote.dialog.shown': function () {
-                    self.hide();
-                },
-            };
+            self.events = {};
 
             context.memo('button.equation', function () {
                 var button = ui.button({
@@ -310,25 +303,74 @@
                     footer: '<button class="btn btn-primary note-equation-btn">' + lang.equation.insert + '</button> <button class="btn btn-secondary note-equation-cancel" data-dismiss="modal">' + lang.equation.cancel + '</button>',
                     className: 'equation-dialog'
                 }).render().appendTo($container);
-            };
 
-            self.hasEquation = function (node) {
-                return node && $(node).hasClass('note-equation');
-            };
+                var $latexInput = self.$dialog.find('.note-equation-latex');
+                var $preview = self.$dialog.find('.note-equation-preview');
+                var $insertBtn = self.$dialog.find('.note-equation-btn');
+                var $cancelBtn = self.$dialog.find('.note-equation-cancel');
 
-            self.isOnEquation = function (range) {
-                var ancestor = $.summernote.dom.ancestor(range.sc, self.hasEquation);
-                return !!ancestor && (ancestor === $.summernote.dom.ancestor(range.ec, self.hasEquation));
-            };
+                self.$dialog.find('.eq-tpl-btn').on('click', function () {
+                    var latex = $(this).data('latex') || '';
+                    var cursor = $latexInput[0].selectionStart || $latexInput.val().length;
+                    var val = $latexInput.val();
+                    $latexInput.val(val.slice(0, cursor) + latex + val.slice(cursor));
+                    $latexInput.focus();
+                    var newPos = cursor + latex.length;
+                    $latexInput[0].setSelectionRange(newPos, newPos);
+                    doRenderPreview($latexInput, $preview);
+                });
 
-            self.update = function () {
-                if (!context.invoke('editor.hasFocus')) {
-                    self.hide();
-                    return;
+                $insertBtn.on('click', function (e) {
+                    e.preventDefault();
+                    var latex = $latexInput.val().trim();
+                    if (!latex) return;
+                    var html = $preview.html();
+                    if (!html) return;
+                    var $mathNode = $('<span class="note-equation" contenteditable="false" style="display:inline-block;padding:0 2px">' + html + '</span>');
+                    var $hiddenLatex = $('<span class="note-equation-latex-src" style="display:none">' + latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>');
+                    $mathNode.append($hiddenLatex);
+                    context.invoke('editor.restoreRange');
+                    context.invoke('editor.focus');
+                    context.invoke('editor.insertNode', $mathNode[0]);
+                    ui.hideDialog(self.$dialog);
+                });
+
+                $cancelBtn.on('click', function () {
+                    ui.hideDialog(self.$dialog);
+                });
+
+                $latexInput.on('keypress', function (e) {
+                    if (e.keyCode === 13 && !e.shiftKey) {
+                        e.preventDefault();
+                        $insertBtn.trigger('click');
+                    }
+                });
+
+                function doRenderPreview($input, $previewEl) {
+                    var val = $input.val().trim();
+                    if (!val) { $previewEl.html(''); return; }
+                    try {
+                        if (typeof katex !== 'undefined') {
+                            katex.render(val, $previewEl[0], { displayMode: true, throwOnError: false });
+                        } else {
+                            $previewEl.html('<code>' + val.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>');
+                        }
+                    } catch (e) {
+                        $previewEl.html('<span style="color:#dc3545;font-size:12px">' + e.message + '</span>');
+                        try {
+                            if (typeof katex !== 'undefined') {
+                                katex.render(val, $previewEl[0], { displayMode: true, throwOnError: false });
+                            }
+                        } catch (e2) {}
+                    }
                 }
-            };
 
-            self.hide = function () {};
+                $latexInput.on('keyup.eq-preview', function () {
+                    doRenderPreview($(this), $preview);
+                });
+
+                self._doRenderPreview = doRenderPreview;
+            };
 
             self.show = function () {
                 var $latexInput = self.$dialog.find('.note-equation-latex');
@@ -337,94 +379,12 @@
                 $latexInput.val('');
                 $preview.html('');
 
-                self.renderPreview($latexInput, $preview);
-
-                self.showDialog().then(function () {
-                    var latex = $latexInput.val().trim();
-                    if (!latex) return;
-                    var $mathNode = $('<span class="note-equation" contenteditable="false" style="display:inline-block;padding:0 2px">' + $preview.html() + '</span>');
-                    var $hiddenLatex = $('<span class="note-equation-latex-src" style="display:none">' + latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>');
-                    $mathNode.append($hiddenLatex);
-                    context.invoke('editor.restoreRange');
-                    context.invoke('editor.focus');
-                    context.invoke('editor.insertNode', $mathNode[0]);
-                });
-            };
-
-            self.renderPreview = function ($input, $preview) {
-                function doRender() {
-                    var val = $input.val().trim();
-                    if (!val) { $preview.html(''); return; }
-                    try {
-                        if (typeof katex !== 'undefined') {
-                            katex.render(val, $preview[0], { displayMode: true, throwOnError: false });
-                        } else {
-                            $preview.html('<code>' + val.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>');
-                        }
-                    } catch (e) {
-                        $preview.html('<span style="color:#dc3545;font-size:12px">' + e.message + '</span>');
-                        try {
-                            if (typeof katex !== 'undefined') {
-                                katex.render(val, $preview[0], { displayMode: true, throwOnError: false });
-                            }
-                        } catch (e2) {}
-                    }
+                if (self._doRenderPreview) {
+                    self._doRenderPreview($latexInput, $preview);
                 }
-                $input.off('keyup.eq-preview').on('keyup.eq-preview', doRender);
-                doRender();
-            };
 
-            self.showDialog = function () {
-                return $.Deferred(function (deferred) {
-                    var $insertBtn = self.$dialog.find('.note-equation-btn');
-                    var $cancelBtn = self.$dialog.find('.note-equation-cancel');
-                    var $latexInput = self.$dialog.find('.note-equation-latex');
-                    var $preview = self.$dialog.find('.note-equation-preview');
-
-                    ui.onDialogShown(self.$dialog, function () {
-                        context.triggerEvent('dialog.shown');
-
-                        self.$dialog.find('.eq-tpl-btn').on('click', function () {
-                            var latex = $(this).data('latex') || '';
-                            var cursor = $latexInput[0].selectionStart || $latexInput.val().length;
-                            var val = $latexInput.val();
-                            $latexInput.val(val.slice(0, cursor) + latex + val.slice(cursor));
-                            $latexInput.focus();
-                            var newPos = cursor + latex.length;
-                            $latexInput[0].setSelectionRange(newPos, newPos);
-                            self.renderPreview($latexInput, $preview);
-                        });
-
-                        $latexInput.focus();
-                        self.renderPreview($latexInput, $preview);
-
-                        $insertBtn.on('click', function (e) {
-                            e.preventDefault();
-                            deferred.resolve();
-                        });
-
-                        $cancelBtn.on('click', function () {
-                            deferred.reject();
-                        });
-
-                        self.bindEnterKey($latexInput, $insertBtn);
-                    });
-
-                    ui.onDialogHidden(self.$dialog, function () {
-                        $insertBtn.off('click');
-                        $cancelBtn.off('click');
-                        self.$dialog.find('.eq-tpl-btn').off('click');
-                        if (deferred.state() === 'pending') deferred.reject();
-                    });
-
-                    ui.showDialog(self.$dialog);
-                });
-            };
-
-            self.bindEnterKey = function ($input, $btn) {
-                $input.on('keypress', function (event) {
-                    if (event.keyCode === 13 && !event.shiftKey) $btn.trigger('click');
-                });
+                ui.showDialog(self.$dialog);
+                $latexInput.focus();
             };
 
             self.destroy = function () {

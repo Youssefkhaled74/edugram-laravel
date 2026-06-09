@@ -1354,38 +1354,37 @@
             });
         }
 
-        if ($('.lms_summernote').length && !$('.lms_summernote').data('summernote-inited')) {
+        if ($('.lms_summernote').length) {
             $('.lms_summernote').each(function () {
-                if (!$(this).data('summernote-inited')) {
-                    $(this).summernote({
-                        codeviewFilter: true,
-                        codeviewIframeFilter: true,
-                        toolbar: [
-                            ['style', ['style']],
-                            ['font', ['bold', 'underline', 'clear']],
-                            ['fontname', ['fontname']],
-                            ['color', ['color']],
-                            ['para', ['ul', 'ol', 'paragraph']],
-                            ['table', ['table']],
-                            ['insert', ['link', 'picture', 'video']],
-                            ['math', ['equation']],
-                            ['view', ['fullscreen']],
-                        ],
-                        placeholder: '',
-                        tabsize: 2,
-                        height: 188,
-                        callbacks: {
-                            onImageUpload: function (files) {
-                                sendFile(files, '.lms_summernote', $(this).attr('name'))
-                            }
-                        },
-                        tooltip: false
-                    });
-                    $(this).data('summernote-inited', true);
-                    $(this).closest('.note-editor').find('[data-toggle]').each(function () {
-                        $(this).attr('data-bs-toggle', $(this).attr('data-toggle')).removeAttr('data-toggle');
-                    });
-                }
+                try { $(this).summernote('destroy'); } catch(e) {}
+                $(this).summernote({
+                    codeviewFilter: true,
+                    codeviewIframeFilter: true,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture', 'video']],
+                        ['math', ['equation']],
+                        ['view', ['fullscreen']],
+                    ],
+                    placeholder: '',
+                    tabsize: 2,
+                    height: 188,
+                    callbacks: {
+                        onImageUpload: function (files) {
+                            sendFile(files, '.lms_summernote', $(this).attr('name'))
+                        }
+                    },
+                    tooltip: false
+                });
+                $(this).data('summernote-inited', true);
+                $(this).closest('.note-editor').find('[data-toggle]').each(function () {
+                    $(this).attr('data-bs-toggle', $(this).attr('data-toggle')).removeAttr('data-toggle');
+                });
             });
         }
 
