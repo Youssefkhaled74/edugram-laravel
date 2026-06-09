@@ -91,7 +91,11 @@
                                                disabled
                                                type="checkbox">
                                         <span class="checkmark mr_10"></span>
-                                        <span class="label_name">{{$option->title}}
+                                        <span class="label_name">
+                                            @if($option->image)
+                                                <img src="{{asset($option->image)}}" alt="" style="max-width:60px;max-height:60px;vertical-align:middle;margin-inline-end:8px;border-radius:4px;object-fit:cover">
+                                            @endif
+                                            {{$option->title}}
                                             <span class="text-danger d-none">
                                                 <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M18 34C26.8366 34 34 26.8366 34 18C34 9.16344 26.8366 2 18 2C9.16344 2 2 9.16344 2 18C2 26.8366 9.16344 34 18 34Z" fill="#FF4545" stroke="#FF4545" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>

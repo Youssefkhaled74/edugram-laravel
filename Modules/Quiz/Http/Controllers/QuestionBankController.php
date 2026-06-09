@@ -258,6 +258,12 @@ class QuestionBankController extends Controller
                             $online_question_option->status = 0;
                         }
                         $online_question_option->save();
+
+                        $imageLink = $request->get('option_image', [])[$i] ?? '';
+                        if ($imageLink) {
+                            $online_question_option->image = $this->generateLink($imageLink, $online_question_option->id, get_class($online_question_option), 'image');
+                            $online_question_option->save();
+                        }
                     }
                 }
             }  elseif ($request->question_type == 'O') {
@@ -717,6 +723,12 @@ class QuestionBankController extends Controller
                             $online_question_option->status = 0;
                         }
                         $online_question_option->save();
+
+                        $imageLink = $request->get('option_image', [])[$i] ?? '';
+                        if ($imageLink) {
+                            $online_question_option->image = $this->generateLink($imageLink, $online_question_option->id, get_class($online_question_option), 'image');
+                            $online_question_option->save();
+                        }
                     }
                 }
             }
