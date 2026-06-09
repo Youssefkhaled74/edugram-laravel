@@ -170,7 +170,7 @@
             self.show = function () {
 
                 let $mathSpan = self.$dialog.find('.note-math-dialog');
-                let $latexSpan = self.$dialog.find('#note-latex');
+                let $latexSpan = self.$dialog.find('.note-latex');
 
                 let $selectedMathNode = self.getSelectedMath();
 

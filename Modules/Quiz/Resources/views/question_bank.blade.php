@@ -5,6 +5,11 @@
         $teacherBankIdForForm = old('group', request('group', isset($bank) ? $bank->q_group_id : null));
     @endphp
     <style>
+        .note-equation-preview .katex { font-size: 1.2em; }
+        .equation-dialog .modal-body { max-height: 70vh; overflow-y: auto; }
+        .equation-templates::-webkit-scrollbar { width: 4px; }
+        .equation-templates::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+        .eq-tpl-btn:hover { background: #e2e8f0 !important; border-color: #94a3b8 !important; }
         @media only screen and (min-width: 992px) {
             .drawflow-node.ans {
                 margin-right: 0 !important;
@@ -411,6 +416,7 @@
         }
 
     </style>
+    <link rel="stylesheet" href="{{ asset('public/backend/css/katex.min.css') }}">
     {!! generateBreadcrumb() !!}
     <section class="admin-visitor-area up_st_admin_visitor">
         <div class="container-fluid p-0">
@@ -1293,8 +1299,95 @@
         --}}
 @endsection
 @push('scripts')
-
+    <script src="{{ asset('public/backend/js/katex.min.js') }}"></script>
+    <script src="{{ asset('public/backend/js/summernote-equation.js') }}"></script>
     <script>
+        function sendFile(files, editor, name) {
+            let url = $('meta[name="_token"]').attr('content') ? window.location.origin : '{{url('/')}}';
+            let formData = new FormData();
+            $.each(files, function (i, v) {
+                formData.append("files[" + i + "]", v);
+            })
+            $.ajax({
+                url: url + '/summer-note-file-upload',
+                type: 'post',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'JSON',
+                success: function (response) {
+                    let $summernote;
+                    if (name) {
+                        $summernote = $(editor + "[name='" + name + "']");
+                    } else {
+                        $summernote = $(editor);
+                    }
+                    $.each(response, function (i, v) {
+                        $summernote.summernote('insertImage', v);
+                    })
+                },
+                error: function (data) {
+                    if (data.status === 404) {
+                        toastr.error("What you are looking is not found", 'Opps!');
+                        return;
+                    } else if (data.status === 500) {
+                        toastr.error('Something went wrong...', 'Opps');
+                        return;
+                    } else if (data.status === 200) {
+                        toastr.error('Something is not right', 'Error');
+                        return;
+                    }
+                    try {
+                        let jsonValue = $.parseJSON(data.responseText);
+                        let errors = jsonValue.errors;
+                        if (errors) {
+                            $.each(errors, function (key, value) {
+                                toastr.error(value, 'Validation Error');
+                            });
+                        } else {
+                            toastr.error(jsonValue.message, 'Opps!');
+                        }
+                    } catch(e) {
+                        toastr.error('Upload failed', 'Error');
+                    }
+                }
+            });
+        }
+
+        if ($('.lms_summernote').length && !$('.lms_summernote').data('summernote-inited')) {
+            $('.lms_summernote').each(function () {
+                if (!$(this).data('summernote-inited')) {
+                    $(this).summernote({
+                        codeviewFilter: true,
+                        codeviewIframeFilter: true,
+                        toolbar: [
+                            ['style', ['style']],
+                            ['font', ['bold', 'underline', 'clear']],
+                            ['fontname', ['fontname']],
+                            ['color', ['color']],
+                            ['para', ['ul', 'ol', 'paragraph']],
+                            ['table', ['table']],
+                            ['insert', ['link', 'picture', 'video']],
+                            ['math', ['equation']],
+                            ['view', ['fullscreen']],
+                        ],
+                        placeholder: '',
+                        tabsize: 2,
+                        height: 188,
+                        callbacks: {
+                            onImageUpload: function (files) {
+                                sendFile(files, '.lms_summernote', $(this).attr('name'))
+                            }
+                        },
+                        tooltip: false
+                    });
+                    $(this).data('summernote-inited', true);
+                    $(this).closest('.note-editor').find('[data-toggle]').each(function () {
+                        $(this).attr('data-bs-toggle', $(this).attr('data-toggle')).removeAttr('data-toggle');
+                    });
+                }
+            });
+        }
 
         $("body").on('change', '.fileUpload1', function () {
             let placeholder = $(this).closest(".primary_file_uploader").find(".filePlaceholder");
