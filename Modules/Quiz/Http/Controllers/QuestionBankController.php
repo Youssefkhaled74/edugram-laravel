@@ -228,6 +228,11 @@ class QuestionBankController extends Controller
                 $online_question->level = (int)$request->level;
                 $online_question->pre_condition = (int)$request->get('pre_condition', 0);
             }
+            if ($request->question_type == "F") {
+                $online_question->suitable_words = $request->suitable_words;
+            } elseif ($request->question_type == "T") {
+                $online_question->trueFalse = $request->trueOrFalse;
+            }
             $online_question->save();
 
             if ($request->quize_id) {
@@ -696,6 +701,12 @@ class QuestionBankController extends Controller
             }
 
             $online_question->explanation = $request->explanation;
+
+            if ($request->question_type == "F") {
+                $online_question->suitable_words = $request->suitable_words;
+            } elseif ($request->question_type == "T") {
+                $online_question->trueFalse = $request->trueOrFalse;
+            }
 
             $online_question->image = null;
             $online_question->save();

@@ -10,6 +10,108 @@
         .equation-templates::-webkit-scrollbar { width: 4px; }
         .equation-templates::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
         .eq-tpl-btn:hover { background: #e2e8f0 !important; border-color: #94a3b8 !important; }
+        .math-writer-area {
+            padding: 12px 16px 0;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .math-writer-area textarea {
+            width: 100%;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            resize: vertical;
+            min-height: 64px;
+            max-height: 140px;
+            outline: none;
+            direction: ltr;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .math-writer-area textarea:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13,110,253,.12);
+        }
+        .math-writer-area textarea::placeholder {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        .math-writer-toolbar {
+            display: flex;
+            align-items: stretch;
+            gap: 8px;
+        }
+        .math-writer-preview {
+            flex: 1;
+            min-height: 44px;
+            padding: 8px 14px;
+            background: #fafbfc;
+            border: 1px dashed #d0d5dd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            color: #475569;
+            overflow-x: auto;
+            transition: border-color .15s;
+        }
+        .math-writer-preview.has-error {
+            border-color: #fca5a5;
+            color: #dc2626;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+        }
+        .math-writer-preview .katex { font-size: 1.15em; }
+        .math-writer-preview:empty::before {
+            content: '\\[ \\; \\]';
+            color: #cbd5e1;
+            font-family: 'Courier New', monospace;
+        }
+        .math-writer-actions {
+            display: flex;
+            align-items: stretch;
+        }
+        .math-writer-insert-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            background: linear-gradient(135deg, #0d6efd, #6610f2);
+            color: #fff;
+            border: 0;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity .15s, transform .1s;
+            white-space: nowrap;
+        }
+        .math-writer-insert-btn:hover { opacity: .9; }
+        .math-writer-insert-btn:active { transform: scale(.97); }
+        .math-writer-insert-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+        .math-writer-insert-btn .btn-icon { font-size: 16px; font-weight: 700; }
+
+        .math-tabs-section {
+            padding: 8px 16px 0;
+            flex-shrink: 0;
+        }
+        .math-tabs-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .math-tabs-header .tabs-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: .3px;
+            text-transform: uppercase;
+        }
         @media only screen and (min-width: 992px) {
             .drawflow-node.ans {
                 margin-right: 0 !important;
@@ -94,7 +196,7 @@
             position: fixed;
             left: 24px;
             bottom: 24px;
-            z-index: 1200;
+            z-index: 10500;
             width: 52px;
             height: 52px;
             border-radius: 50%;
@@ -145,16 +247,16 @@
             position: fixed;
             left: 24px;
             bottom: 90px;
-            width: 400px;
+            width: 520px;
             max-width: calc(100vw - 28px);
-            max-height: 65vh;
+            max-height: 80vh;
             overflow: hidden;
             background: #fff;
             border: 0;
             border-radius: 16px;
             padding: 0;
             box-shadow: 0 16px 48px rgba(0, 0, 0, .18);
-            z-index: 1201;
+            z-index: 10501;
             display: flex;
             flex-direction: column;
             opacity: 0;
@@ -176,13 +278,10 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 16px 0;
+            padding: 12px 16px 0;
             flex-shrink: 0;
         }
         .math-keyboard-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #1a1a2e;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -192,18 +291,53 @@
         }
         .math-keyboard-title:active { cursor: grabbing; }
         .math-keyboard-title .title-icon {
-            width: 22px;
-            height: 22px;
-            background: #0d6efd;
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, #0d6efd, #6610f2);
             color: #fff;
-            border-radius: 6px;
+            border-radius: 7px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 700;
             flex-shrink: 0;
         }
+        .math-keyboard-title .title-text {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        .math-keyboard-title .title-badge {
+            font-size: 9px;
+            font-weight: 700;
+            color: #6610f2;
+            background: #f0e6ff;
+            padding: 2px 6px;
+            border-radius: 5px;
+            letter-spacing: .5px;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .header-action-btn {
+            width: 28px;
+            height: 28px;
+            border: 0;
+            background: #f1f3f4;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1;
+            cursor: pointer;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .15s;
+        }
+        .header-action-btn:hover { background: #e0e2e5; color: #333; }
         .math-keyboard-close {
             width: 28px;
             height: 28px;
@@ -219,7 +353,7 @@
             justify-content: center;
             transition: background .15s;
         }
-        .math-keyboard-close:hover { background: #e0e2e5; color: #333; }
+        .math-keyboard-close:hover { background: #fee2e2; color: #dc2626; }
 
         .math-keyboard-search {
             padding: 10px 16px 0;
@@ -296,9 +430,9 @@
             border-radius: 8px;
             background: #f8f9fa;
             color: #666;
-            padding: 5px 11px;
-            font-size: 11px;
-            font-weight: 500;
+            padding: 6px 13px;
+            font-size: 12px;
+            font-weight: 600;
             cursor: pointer;
             white-space: nowrap;
             transition: all .18s;
@@ -326,7 +460,7 @@
         }
         .math-keyboard-grid {
             display: grid;
-            grid-template-columns: repeat(8, 1fr);
+            grid-template-columns: repeat(10, 1fr);
             gap: 6px;
             overflow-y: auto;
             padding-right: 4px;
@@ -347,9 +481,9 @@
             border-radius: 10px;
             background: #fafafa;
             color: #222;
-            padding: 8px 4px;
-            font-size: 16px;
-            line-height: 1.2;
+            padding: 9px 4px;
+            font-size: 17px;
+            line-height: 1.3;
             text-align: center;
             cursor: pointer;
             transition: background .15s, border-color .15s, transform .15s, box-shadow .15s;
@@ -490,10 +624,45 @@
                                                                         @endforeach
                                                                     @endif
 
-                                                                </select>
+                                                                 </select>
 
-                                                            </div>
-                                                            @if(isModuleActive('AdvanceQuiz'))
+                                                             </div>
+                                                             <div class="col-lg-4">
+                                                                 <label class="primary_input_label"
+                                                                        for="category_id">{{__('quiz.Category')}} <span
+                                                                         class="required_mark">*</span></label>
+                                                                 <select
+                                                                     class="primary_select{{ $errors->has('category') ? ' is-invalid' : '' }}"
+                                                                     name="category" id="category_id">
+                                                                     <option
+                                                                         data-display="{{__('common.Select')}} {{__('quiz.Category')}} "
+                                                                         value="">{{__('common.Select')}} {{__('quiz.Category')}}
+                                                                     </option>
+                                                                     @foreach($categories->where('parent_id',0) as $cat)
+                                                                         <option
+                                                                             value="{{$cat->id}}" {{old('category',isset($bank)? $bank->category_id:'') == $cat->id? 'selected': ''}}>{{$cat->name}}</option>
+                                                                     @endforeach
+                                                                 </select>
+                                                             </div>
+                                                             <div class="col-lg-4">
+                                                                 <label class="primary_input_label"
+                                                                        for="sub_category_id">{{__('quiz.Sub Category')}}</label>
+                                                                 <select
+                                                                     class="primary_select{{ $errors->has('sub_category') ? ' is-invalid' : '' }}"
+                                                                     name="sub_category" id="sub_category_id">
+                                                                     <option
+                                                                         data-display="{{__('common.Select')}} {{__('quiz.Sub Category')}} "
+                                                                         value="">{{__('common.Select')}} {{__('quiz.Sub Category')}}
+                                                                     </option>
+                                                                     @if(isset($bank) && $bank->category_id)
+                                                                         @foreach($categories->where('parent_id',$bank->category_id) as $sub)
+                                                                             <option
+                                                                                 value="{{$sub->id}}" {{$bank->sub_category_id == $sub->id? 'selected': ''}}>{{$sub->name}}</option>
+                                                                         @endforeach
+                                                                     @endif
+                                                                 </select>
+                                                             </div>
+                                                             @if(isModuleActive('AdvanceQuiz'))
                                                                 <div class="col-lg-4">
                                                                     <label class="primary_input_label"
                                                                            for="level">{{__('quiz.Question Level')}} </label>
@@ -567,10 +736,14 @@
                                                                     <option
                                                                         value="P" {{ old('question_type',isset($bank)? $bank->type:'') == 'P'? 'selected': '' }} > {{__('quiz.Puzzle')}} </option>
 
-                                                                    <option
-                                                                        value="S" {{ old('question_type',isset($bank)? $bank->type:'') == 'S'? 'selected': '' }}> {{__('quiz.Short Answer')}} </option>
-                                                                    <option
-                                                                        value="L" {{ old('question_type',isset($bank)? $bank->type:'') == 'L'? 'selected': '' }}> {{__('quiz.Long Answer')}} </option>
+                                                                     <option
+                                                                         value="S" {{ old('question_type',isset($bank)? $bank->type:'') == 'S'? 'selected': '' }}> {{__('quiz.Short Answer')}} </option>
+                                                                     <option
+                                                                         value="L" {{ old('question_type',isset($bank)? $bank->type:'') == 'L'? 'selected': '' }}> {{__('quiz.Long Answer')}} </option>
+                                                                     <option
+                                                                         value="T" {{ old('question_type',isset($bank)? $bank->type:'') == 'T'? 'selected': '' }}> {{__('quiz.True False')}} </option>
+                                                                     <option
+                                                                         value="F" {{ old('question_type',isset($bank)? $bank->type:'') == 'F'? 'selected': '' }}> {{__('quiz.Fill In The Blanks')}} </option>
                                                                 </select>
 
                                                             </div>
@@ -1151,6 +1324,47 @@
 
                                                         {{-- question options end--}}
 
+                                                        {{-- True / False --}}
+                                                        <div class="true-false-choice" style="display:none;">
+                                                            <div class="row mt-25">
+                                                                <div class="col-lg-12">
+                                                                    <label class="primary_input_label">{{__('quiz.Select Correct Answer')}}</label>
+                                                                    <div class="mt-2">
+                                                                        <label class="primary_checkbox d-flex mr-12">
+                                                                            <input type="radio" name="trueOrFalse" value="1"
+                                                                                {{old('trueOrFalse',isset($bank)? $bank->trueFalse:'')=='1'?'checked':''}}>
+                                                                            <span class="checkmark mr-2"></span>
+                                                                            {{__('quiz.True')}}
+                                                                        </label>
+                                                                        <label class="primary_checkbox d-flex mr-12 mt-2">
+                                                                            <input type="radio" name="trueOrFalse" value="0"
+                                                                                {{old('trueOrFalse',isset($bank)? $bank->trueFalse:'')=='0'?'checked':''}}>
+                                                                            <span class="checkmark mr-2"></span>
+                                                                            {{__('quiz.False')}}
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {{-- Fill in the Blanks --}}
+                                                        <div class="fill-blanks-choice" style="display:none;">
+                                                            <div class="row mt-25">
+                                                                <div class="col-lg-12">
+                                                                    <div class="input-effect">
+                                                                        <label class="primary_input_label mt-1">
+                                                                            {{__('quiz.Suitable Words')}}
+                                                                            <span class="required_mark">*</span>
+                                                                        </label>
+                                                                        <textarea
+                                                                            class="primary_input_field name"
+                                                                            cols="30" rows="3"
+                                                                            name="suitable_words">{{old('suitable_words',isset($bank)? $bank->suitable_words:'')}}</textarea>
+                                                                        <span class="focus-border textarea"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
 
                                                         <div class="">
                                                             <div class="row  mt-25">
@@ -1200,9 +1414,26 @@
         <div class="math-keyboard-header">
             <div class="math-keyboard-title" id="mathKeyboardDragHandle">
                 <span class="title-icon">∑</span>
-                لوحة الرموز الرياضية
+                <span class="title-text">اكتب المعادلة</span>
+                <span class="title-badge">LaTeX</span>
             </div>
-            <button type="button" class="math-keyboard-close" id="mathKeyboardClose" title="إغلاق">✕</button>
+            <div class="header-actions">
+                <button type="button" class="header-action-btn" id="mathClearBtn" title="مسح">⟳</button>
+                <button type="button" class="math-keyboard-close" id="mathKeyboardClose" title="إغلاق">✕</button>
+            </div>
+        </div>
+
+        <div class="math-writer-area" id="mathWriterArea">
+            <textarea id="eqLatexInput" placeholder="اكتب المعادلة الرياضية هنا …" rows="3" spellcheck="false"></textarea>
+            <div class="math-writer-toolbar">
+                <div class="math-writer-preview" id="eqPreview">\\[ \\; \\]</div>
+                <div class="math-writer-actions">
+                    <button type="button" class="math-writer-insert-btn" id="eqInsertBtn">
+                        <span class="btn-icon">⊞</span>
+                        إدراج المعادلة
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="math-keyboard-search" style="position:relative">
@@ -1215,7 +1446,12 @@
             <span class="recent-symbols" id="mathKeyboardRecentList"></span>
         </div>
 
-        <div class="math-keyboard-tabs" id="mathKeyboardTabs"></div>
+        <div class="math-tabs-section">
+            <div class="math-tabs-header">
+                <span class="tabs-label">قوالب وسريعة</span>
+            </div>
+            <div class="math-keyboard-tabs" id="mathKeyboardTabs"></div>
+        </div>
 
         <div class="math-active-indicator" id="mathActiveIndicator">
             <span class="dot inactive-dot" id="mathActiveDot"></span>
@@ -1300,7 +1536,7 @@
 @endsection
 @push('scripts')
     <script src="{{ asset('public/backend/js/katex.min.js') }}"></script>
-    <script src="{{ asset('public/backend/js/summernote-equation.js') }}"></script>
+
     <script>
         function sendFile(files, editor, name) {
             let url = $('meta[name="_token"]').attr('content') ? window.location.origin : '{{url('/')}}';
@@ -1368,7 +1604,6 @@
                         ['para', ['ul', 'ol', 'paragraph']],
                         ['table', ['table']],
                         ['insert', ['link', 'picture', 'video']],
-                        ['math', ['equation']],
                         ['view', ['fullscreen']],
                     ],
                     placeholder: '',
@@ -1482,6 +1717,8 @@
                 $('.matching-options').hide();
                 $('.puzzle-choice').hide();
                 $('.puzzle-options').hide();
+                $('.true-false-choice').hide();
+                $('.fill-blanks-choice').hide();
                 $('#shuffleBox').show();
                 $('#preConditionQus').show();
                 @if(isModuleActive('AdvanceQuiz'))
@@ -1499,6 +1736,8 @@
                 $('.matching-options').hide();
                 $('.puzzle-choice').hide();
                 $('.puzzle-options').hide();
+                $('.true-false-choice').hide();
+                $('.fill-blanks-choice').hide();
                 $('#shuffleBox').hide();
                 $('#preConditionQus').hide();
                 @if(isModuleActive('AdvanceQuiz'))
@@ -1515,6 +1754,8 @@
                 $('.matching-options').hide();
                 $('.puzzle-choice').hide();
                 $('.puzzle-options').hide();
+                $('.true-false-choice').hide();
+                $('.fill-blanks-choice').hide();
                 $('#shuffleBox').hide();
                 $('#preConditionQus').hide();
                 @if(isModuleActive('AdvanceQuiz'))
@@ -1531,6 +1772,8 @@
                 $('.matching-options').hide();
                 $('.puzzle-choice').show();
                 $('.puzzle-options').show();
+                $('.true-false-choice').hide();
+                $('.fill-blanks-choice').hide();
                 $('#shuffleBox').hide();
                 $('#preConditionQus').hide();
                 @if(isModuleActive('AdvanceQuiz'))
@@ -1547,8 +1790,46 @@
                 $('.multiple-options').hide();
                 $('.puzzle-choice').hide();
                 $('.puzzle-options').hide();
+                $('.true-false-choice').hide();
+                $('.fill-blanks-choice').hide();
                 $('#shuffleBox').hide();
                 $('#preConditionQus').show();
+                @if(isModuleActive('AdvanceQuiz'))
+                $('#QuestionTypeLevel').addClass('mt-25');
+                @endif
+            } else if (type == 'T') {
+                $('.multiple-choice').hide();
+                $('.multiple-options').hide();
+                $('.sorting-choice').hide();
+                $('.sorting-options').hide();
+                $('.cloze-choice').hide();
+                $('.cloze-options').hide();
+                $('.matching-choice').hide();
+                $('.matching-options').hide();
+                $('.puzzle-choice').hide();
+                $('.puzzle-options').hide();
+                $('.fill-blanks-choice').hide();
+                $('.true-false-choice').show();
+                $('#shuffleBox').hide();
+                $('#preConditionQus').hide();
+                @if(isModuleActive('AdvanceQuiz'))
+                $('#QuestionTypeLevel').addClass('mt-25');
+                @endif
+            } else if (type == 'F') {
+                $('.multiple-choice').hide();
+                $('.multiple-options').hide();
+                $('.sorting-choice').hide();
+                $('.sorting-options').hide();
+                $('.cloze-choice').hide();
+                $('.cloze-options').hide();
+                $('.matching-choice').hide();
+                $('.matching-options').hide();
+                $('.puzzle-choice').hide();
+                $('.puzzle-options').hide();
+                $('.true-false-choice').hide();
+                $('.fill-blanks-choice').show();
+                $('#shuffleBox').hide();
+                $('#preConditionQus').hide();
                 @if(isModuleActive('AdvanceQuiz'))
                 $('#QuestionTypeLevel').addClass('mt-25');
                 @endif
@@ -1563,12 +1844,13 @@
                 $('.puzzle-options').hide();
                 $('.cloze-choice').hide();
                 $('.cloze-options').hide();
+                $('.true-false-choice').hide();
+                $('.fill-blanks-choice').hide();
                 $('#shuffleBox').hide();
                 $('#preConditionQus').hide();
                 @if(isModuleActive('AdvanceQuiz'))
                 $('#QuestionTypeLevel').removeClass('mt-25');
                 @endif
-
             }
 
             if (type == "S") {
@@ -1580,6 +1862,22 @@
         });
         $('#question-type').trigger('change')
 
+        // ── Category → Subcategory loading ──
+        $('#category_id').on('change', function () {
+            var catId = $(this).val();
+            var $sub = $('#sub_category_id');
+            var selectedSub = '{{old('sub_category',isset($bank)? $bank->sub_category_id:'')}}';
+            $sub.empty().append('<option data-display="'+'{{__('common.Select')}}'+' {{__('quiz.Sub Category')}}'+'" value="">'+'{{__('common.Select')}}'+' {{__('quiz.Sub Category')}}'+'</option>');
+            @foreach($categories as $cat)
+                @if($cat->parent_id)
+                if (catId == '{{$cat->parent_id}}') {
+                    $sub.append('<option value="{{$cat->id}}" ' + (selectedSub == '{{$cat->id}}' ? 'selected' : '') + '>{{$cat->name}}</option>');
+                }
+                @endif
+            @endforeach
+        });
+        // trigger on load so subcategories populate in edit mode
+        $('#category_id').trigger('change');
 
         $(document).on("click", ".removeImage1", function (e) {
             e.preventDefault();
@@ -1940,6 +2238,60 @@
             };
             var categoryOrder = ['operators', 'relations', 'inequalities', 'greek', 'calculus', 'roots', 'arrows', 'sets', 'geometry', 'brackets'];
 
+            // ── KaTeX template definitions ──
+            var katexTemplates = [
+                { label: '\\frac{a}{b}', latex: '\\frac{a}{b}' },
+                { label: '\\frac{x}{y}', latex: '\\frac{x}{y}' },
+                { label: 'x^{2}', latex: 'x^{2}' },
+                { label: 'x^{n}', latex: 'x^{n}' },
+                { label: 'x_{n}', latex: 'x_{n}' },
+                { label: '\\sqrt{x}', latex: '\\sqrt{x}' },
+                { label: '\\sqrt[n]{x}', latex: '\\sqrt[n]{x}' },
+                { label: '\\sqrt[3]{x}', latex: '\\sqrt[3]{x}' },
+                { label: 'a^{2}+b^{2}=c^{2}', latex: 'a^{2}+b^{2}=c^{2}' },
+                { label: 'ax^{2}+bx+c=0', latex: 'ax^{2}+bx+c=0' },
+                { label: '\\int', latex: '\\int' },
+                { label: '\\int_{a}^{b}', latex: '\\int_{a}^{b}' },
+                { label: '\\sum', latex: '\\sum' },
+                { label: '\\sum_{i=1}^{n}', latex: '\\sum_{i=1}^{n}' },
+                { label: '\\prod', latex: '\\prod' },
+                { label: '\\iint', latex: '\\iint' },
+                { label: '\\partial', latex: '\\partial' },
+                { label: '\\lim_{x \\to \\infty}', latex: '\\lim_{x \\to \\infty}' },
+                { label: '\\to', latex: '\\to' },
+                { label: '\\rightarrow', latex: '\\rightarrow' },
+                { label: '\\alpha', latex: '\\alpha' },
+                { label: '\\beta', latex: '\\beta' },
+                { label: '\\theta', latex: '\\theta' },
+                { label: '\\pi', latex: '\\pi' },
+                { label: '\\Delta', latex: '\\Delta' },
+                { label: '\\neq', latex: '\\neq' },
+                { label: '\\approx', latex: '\\approx' },
+                { label: '\\equiv', latex: '\\equiv' },
+                { label: '\\leq', latex: '\\leq' },
+                { label: '\\geq', latex: '\\geq' },
+                { label: '\\subset', latex: '\\subset' },
+                { label: '\\supset', latex: '\\supset' },
+                { label: '\\in', latex: '\\in' },
+                { label: '\\cup', latex: '\\cup' },
+                { label: '\\cap', latex: '\\cap' },
+                { label: '\\emptyset', latex: '\\emptyset' },
+                { label: '\\mathbb{N}', latex: '\\mathbb{N}' },
+                { label: '\\mathbb{Z}', latex: '\\mathbb{Z}' },
+                { label: '\\mathbb{R}', latex: '\\mathbb{R}' },
+                { label: '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}', latex: '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}' },
+                { label: '\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix}', latex: '\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix}' },
+                { label: '\\begin{cases} x & y \\\\ a & b \\end{cases}', latex: '\\begin{cases} x & y \\\\ a & b \\end{cases}' },
+                { label: '\\overrightarrow{AB}', latex: '\\overrightarrow{AB}' },
+                { label: '\\hat{x}', latex: '\\hat{x}' },
+                { label: '\\bar{x}', latex: '\\bar{x}' },
+                { label: '\\dot{x}', latex: '\\dot{x}' },
+                { label: '\\angle', latex: '\\angle' },
+                { label: '\\triangle', latex: '\\triangle' },
+                { label: '\\perp', latex: '\\perp' },
+                { label: '\\parallel', latex: '\\parallel' }
+            ];
+
             // ── State ──
             var activeInput = null;
             var activeEditable = null;
@@ -1963,6 +2315,43 @@
             var $activeLabel = $('#mathActiveLabel');
             var $activeDot = $('#mathActiveDot');
             var $dragHandle = $('#mathKeyboardDragHandle');
+            var $clearBtn = $('#mathClearBtn');
+
+            // ── Writer events ──
+            var $customLatex = $('#eqLatexInput');
+            var $customPreview = $('#eqPreview');
+            var $customInsertBtn = $('#eqInsertBtn');
+
+            $customLatex.on('input', function () {
+                var val = $(this).val().trim();
+                if (!val) { $customPreview.html('').removeClass('has-error'); $customInsertBtn.prop('disabled', true); return; }
+                $customInsertBtn.prop('disabled', false);
+                if (typeof katex !== 'undefined') {
+                    try {
+                        var rendered = katex.renderToString(val, { displayMode: false, throwOnError: true });
+                        $customPreview.html(rendered).removeClass('has-error');
+                    } catch(e) {
+                        $customPreview.text(e.message).addClass('has-error');
+                    }
+                } else {
+                    $customPreview.html('<code>' + val.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>').removeClass('has-error');
+                }
+            });
+
+            $customInsertBtn.on('click', function () {
+                var val = $customLatex.val().trim();
+                if (!val) return;
+                var $fakeBtn = $('<button>').data('katex', val);
+                handleKatexInsert($fakeBtn);
+            });
+
+            $customLatex.on('keydown', function (e) {
+                if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); $customInsertBtn.click(); }
+            });
+
+            $clearBtn.on('click', function () {
+                $customLatex.val('').trigger('input').focus();
+            });
 
             // ── Build tabs ──
             categoryOrder.forEach(function (key) {
@@ -1970,6 +2359,7 @@
                 $tabs.append('<button type="button" class="math-tab-btn" data-category="' + key + '">' + cat.label + '</button>');
             });
             $tabs.find('.math-tab-btn:first').addClass('active');
+            $tabs.append('<button type="button" class="math-tab-btn" data-category="templates">قوالب</button>');
 
             // ── Render helpers ──
             function renderSymbols(symbols) {
@@ -1983,7 +2373,42 @@
                 });
             }
 
+            // ── Writer (already in HTML) ──
+
+            function renderKatexTemplates() {
+                $grid.empty();
+
+                $customLatex = $('#eqLatexInput');
+                $customPreview = $('#eqPreview');
+                $customInsertBtn = $('#eqInsertBtn');
+
+                if (katexTemplates.length === 0) {
+                    $grid.append('<div class="no-results">لا توجد نتائج</div>');
+                    return;
+                }
+                katexTemplates.forEach(function (tpl) {
+                    var rendered = '';
+                    try {
+                        if (typeof katex !== 'undefined') {
+                            rendered = katex.renderToString(tpl.latex, { displayMode: false, throwOnError: false });
+                        } else {
+                            rendered = '<code>' + tpl.latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
+                        }
+                    } catch(e) {
+                        rendered = '<code>' + tpl.latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
+                    }
+                    $grid.append('<button type="button" class="math-key-btn math-katex-btn" data-katex="' + tpl.latex.replace(/"/g, '&quot;') + '">' + rendered + '</button>');
+                });
+            }
+
             function renderCategory(key) {
+                if (key === 'templates') {
+                    activeCategory = key;
+                    searchQuery = '';
+                    $search.val('');
+                    renderKatexTemplates();
+                    return;
+                }
                 var cat = symbolsByCategory[key];
                 if (!cat) return;
                 activeCategory = key;
@@ -2263,15 +2688,81 @@
                 return false;
             }
 
+            function handleKatexInsert($btn) {
+                var latex = $btn.data('katex');
+                if (!latex) return;
+                var html = '';
+                try {
+                    if (typeof katex !== 'undefined') {
+                        html = katex.renderToString(latex, { displayMode: true, throwOnError: false });
+                    } else {
+                        html = '<code>' + latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
+                    }
+                } catch(e) {
+                    html = '<code>' + latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
+                }
+                var $node = $('<span class="note-equation" contenteditable="false" style="display:inline-block;padding:0 2px">' + html + '</span>');
+                var $hidden = $('<span class="note-equation-latex-src" style="display:none">' + latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>');
+                $node.append($hidden);
+
+                if (activeSummernote && activeSummernote.length) {
+                    activeSummernote.summernote('focus');
+                    activeSummernote.summernote('insertNode', $node[0]);
+                    if ($btn && $btn.length) $btn.addClass('inserted');
+                    return true;
+                }
+
+                if (activeEditable) {
+                    var $ta = getTargetSummernote($(activeEditable));
+                    if ($ta && $ta.length) {
+                        activeSummernote = $ta;
+                        $ta.summernote('focus');
+                        $ta.summernote('insertNode', $node[0]);
+                    } else {
+                        var sel = window.getSelection();
+                        if (sel && sel.getRangeAt) {
+                            var range = sel.getRangeAt(0);
+                            range.deleteContents();
+                            range.insertNode($node[0]);
+                            range.collapse();
+                        } else {
+                            $(activeEditable).append($node);
+                        }
+                    }
+                    if ($btn && $btn.length) $btn.addClass('inserted');
+                    return true;
+                }
+
+                toastr.warning('اختر حقل النص أولاً');
+                return false;
+            }
+
             $(document).on('click', '.math-key-btn', function () {
-                var symbol = $(this).data('symbol') || '';
-                handleSymbolInsert(symbol, $(this));
+                var $btn = $(this);
+                var latex = $btn.data('katex');
+                if (latex) {
+                    if ($customLatex && $customLatex.length) {
+                        $customLatex.val(latex).trigger('input').focus();
+                        var len = $customLatex.val().length;
+                        $customLatex[0].setSelectionRange(0, len);
+                    } else {
+                        handleKatexInsert($btn);
+                    }
+                } else {
+                    handleSymbolInsert($btn.data('symbol') || '', $btn);
+                }
             });
 
             // ── Double-click to insert + close ──
             $(document).on('dblclick', '.math-key-btn', function () {
-                var symbol = $(this).data('symbol') || '';
-                if (symbol) closePanel();
+                var $btn = $(this);
+                if ($btn.data('katex')) {
+                    if ($customLatex && $customLatex.length) {
+                        $customLatex.val($btn.data('katex')).trigger('input').focus();
+                    }
+                } else if ($btn.data('symbol')) {
+                    closePanel();
+                }
             });
 
             // ── Close on outside click ──

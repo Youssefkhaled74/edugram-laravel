@@ -254,5 +254,6 @@ return [
     'Enter Question'=>'Enter Question',
     'Action Not Allowed'=>'Action Not Allowed',
     'Auto result not allow in Short & Long Question'=>'Auto result not allow in Short & Long Question',
-
+    'Suitable Words' => 'Suitable Words',
+    'Select Correct Answer' => 'Select Correct Answer',
 ];

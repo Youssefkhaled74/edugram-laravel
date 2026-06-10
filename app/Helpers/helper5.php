@@ -1090,6 +1090,10 @@ if (!function_exists('getQuestionType')) {
             return trans('quiz.Cloze question');
         } elseif ($type == "P") {
             return trans('quiz.Puzzle');
+        } elseif ($type == "T") {
+            return trans('quiz.True False');
+        } elseif ($type == "F") {
+            return trans('quiz.Fill In The Blanks');
         } else {
             return trans('common.N/A');
         }
