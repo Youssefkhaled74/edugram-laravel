@@ -306,8 +306,7 @@ class OnlineQuizController extends Controller
         $online_exam->sub_category_id = (int)$request->sub_category ?? null;
         $online_exam->course_id = (int)$request->course_id;
         $online_exam->percentage = $request->percentage;
-            // Teacher-created quiz should wait for review/publish.
-            $online_exam->status = $this->isTeacher() ? 0 : 1;
+            $online_exam->status = 1;
             $online_exam->created_by = Auth::id();
 
         $setup = QuizeSetup::getData();
@@ -394,7 +393,7 @@ class OnlineQuizController extends Controller
             $online_exam->sub_category_id = (int)$sub;
             $online_exam->percentage = (int)$request->percentage;
 
-            $online_exam->status = 0;
+            $online_exam->status = 1;
             $online_exam->created_by = Auth::user()->id;
             $result = $online_exam->save();
             if ($request->lesson_id) {
@@ -457,8 +456,7 @@ class OnlineQuizController extends Controller
             $online_exam->sub_category_id = (int)$sub;
             $online_exam->course_id = $request->course;
             $online_exam->percentage = $request->percentage;
-            // Teacher-created quiz should remain pending until admin approval/publish.
-            $online_exam->status = $this->isTeacher() ? 0 : 1;
+            $online_exam->status = 1;
             $online_exam->created_by = Auth::user()->id;
             $online_exam->default_setting = (int)$request->change_default_settings;
 
@@ -959,11 +957,6 @@ class OnlineQuizController extends Controller
                     $assign->question_bank_id = $question;
                     $assign->save();
                 }
-                if ($this->isTeacher()) {
-                    // Keep teacher quiz as pending review after question assignment updates.
-                    $quiz->status = 0;
-                    $quiz->save();
-                }
                 Toastr::success(trans('common.Operation successful'), trans('common.Success'));
                 return redirect()->back();
             }
@@ -1047,10 +1040,6 @@ class OnlineQuizController extends Controller
                 $totalMarks = $online_exam->total_marks = $online_exam->totalMarks() ?? 0;
                 $totalQus = $online_exam->total_questions = $online_exam->totalQuestions() ?? 0;
                 $online_exam->save();
-                if ($this->isTeacher()) {
-                    $online_exam->status = 0;
-                    $online_exam->save();
-                }
                 return response()->json([
                     'success' => 'Operation successful',
                     'totalQus' => $totalQus,

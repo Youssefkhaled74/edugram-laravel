@@ -25,8 +25,8 @@
             border: 2px solid #e2e8f0;
             border-radius: 10px;
             resize: vertical;
-            min-height: 64px;
-            max-height: 140px;
+            min-height: 80px;
+            max-height: 400px;
             outline: none;
             direction: ltr;
             transition: border-color .15s, box-shadow .15s;
@@ -243,13 +243,35 @@
             50% { transform: scale(1.12); opacity: 0; }
         }
 
+        .math-resize-handle {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 16px;
+            height: 16px;
+            cursor: nwse-resize;
+            z-index: 10;
+        }
+        .math-resize-handle::after {
+            content: '';
+            position: absolute;
+            right: 4px;
+            bottom: 4px;
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid #ccc;
+            border-bottom: 2px solid #ccc;
+        }
+        .math-resize-handle:hover::after {
+            border-color: #0d6efd;
+        }
         .math-keyboard-panel {
             position: fixed;
             left: 24px;
             bottom: 90px;
-            width: 520px;
+            width: 580px;
             max-width: calc(100vw - 28px);
-            max-height: 80vh;
+            max-height: 85vh;
             overflow: hidden;
             background: #fff;
             border: 0;
@@ -1426,6 +1448,8 @@
                 <span class="title-badge">LaTeX</span>
             </div>
             <div class="header-actions">
+                <button type="button" class="header-action-btn" id="mathSaveTemplateBtn" title="حفظ القالب">💾</button>
+                <button type="button" class="header-action-btn" id="mathHistoryBtn" title="سجل المعادلات">⏱</button>
                 <button type="button" class="header-action-btn" id="mathClearBtn" title="مسح">⟳</button>
                 <button type="button" class="math-keyboard-close" id="mathKeyboardClose" title="إغلاق">✕</button>
             </div>
@@ -1433,6 +1457,14 @@
 
         <div class="math-writer-area" id="mathWriterArea">
             <textarea id="eqLatexInput" placeholder="اكتب المعادلة الرياضية هنا …" rows="3" spellcheck="false"></textarea>
+            <div style="font-size:10px;color:#94a3b8;padding:0 2px;display:flex;gap:12px;flex-wrap:wrap;direction:ltr">
+                <span>Ctrl+F ← \frac</span>
+                <span>Ctrl+R ← \sqrt</span>
+                <span>Ctrl+Shift+P ← ^{ }</span>
+                <span>Ctrl+Shift+I ← _{ }</span>
+                <span>Ctrl+Enter ← إدراج</span>
+                <span>Alt+Click ← إدراج مباشر</span>
+            </div>
             <div class="math-writer-toolbar">
                 <div class="math-writer-preview" id="eqPreview">\\[ \\; \\]</div>
                 <div class="math-writer-actions">
@@ -1469,6 +1501,7 @@
         <div class="math-keyboard-grid-wrap">
             <div class="math-keyboard-grid" id="mathKeyboardGrid"></div>
         </div>
+        <div class="math-resize-handle" id="mathResizeHandle"></div>
     </div>
 
     {{--
@@ -2244,62 +2277,287 @@
                     label: 'أقواس',
                     icon: '()',
                     symbols: ['()', '[]', '{}', '⟨⟩', '⌊⌋', '⌈⌉', '│', '‖', '‹›']
+                },
+                trigonometry: {
+                    label: 'مثلثات',
+                    icon: 'π',
+                    symbols: ['sin', 'cos', 'tan', 'csc', 'sec', 'cot', 'arcsin', 'arccos', 'arctan', 'sinh', 'cosh', 'tanh', '°', '′', '″', 'π', 'rad']
+                },
+                logic: {
+                    label: 'منطق',
+                    icon: '∴',
+                    symbols: ['∀', '∃', '∄', '∴', '∵', '¬', '∧', '∨', '⊕', '⊗', '⇒', '⇔', '⊤', '⊥', '⊢', '⊨', '□', '◇']
+                },
+                statistics: {
+                    label: 'إحصاء',
+                    icon: 'μ',
+                    symbols: ['μ', 'σ', 'Σ', 'Π', 'Δ', '∂', '∞', 'ℕ', 'ℝ', 'ℂ', '%', '‰', '°', '∠', '∡', '⊥', '∥']
                 }
             };
-            var categoryOrder = ['operators', 'relations', 'inequalities', 'greek', 'calculus', 'roots', 'arrows', 'sets', 'geometry', 'brackets'];
+            var categoryOrder = ['operators', 'relations', 'inequalities', 'greek', 'calculus', 'trigonometry', 'logic', 'statistics', 'roots', 'arrows', 'sets', 'geometry', 'brackets'];
 
             // ── KaTeX template definitions ──
             var katexTemplates = [
+                // ── Basic fractions ──
                 { label: '\\frac{a}{b}', latex: '\\frac{a}{b}' },
                 { label: '\\frac{x}{y}', latex: '\\frac{x}{y}' },
+                { label: '\\frac{dy}{dx}', latex: '\\frac{dy}{dx}' },
+                { label: '\\tfrac{a}{b}', latex: '\\tfrac{a}{b}' },
+                { label: '\\dfrac{a}{b}', latex: '\\dfrac{a}{b}' },
+                { label: '\\binom{n}{k}', latex: '\\binom{n}{k}' },
+
+                // ── Powers and indices ──
                 { label: 'x^{2}', latex: 'x^{2}' },
                 { label: 'x^{n}', latex: 'x^{n}' },
                 { label: 'x_{n}', latex: 'x_{n}' },
+                { label: 'x^{n}_{m}', latex: 'x^{n}_{m}' },
+                { label: 'e^{i\\pi}+1=0', latex: 'e^{i\\pi}+1=0' },
+
+                // ── Roots ──
                 { label: '\\sqrt{x}', latex: '\\sqrt{x}' },
                 { label: '\\sqrt[n]{x}', latex: '\\sqrt[n]{x}' },
+                { label: '\\sqrt{1-x^{2}}', latex: '\\sqrt{1-x^{2}}' },
                 { label: '\\sqrt[3]{x}', latex: '\\sqrt[3]{x}' },
-                { label: 'a^{2}+b^{2}=c^{2}', latex: 'a^{2}+b^{2}=c^{2}' },
+
+                // ── Quadratic formula ──
                 { label: 'ax^{2}+bx+c=0', latex: 'ax^{2}+bx+c=0' },
+                { label: 'x=\\frac{-b\\pm\\sqrt{b^{2}-4ac}}{2a}', latex: 'x=\\frac{-b\\pm\\sqrt{b^{2}-4ac}}{2a}' },
+                { label: 'a^{2}+b^{2}=c^{2}', latex: 'a^{2}+b^{2}=c^{2}' },
+                { label: '(a+b)^{2}=a^{2}+2ab+b^{2}', latex: '(a+b)^{2}=a^{2}+2ab+b^{2}' },
+
+                // ── Calculus ──
                 { label: '\\int', latex: '\\int' },
                 { label: '\\int_{a}^{b}', latex: '\\int_{a}^{b}' },
+                { label: '\\int_{a}^{\\infty}', latex: '\\int_{a}^{\\infty}' },
+                { label: '\\int_{0}^{\\pi}\\sin x\\,dx', latex: '\\int_{0}^{\\pi}\\sin x\\,dx' },
+                { label: '\\iint', latex: '\\iint' },
+                { label: '\\iint_{D}', latex: '\\iint_{D}' },
+                { label: '\\iiint', latex: '\\iiint' },
+                { label: '\\oint', latex: '\\oint' },
+                { label: '\\partial', latex: '\\partial' },
+                { label: '\\frac{\\partial f}{\\partial x}', latex: '\\frac{\\partial f}{\\partial x}' },
+                { label: '\\nabla', latex: '\\nabla' },
+                { label: '\\nabla^{2}', latex: '\\nabla^{2}' },
+
+                // ── Limits ──
+                { label: '\\lim_{x \\to a}', latex: '\\lim_{x \\to a}' },
+                { label: '\\lim_{x \\to \\infty}', latex: '\\lim_{x \\to \\infty}' },
+                { label: '\\lim_{x \\to 0}\\frac{\\sin x}{x}=1', latex: '\\lim_{x \\to 0}\\frac{\\sin x}{x}=1' },
+                { label: '\\lim_{n \\to \\infty}\\frac{1}{n}=0', latex: '\\lim_{n \\to \\infty}\\frac{1}{n}=0' },
+
+                // ── Sums and products ──
                 { label: '\\sum', latex: '\\sum' },
                 { label: '\\sum_{i=1}^{n}', latex: '\\sum_{i=1}^{n}' },
+                { label: '\\sum_{i=1}^{\\infty}', latex: '\\sum_{i=1}^{\\infty}' },
                 { label: '\\prod', latex: '\\prod' },
-                { label: '\\iint', latex: '\\iint' },
-                { label: '\\partial', latex: '\\partial' },
-                { label: '\\lim_{x \\to \\infty}', latex: '\\lim_{x \\to \\infty}' },
+                { label: '\\prod_{i=1}^{n}', latex: '\\prod_{i=1}^{n}' },
+                { label: '\\coprod', latex: '\\coprod' },
+
+                // ── Trigonometry ──
+                { label: '\\sin x', latex: '\\sin x' },
+                { label: '\\cos x', latex: '\\cos x' },
+                { label: '\\tan x', latex: '\\tan x' },
+                { label: '\\csc x', latex: '\\csc x' },
+                { label: '\\sec x', latex: '\\sec x' },
+                { label: '\\cot x', latex: '\\cot x' },
+                { label: '\\sin^{2}x+\\cos^{2}x=1', latex: '\\sin^{2}x+\\cos^{2}x=1' },
+                { label: '\\sin(a\\pm b)', latex: '\\sin(a\\pm b)' },
+                { label: '\\cos(a\\pm b)', latex: '\\cos(a\\pm b)' },
+                { label: '\\arcsin x', latex: '\\arcsin x' },
+                { label: '\\arccos x', latex: '\\arccos x' },
+                { label: '\\arctan x', latex: '\\arctan x' },
+
+                // ── Logarithms ──
+                { label: '\\log x', latex: '\\log x' },
+                { label: '\\ln x', latex: '\\ln x' },
+                { label: '\\log_{a} x', latex: '\\log_{a} x' },
+                { label: '\\ln(ab)=\\ln a+\\ln b', latex: '\\ln(ab)=\\ln a+\\ln b' },
+
+                // ── Matrices (2x2) ──
+                { label: '\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}', latex: '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}' },
+                { label: '\\begin{bmatrix}a&b\\\\c&d\\end{bmatrix}', latex: '\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix}' },
+                { label: '\\begin{vmatrix}a&b\\\\c&d\\end{vmatrix}', latex: '\\begin{vmatrix} a & b \\\\ c & d \\end{vmatrix}' },
+                { label: '\\begin{Vmatrix}a&b\\\\c&d\\end{Vmatrix}', latex: '\\begin{Vmatrix} a & b \\\\ c & d \\end{Vmatrix}' },
+                { label: '\\begin{Bmatrix}a&b\\\\c&d\\end{Bmatrix}', latex: '\\begin{Bmatrix} a & b \\\\ c & d \\end{Bmatrix}' },
+                { label: '\\begin{smallmatrix}a&b\\\\c&d\\end{smallmatrix}', latex: '\\begin{smallmatrix}a&b\\\\c&d\\end{smallmatrix}' },
+
+                // ── Matrices (3x3) ──
+                { label: '3\\times3\\,pmatrix', latex: '\\begin{pmatrix} a & b & c \\\\ d & e & f \\\\ g & h & i \\end{pmatrix}' },
+                { label: '3\\times3\\,bmatrix', latex: '\\begin{bmatrix} a & b & c \\\\ d & e & f \\\\ g & h & i \\end{bmatrix}' },
+                { label: 'Identity\\,I_{3}', latex: '\\begin{pmatrix} 1 & 0 & 0 \\\\ 0 & 1 & 0 \\\\ 0 & 0 & 1 \\end{pmatrix}' },
+
+                // ── Cases and piecewise ──
+                { label: '\\begin{cases}x&y\\\\a&b\\end{cases}', latex: '\\begin{cases} x & y \\\\ a & b \\end{cases}' },
+                { label: 'Piecewise f(x)=', latex: 'f(x)=\\begin{cases} x^{2} & x\\ge0 \\\\ -x & x<0 \\end{cases}' },
+                { label: 'Three cases', latex: '\\begin{cases} a & b \\\\ c & d \\\\ e & f \\end{cases}' },
+
+                // ── Multi-line ──
+                { label: '\\begin{aligned}', latex: '\\begin{aligned} a &= b + c \\\\ d &= e + f \\end{aligned}' },
+                { label: '\\begin{gathered}', latex: '\\begin{gathered} x^{2} + y^{2} = 1 \\\\ a + b = c \\end{gathered}' },
+                { label: '\\begin{align}', latex: '\\begin{align} x &= 1 & y &= 2 \\\\ a &= 3 & b &= 4 \\end{align}' },
+                { label: '\\begin{split}', latex: '\\begin{split} A & = B + C \\\\ & = D + E \\end{split}' },
+
+                // ── System of equations ──
+                { label: 'System 2 eq', latex: '\\begin{cases} 2x + 3y = 5 \\\\ x - y = 1 \\end{cases}' },
+                { label: 'System 3 eq', latex: '\\begin{cases} x + y + z = 1 \\\\ 2x - y + z = 2 \\\\ x + 2y - z = 3 \\end{cases}' },
+
+                // ── Vectors and geometry ──
+                { label: '\\overrightarrow{AB}', latex: '\\overrightarrow{AB}' },
+                { label: '\\vec{v}', latex: '\\vec{v}' },
+                { label: '\\vec{F}=m\\vec{a}', latex: '\\vec{F}=m\\vec{a}' },
+                { label: '\\hat{x}', latex: '\\hat{x}' },
+                { label: '\\bar{x}', latex: '\\bar{x}' },
+                { label: '\\dot{x}', latex: '\\dot{x}' },
+                { label: '\\ddot{x}', latex: '\\ddot{x}' },
+                { label: '\\tilde{x}', latex: '\\tilde{x}' },
+                { label: '\\widehat{ABC}', latex: '\\widehat{ABC}' },
+                { label: '\\angle', latex: '\\angle' },
+                { label: '\\triangle', latex: '\\triangle' },
+                { label: '\\perp', latex: '\\perp' },
+                { label: '\\parallel', latex: '\\parallel' },
+                { label: '\\cong', latex: '\\cong' },
+                { label: '\\sim', latex: '\\sim' },
+                { label: '\\propto', latex: '\\propto' },
+
+                // ── Sets ──
+                { label: '\\subset', latex: '\\subset' },
+                { label: '\\supset', latex: '\\supset' },
+                { label: '\\subseteq', latex: '\\subseteq' },
+                { label: '\\supseteq', latex: '\\supseteq' },
+                { label: '\\in', latex: '\\in' },
+                { label: '\\notin', latex: '\\notin' },
+                { label: '\\cup', latex: '\\cup' },
+                { label: '\\cap', latex: '\\cap' },
+                { label: '\\setminus', latex: '\\setminus' },
+                { label: '\\emptyset', latex: '\\emptyset' },
+                { label: '\\mathbb{N}', latex: '\\mathbb{N}' },
+                { label: '\\mathbb{Z}', latex: '\\mathbb{Z}' },
+                { label: '\\mathbb{Q}', latex: '\\mathbb{Q}' },
+                { label: '\\mathbb{R}', latex: '\\mathbb{R}' },
+                { label: '\\mathbb{C}', latex: '\\mathbb{C}' },
+
+                // ── Calculus notation ──
                 { label: '\\to', latex: '\\to' },
                 { label: '\\rightarrow', latex: '\\rightarrow' },
+                { label: '\\Rightarrow', latex: '\\Rightarrow' },
+                { label: '\\leftrightarrow', latex: '\\leftrightarrow' },
+                { label: '\\stackrel{}{}', latex: '\\stackrel{a}{b}' },
+                { label: '\\xrightarrow{abc}', latex: '\\xrightarrow{abc}' },
+
+                // ── Greek letters ──
                 { label: '\\alpha', latex: '\\alpha' },
                 { label: '\\beta', latex: '\\beta' },
+                { label: '\\gamma', latex: '\\gamma' },
+                { label: '\\delta', latex: '\\delta' },
+                { label: '\\epsilon', latex: '\\epsilon' },
+                { label: '\\varepsilon', latex: '\\varepsilon' },
+                { label: '\\zeta', latex: '\\zeta' },
+                { label: '\\eta', latex: '\\eta' },
                 { label: '\\theta', latex: '\\theta' },
+                { label: '\\vartheta', latex: '\\vartheta' },
+                { label: '\\iota', latex: '\\iota' },
+                { label: '\\kappa', latex: '\\kappa' },
+                { label: '\\lambda', latex: '\\lambda' },
+                { label: '\\mu', latex: '\\mu' },
+                { label: '\\nu', latex: '\\nu' },
+                { label: '\\xi', latex: '\\xi' },
                 { label: '\\pi', latex: '\\pi' },
+                { label: '\\varpi', latex: '\\varpi' },
+                { label: '\\rho', latex: '\\rho' },
+                { label: '\\sigma', latex: '\\sigma' },
+                { label: '\\tau', latex: '\\tau' },
+                { label: '\\upsilon', latex: '\\upsilon' },
+                { label: '\\phi', latex: '\\phi' },
+                { label: '\\varphi', latex: '\\varphi' },
+                { label: '\\chi', latex: '\\chi' },
+                { label: '\\psi', latex: '\\psi' },
+                { label: '\\omega', latex: '\\omega' },
+                { label: '\\Gamma', latex: '\\Gamma' },
                 { label: '\\Delta', latex: '\\Delta' },
+                { label: '\\Theta', latex: '\\Theta' },
+                { label: '\\Lambda', latex: '\\Lambda' },
+                { label: '\\Xi', latex: '\\Xi' },
+                { label: '\\Pi', latex: '\\Pi' },
+                { label: '\\Sigma', latex: '\\Sigma' },
+                { label: '\\Phi', latex: '\\Phi' },
+                { label: '\\Psi', latex: '\\Psi' },
+                { label: '\\Omega', latex: '\\Omega' },
+
+                // ── Relations ──
                 { label: '\\neq', latex: '\\neq' },
                 { label: '\\approx', latex: '\\approx' },
                 { label: '\\equiv', latex: '\\equiv' },
                 { label: '\\leq', latex: '\\leq' },
                 { label: '\\geq', latex: '\\geq' },
-                { label: '\\subset', latex: '\\subset' },
-                { label: '\\supset', latex: '\\supset' },
-                { label: '\\in', latex: '\\in' },
-                { label: '\\cup', latex: '\\cup' },
-                { label: '\\cap', latex: '\\cap' },
-                { label: '\\emptyset', latex: '\\emptyset' },
-                { label: '\\mathbb{N}', latex: '\\mathbb{N}' },
-                { label: '\\mathbb{Z}', latex: '\\mathbb{Z}' },
-                { label: '\\mathbb{R}', latex: '\\mathbb{R}' },
-                { label: '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}', latex: '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}' },
-                { label: '\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix}', latex: '\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix}' },
-                { label: '\\begin{cases} x & y \\\\ a & b \\end{cases}', latex: '\\begin{cases} x & y \\\\ a & b \\end{cases}' },
-                { label: '\\overrightarrow{AB}', latex: '\\overrightarrow{AB}' },
-                { label: '\\hat{x}', latex: '\\hat{x}' },
-                { label: '\\bar{x}', latex: '\\bar{x}' },
-                { label: '\\dot{x}', latex: '\\dot{x}' },
-                { label: '\\angle', latex: '\\angle' },
-                { label: '\\triangle', latex: '\\triangle' },
-                { label: '\\perp', latex: '\\perp' },
-                { label: '\\parallel', latex: '\\parallel' }
+                { label: '\\ll', latex: '\\ll' },
+                { label: '\\gg', latex: '\\gg' },
+                { label: '\\doteq', latex: '\\doteq' },
+                { label: '\\simeq', latex: '\\simeq' },
+                { label: '\\asymp', latex: '\\asymp' },
+
+                // ── Logic ──
+                { label: '\\forall', latex: '\\forall' },
+                { label: '\\exists', latex: '\\exists' },
+                { label: '\\nexists', latex: '\\nexists' },
+                { label: '\\therefore', latex: '\\therefore' },
+                { label: '\\because', latex: '\\because' },
+                { label: '\\land', latex: '\\land' },
+                { label: '\\lor', latex: '\\lor' },
+                { label: '\\lnot', latex: '\\lnot' },
+                { label: '\\vdash', latex: '\\vdash' },
+                { label: '\\models', latex: '\\models' },
+
+                // ── Probability and statistics ──
+                { label: 'P(A\\mid B)', latex: 'P(A\\mid B)' },
+                { label: '\\mathbb{E}[X]', latex: '\\mathbb{E}[X]' },
+                { label: '\\mathrm{Var}(X)', latex: '\\mathrm{Var}(X)' },
+                { label: '\\sigma^{2}', latex: '\\sigma^{2}' },
+                { label: '\\bar{x}=\\frac{1}{n}\\sum', latex: '\\bar{x}=\\frac{1}{n}\\sum_{i=1}^{n} x_{i}' },
+                { label: '\\binom{n}{k}p^{k}q^{n-k}', latex: '\\binom{n}{k}p^{k}q^{n-k}' },
+                { label: 'N(\\mu,\\sigma^{2})', latex: 'N(\\mu,\\sigma^{2})' },
+                { label: '\\chi^{2}', latex: '\\chi^{2}' },
+
+                // ── Chemistry ──
+                { label: '\\mathrm{H_{2}O}', latex: '\\mathrm{H_{2}O}' },
+                { label: '\\mathrm{CO_{2}}', latex: '\\mathrm{CO_{2}}' },
+                { label: '\\mathrm{CH_{4}}', latex: '\\mathrm{CH_{4}}' },
+                { label: '\\mathrm{C_{6}H_{12}O_{6}}', latex: '\\mathrm{C_{6}H_{12}O_{6}}' },
+                { label: '\\mathrm{HCl+NaOH}', latex: '\\mathrm{HCl + NaOH \\to NaCl + H_{2}O}' },
+                { label: '\\mathrm{CaCO_{3}}', latex: '\\mathrm{CaCO_{3}}' },
+                { label: '\\mathrm{H_{2}SO_{4}}', latex: '\\mathrm{H_{2}SO_{4}}' },
+
+                // ── Physics ──
+                { label: 'E=mc^{2}', latex: 'E=mc^{2}' },
+                { label: 'F=ma', latex: 'F=ma' },
+                { label: 'F=G\\frac{m_{1}m_{2}}{r^{2}}', latex: 'F=G\\frac{m_{1}m_{2}}{r^{2}}' },
+                { label: 'E=h\\nu', latex: 'E=h\\nu' },
+                { label: 'pv=nRT', latex: 'pv=nRT' },
+                { label: '\\Delta E = h\\nu', latex: '\\Delta E = h\\nu' },
+
+                // ── Calculus derivatives ──
+                { label: "f'(x)", latex: "f'(x)" },
+                { label: "f''(x)", latex: "f''(x)" },
+                { label: '\\frac{d}{dx}f(x)', latex: '\\frac{d}{dx}f(x)' },
+                { label: '\\frac{d^{2}}{dx^{2}}', latex: '\\frac{d^{2}}{dx^{2}}' },
+
+                // ── Brackets ──
+                { label: '\\left(\\right)', latex: '\\left( \\right)' },
+                { label: '\\left[\\right]', latex: '\\left[ \\right]' },
+                { label: '\\langle\\rangle', latex: '\\langle \\rangle' },
+                { label: '\\lvert x\\rvert', latex: '\\lvert x\\rvert' },
+                { label: '\\|x\\|', latex: '\\|x\\|' },
+                { label: '\\lfloor x\\rfloor', latex: '\\lfloor x\\rfloor' },
+                { label: '\\lceil x\\rceil', latex: '\\lceil x\\rceil' },
+
+                // ── Spacing ──
+                { label: 'a\\,b', latex: 'a\\,b' },
+                { label: 'a\\;b', latex: 'a\\;b' },
+                { label: 'a\\quad b', latex: 'a\\quad b' },
+                { label: 'a\\qquad b', latex: 'a\\qquad b' },
+                { label: '\\text{text}', latex: '\\text{text}' },
+                { label: '\\displaystyle', latex: '\\displaystyle\\int_{0}^{1} f(x)\\,dx' },
+                { label: '\\underset{x\\to a}{\\lim}', latex: '\\underset{x\\to a}{\\lim}' },
+                { label: '\\overset{+}{-}', latex: '\\overset{+}{-}' },
             ];
 
             // ── State ──
@@ -2332,7 +2590,16 @@
             var $customPreview = $('#eqPreview');
             var $customInsertBtn = $('#eqInsertBtn');
 
+            function autoResizeTextarea() {
+                var el = $customLatex[0];
+                if (!el) return;
+                el.style.height = 'auto';
+                var newH = Math.min(Math.max(el.scrollHeight, 80), 400);
+                el.style.height = newH + 'px';
+            }
+
             $customLatex.on('input', function () {
+                autoResizeTextarea();
                 var val = $(this).val().trim();
                 if (!val) { $customPreview.html('').removeClass('has-error'); $customInsertBtn.prop('disabled', true); return; }
                 $customInsertBtn.prop('disabled', false);
@@ -2348,6 +2615,9 @@
                 }
             });
 
+            // Initial auto-resize
+            setTimeout(autoResizeTextarea, 50);
+
             $customInsertBtn.on('click', function () {
                 var val = $customLatex.val().trim();
                 if (!val) return;
@@ -2356,7 +2626,12 @@
             });
 
             $customLatex.on('keydown', function (e) {
-                if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); $customInsertBtn.click(); }
+                if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); $customInsertBtn.click(); return; }
+                // Shortcuts: Ctrl+F=frac, Ctrl+R=sqrt, Ctrl+P=superscript, Ctrl+Shift+I=subscript
+                if (e.ctrlKey && !e.shiftKey && e.key === 'f') { e.preventDefault(); insertTemplateSmart($customLatex, '\\frac{}{}'); return; }
+                if (e.ctrlKey && !e.shiftKey && e.key === 'r') { e.preventDefault(); insertTemplateSmart($customLatex, '\\sqrt{}'); return; }
+                if (e.ctrlKey && e.shiftKey && e.key === 'P') { e.preventDefault(); insertTemplateSmart($customLatex, '^{}'); return; }
+                if (e.ctrlKey && e.shiftKey && e.key === 'I') { e.preventDefault(); insertTemplateSmart($customLatex, '_{}'); return; }
             });
 
             $clearBtn.on('click', function () {
@@ -2747,14 +3022,61 @@
                 return false;
             }
 
-            $(document).on('click', '.math-key-btn', function () {
+            // ── Smart insert: at cursor, wrap selection, smart cursor ──
+            function insertTemplateSmart($ta, templateLatex) {
+                var el = $ta[0];
+                if (!el) return;
+                var start = el.selectionStart || 0;
+                var end = el.selectionEnd || 0;
+                var text = el.value || '';
+                var selected = text.slice(start, end);
+
+                var insertLatex = templateLatex;
+                var cursorTarget = -1;
+
+                if (selected) {
+                    // Replace first single-letter placeholder {x}, {n}, {a}, etc. with selection
+                    var phMatch = insertLatex.match(/\{[a-zA-Z]\}/);
+                    if (phMatch) {
+                        insertLatex = insertLatex.replace(phMatch[0], '{' + selected + '}');
+                        cursorTarget = start + insertLatex.length;
+                    } else {
+                        // Try two-letter placeholders like {AB}
+                        var ph2Match = insertLatex.match(/\{[A-Z]{2}\}/);
+                        if (ph2Match) {
+                            insertLatex = insertLatex.replace(ph2Match[0], '{' + selected + '}');
+                            cursorTarget = start + insertLatex.length;
+                        }
+                    }
+                }
+
+                el.value = text.slice(0, start) + insertLatex + text.slice(end);
+
+                // Find first {…} block to place cursor inside it (skip placeholders like {a}{b} that were already handled)
+                if (cursorTarget < 0 && !selected) {
+                    var firstOpen = insertLatex.indexOf('{');
+                    var firstClose = insertLatex.indexOf('}');
+                    if (firstOpen >= 0 && firstClose > firstOpen + 1) {
+                        // Place cursor just after the opening {
+                        cursorTarget = start + firstOpen + 1;
+                    }
+                }
+
+                var cursor = cursorTarget >= 0 ? cursorTarget : start + insertLatex.length;
+                el.focus();
+                if (typeof el.setSelectionRange === 'function') el.setSelectionRange(cursor, cursor);
+                $ta.trigger('input').trigger('change');
+            }
+
+            $(document).on('click', '.math-key-btn', function (e) {
                 var $btn = $(this);
                 var latex = $btn.data('katex');
                 if (latex) {
-                    if ($customLatex && $customLatex.length) {
-                        $customLatex.val(latex).trigger('input').focus();
-                        var len = $customLatex.val().length;
-                        $customLatex[0].setSelectionRange(0, len);
+                    // Alt+click → insert directly into document (Summernote), not into textarea
+                    if (e.altKey) {
+                        handleKatexInsert($btn);
+                    } else if ($customLatex && $customLatex.length) {
+                        insertTemplateSmart($customLatex, latex);
                     } else {
                         handleKatexInsert($btn);
                     }
@@ -2768,7 +3090,7 @@
                 var $btn = $(this);
                 if ($btn.data('katex')) {
                     if ($customLatex && $customLatex.length) {
-                        $customLatex.val($btn.data('katex')).trigger('input').focus();
+                        insertTemplateSmart($customLatex, $btn.data('katex'));
                     }
                 } else if ($btn.data('symbol')) {
                     closePanel();
@@ -2826,7 +3148,267 @@
                 if (isDragging) {
                     isDragging = false;
                     $panel.css('transition', 'opacity .2s ease, transform .25s ease');
+                    // Save position to localStorage
+                    try {
+                        localStorage.setItem('math_panel_left', $panel.css('left'));
+                        localStorage.setItem('math_panel_top', $panel.css('top'));
+                        localStorage.setItem('math_panel_right', $panel.css('right'));
+                        localStorage.setItem('math_panel_bottom', $panel.css('bottom'));
+                    } catch(e) {}
                 }
+            });
+
+            // ── Resize ──
+            var isResizing = false;
+            var resizeStartX = 0, resizeStartY = 0;
+            var resizeStartW = 0, resizeStartH = 0;
+
+            $('#mathResizeHandle').on('mousedown touchstart', function (e) {
+                if (e.type === 'mousedown' && e.button !== 0) return;
+                e.preventDefault();
+                e.stopPropagation();
+                var clientX, clientY;
+                if (e.type === 'mousedown') {
+                    clientX = e.clientX; clientY = e.clientY;
+                } else {
+                    var touch = e.originalEvent.touches[0];
+                    clientX = touch.clientX; clientY = touch.clientY;
+                }
+                isResizing = true;
+                resizeStartX = clientX;
+                resizeStartY = clientY;
+                resizeStartW = $panel.outerWidth();
+                resizeStartH = $panel.outerHeight();
+                $panel.css('transition', 'none');
+                $('body').css('user-select', 'none');
+            });
+
+            $(document).on('mousemove touchmove', function (e) {
+                if (!isResizing) return;
+                e.preventDefault();
+                var clientX, clientY;
+                if (e.type === 'mousemove') {
+                    clientX = e.clientX; clientY = e.clientY;
+                } else {
+                    var touch = e.originalEvent.touches[0];
+                    clientX = touch.clientX; clientY = touch.clientY;
+                }
+                var newW = Math.max(300, resizeStartW + (clientX - resizeStartX));
+                var newH = Math.max(200, resizeStartH + (clientY - resizeStartY));
+                $panel.css({ width: newW + 'px', height: newH + 'px' });
+            });
+
+            $(document).on('mouseup touchend', function () {
+                if (isResizing) {
+                    isResizing = false;
+                    $('body').css('user-select', '');
+                    $panel.css('transition', '');
+                    // Save size to localStorage
+                    try {
+                        localStorage.setItem('math_panel_width', $panel.outerWidth());
+                        localStorage.setItem('math_panel_height', $panel.outerHeight());
+                    } catch(e) {}
+                }
+            });
+
+            // Restore saved size and position
+            try {
+                var savedW = localStorage.getItem('math_panel_width');
+                var savedH = localStorage.getItem('math_panel_height');
+                if (savedW) $panel.css('width', savedW + 'px');
+                if (savedH) $panel.css('height', savedH + 'px');
+                var savedL = localStorage.getItem('math_panel_left');
+                var savedT = localStorage.getItem('math_panel_top');
+                var savedR = localStorage.getItem('math_panel_right');
+                var savedB = localStorage.getItem('math_panel_bottom');
+                if (savedL && savedT && savedL !== 'auto') {
+                    $panel.css({ left: savedL, top: savedT, right: 'auto', bottom: 'auto' });
+                } else if (savedR && savedB && savedR !== 'auto') {
+                    $panel.css({ right: savedR, bottom: savedB });
+                }
+            } catch(e) {}
+
+            // ── Custom Template Save ──
+            var customTemplates = [];
+            var CUSTOM_TEMPLATES_KEY = 'math_custom_templates';
+
+            function loadCustomTemplates() {
+                try {
+                    var stored = localStorage.getItem(CUSTOM_TEMPLATES_KEY);
+                    if (stored) customTemplates = JSON.parse(stored);
+                    if (!Array.isArray(customTemplates)) customTemplates = [];
+                } catch(e) { customTemplates = []; }
+            }
+
+            function saveCustomTemplates() {
+                try {
+                    localStorage.setItem(CUSTOM_TEMPLATES_KEY, JSON.stringify(customTemplates));
+                } catch(e) {}
+            }
+
+            loadCustomTemplates();
+
+            function renderCustomTemplates() {
+                $grid.empty();
+                if (customTemplates.length === 0) {
+                    $grid.append('<div class="no-results">لا توجد قوالب مخصصة. اكتب معادلة ثم اضغط 💾 للحفظ</div>');
+                    return;
+                }
+                customTemplates.forEach(function (tpl, idx) {
+                    var rendered = '';
+                    try {
+                        if (typeof katex !== 'undefined') {
+                            rendered = katex.renderToString(tpl.latex, { displayMode: false, throwOnError: false });
+                        } else {
+                            rendered = '<code>' + tpl.latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
+                        }
+                    } catch(e) {
+                        rendered = '<code>' + tpl.latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
+                    }
+                    $grid.append(
+                        '<div class="custom-tpl-wrap" style="position:relative;display:inline-block" data-idx="' + idx + '">' +
+                        '<button type="button" class="math-key-btn math-katex-btn custom-tpl-btn" data-katex="' + tpl.latex.replace(/"/g, '&quot;') + '">' + rendered + '</button>' +
+                        '<button type="button" class="custom-tpl-del" data-idx="' + idx + '" title="حذف القالب" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;border:0;background:#ef4444;color:#fff;font-size:11px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 2px 4px rgba(0,0,0,.2)">✕</button>' +
+                        '</div>'
+                    );
+                });
+            }
+
+            function addCustomTab() {
+                var $existingTab = $tabs.find('.math-tab-btn[data-category="custom"]');
+                if ($existingTab.length) return;
+                $tabs.append('<button type="button" class="math-tab-btn" data-category="custom">💾 قوالب محفوظة</button>');
+            }
+
+            // Remove custom templates
+            $(document).on('click', '.custom-tpl-del', function (e) {
+                e.stopPropagation();
+                var idx = $(this).data('idx');
+                customTemplates.splice(idx, 1);
+                saveCustomTemplates();
+                if (activeCategory === 'custom') renderCustomTemplates();
+            });
+
+            // Tab handler for custom
+            var _origRenderCategory = renderCategory;
+            renderCategory = function (key) {
+                if (key === 'custom') {
+                    activeCategory = key;
+                    searchQuery = '';
+                    $search.val('');
+                    renderCustomTemplates();
+                    return;
+                }
+                _origRenderCategory(key);
+            };
+
+            $('#mathSaveTemplateBtn').on('click', function () {
+                var val = $customLatex.val().trim();
+                if (!val) { toastr.warning('اكتب معادلة أولاً'); return; }
+                var exists = customTemplates.some(function (t) { return t.latex === val; });
+                if (exists) { toastr.info('هذه المعادلة محفوظة بالفعل'); return; }
+                customTemplates.push({ latex: val });
+                saveCustomTemplates();
+                addCustomTab();
+                toastr.success('تم حفظ القالب');
+                // Switch to custom tab
+                $tabs.find('.math-tab-btn').removeClass('active');
+                var $customTab = $tabs.find('.math-tab-btn[data-category="custom"]');
+                if ($customTab.length) { $customTab.addClass('active'); renderCategory('custom'); }
+            });
+
+            // Load custom tab on init
+            if (customTemplates.length > 0) addCustomTab();
+
+            // ── Equation History ──
+            var equationHistory = [];
+            var HISTORY_KEY = 'math_equation_history';
+            var maxHistory = 20;
+            var showHistory = false;
+
+            function loadEquationHistory() {
+                try {
+                    var stored = localStorage.getItem(HISTORY_KEY);
+                    if (stored) equationHistory = JSON.parse(stored);
+                    if (!Array.isArray(equationHistory)) equationHistory = [];
+                } catch(e) { equationHistory = []; }
+            }
+
+            function saveEquationHistory() {
+                try {
+                    localStorage.setItem(HISTORY_KEY, JSON.stringify(equationHistory));
+                } catch(e) {}
+            }
+
+            loadEquationHistory();
+
+            function addEquationToHistory(latex) {
+                var idx = equationHistory.indexOf(latex);
+                if (idx !== -1) equationHistory.splice(idx, 1);
+                equationHistory.unshift(latex);
+                if (equationHistory.length > maxHistory) equationHistory.pop();
+                saveEquationHistory();
+            }
+
+            function renderHistory() {
+                $grid.empty();
+                if (equationHistory.length === 0) {
+                    $grid.append('<div class="no-results">لا توجد معادلات سابقة</div>');
+                    return;
+                }
+                var count = 0;
+                equationHistory.forEach(function (latex) {
+                    if (count >= 20) return;
+                    count++;
+                    var rendered = '';
+                    try {
+                        if (typeof katex !== 'undefined') {
+                            rendered = katex.renderToString(latex, { displayMode: false, throwOnError: false });
+                        } else {
+                            rendered = '<code>' + latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
+                        }
+                    } catch(e) {
+                        rendered = '<code>' + latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
+                    }
+                    $grid.append(
+                        '<div class="history-item" style="grid-column:span 2;display:flex;align-items:center;gap:6px;background:#f8f9fa;border:1px solid #e6e6e6;border-radius:10px;padding:6px 10px">' +
+                        '<button type="button" class="math-key-btn math-katex-btn history-use-btn" data-katex="' + latex.replace(/"/g, '&quot;') + '" style="flex:1;padding:8px 4px" title="استخدام">' + rendered + '</button>' +
+                        '<button type="button" class="history-insert-btn" data-katex="' + latex.replace(/"/g, '&quot;') + '" title="إدراج في المحرر" style="width:28px;height:28px;border:0;border-radius:8px;background:#0d6efd;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">⇥</button>' +
+                        '</div>'
+                    );
+                });
+            }
+
+            $('#mathHistoryBtn').on('click', function () {
+                if (activeCategory === '_history') {
+                    // Toggle back to previous category
+                    $tabs.find('.math-tab-btn').removeClass('active');
+                    $tabs.find('.math-tab-btn[data-category="' + categoryOrder[0] + '"]').addClass('active');
+                    renderCategory(categoryOrder[0]);
+                } else {
+                    activeCategory = '_history';
+                    searchQuery = '';
+                    $search.val('');
+                    $tabs.find('.math-tab-btn').removeClass('active');
+                    renderHistory();
+                }
+            });
+
+            // History insert button – insert at cursor
+            $(document).on('click', '.history-insert-btn', function () {
+                var latex = $(this).data('katex');
+                if (latex && $customLatex && $customLatex.length) {
+                    insertTemplateSmart($customLatex, latex);
+                }
+            });
+
+            // ── Track equation history on insert ──
+            $customInsertBtn.off('click').on('click', function () {
+                var val = $customLatex.val().trim();
+                if (!val) return;
+                addEquationToHistory(val);
+                var $fakeBtn = $('<button>').data('katex', val);
+                handleKatexInsert($fakeBtn);
             });
 
             // ── Expose for debugging ──
@@ -2834,7 +3416,9 @@
                 open: openPanel,
                 close: closePanel,
                 toggle: togglePanel,
-                addRecent: addRecent
+                addRecent: addRecent,
+                saveTemplate: function () { $('#mathSaveTemplateBtn').click(); },
+                history: equationHistory
             };
         })();
     </script>
