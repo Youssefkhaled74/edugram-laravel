@@ -1056,34 +1056,43 @@
                                                              @foreach($multiple_options as $multiple_option)
 
                                                                  @php $i++; @endphp
-                                                                 <div class='row  mt-25'>
-                                                                     <div class='col-lg-7'>
-                                                                         <div class='input-effect'>
-                                                                              <input class='primary_input_field name'
-                                                                                     type='text'
-                                                                                     name='option[]' autocomplete='off'
-                                                                                     value="{{$multiple_option->title}}">
-                                                                             <span class='focus-border'></span>
-                                                                         </div>
-                                                                     </div>
-                                                                     <div class='col-lg-3'>
-                                                                         <x-upload-file
-                                                                             name="option_image[{{$i}}]"
-                                                                             type="image"
-                                                                             media_id="{{$multiple_option->image_media?->media_id}}"
-                                                                             label=""/>
-                                                                     </div>
-                                                                     <div class='col-lg-2 mt-40'>
-                                                                         <label class="primary_checkbox d-flex mr-12 "
-                                                                                for="option_check_{{$i}}">
-                                                                             <input type="checkbox"
-                                                                                    @if ($multiple_option->status==1) checked
-                                                                                    @endif id="option_check_{{$i}}"
-                                                                                    name="option_check_{{$i}}" value="1">
-                                                                             <span class="checkmark"></span>
-                                                                         </label>
-                                                                     </div>
-                                                                 </div>
+                                                                  <div class='row  mt-25'>
+                                                                      <div class='col-lg-7'>
+                                                                          <div class='input-effect'>
+                                                                               <input class='primary_input_field name'
+                                                                                      type='text'
+                                                                                      name='option[]' autocomplete='off'
+                                                                                      value="{{$multiple_option->title}}">
+                                                                              <span class='focus-border'></span>
+                                                                          </div>
+                                                                      </div>
+                                                                      <div class='col-lg-3'>
+                                                                          <div class="primary_input single-uploader">
+                                                                              <div class="primary_file_uploader" data-bs-toggle="infixUploader" data-multiple="false" data-type="image" data-name="option_image[{{$i}}]">
+                                                                                  <input class="primary-input file_amount" type="text" id="file_option_image_{{$i}}" placeholder="{{__('common.Browse')}}" readonly>
+                                                                                  <button type="button">
+                                                                                      <label class="primary-btn small fix-gr-bg" for="file_option_image_{{$i}}">{{__('common.Browse')}}</label>
+                                                                                      <input type="hidden" class="selected_files" value="{{$multiple_option->image_media?->media_id ?? ''}}">
+                                                                                  </button>
+                                                                              </div>
+                                                                              <div class="product_image_all_div">
+                                                                                  @if($multiple_option->image_media?->media_id)
+                                                                                      <input type="hidden" name="option_image[{{$i}}]" value="{{$multiple_option->image_media->media_id}}">
+                                                                                  @endif
+                                                                              </div>
+                                                                          </div>
+                                                                      </div>
+                                                                      <div class='col-lg-2 mt-40'>
+                                                                          <label class="primary_checkbox d-flex mr-12 "
+                                                                                 for="option_check_{{$i}}">
+                                                                              <input type="checkbox"
+                                                                                     @if ($multiple_option->status==1) checked
+                                                                                     @endif id="option_check_{{$i}}"
+                                                                                     name="option_check_{{$i}}" value="1">
+                                                                              <span class="checkmark"></span>
+                                                                          </label>
+                                                                      </div>
+                                                                  </div>
                                                              @endforeach
                                                         </div>
 
