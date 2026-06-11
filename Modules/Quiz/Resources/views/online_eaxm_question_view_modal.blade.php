@@ -49,13 +49,18 @@
             @foreach($multiple_options as $multiple_option)
                 @php $i++; @endphp
                 <div class='row  mt-25'>
-                    <div class='col-lg-10'>
+                    <div class='col-lg-8'>
                         <div class='input-effect'>
                             <input class='primary-input form-control' type='text' name='option[]' autocomplete='off'
-                                   required value="{{@$multiple_option->title}}">
+                                   value="{{@$multiple_option->title}}">
                             <label class="primary_input_label mt-1">{{__('quiz.Option')}} {{$i}}</label>
                             <span class='focus-border'></span>
                         </div>
+                    </div>
+                    <div class='col-lg-2'>
+                        @if($multiple_option->image)
+                            <img src="{{asset($multiple_option->image)}}" alt="" style="max-width:60px;max-height:60px;border-radius:4px;object-fit:cover;margin-top:10px;">
+                        @endif
                     </div>
                     <div class='col-lg-2'>
                         <input type='checkbox' class="common-checkbox" id="commonCheckbox{{$i}}"

@@ -1059,11 +1059,10 @@
                                                                  <div class='row  mt-25'>
                                                                      <div class='col-lg-7'>
                                                                          <div class='input-effect'>
-                                                                             <input class='primary_input_field name'
-                                                                                    type='text'
-                                                                                    name='option[]' autocomplete='off'
-                                                                                    required
-                                                                                    value="{{$multiple_option->title}}">
+                                                                              <input class='primary_input_field name'
+                                                                                     type='text'
+                                                                                     name='option[]' autocomplete='off'
+                                                                                     value="{{$multiple_option->title}}">
                                                                              <span class='focus-border'></span>
                                                                          </div>
                                                                      </div>
@@ -1646,14 +1645,16 @@
                     return false;
                 }
 
-                $('input[name="option[]"]').each(function (index) {
-                    if ($(this).val().trim() == "") {
+                $('.questionBoxDiv .row').each(function (index) {
+                    var titleInput = $(this).find('input[name="option[]"]');
+                    var imageInput = $(this).find('.selected_files').val();
+                    if (titleInput.length && titleInput.val().trim() == "" && !imageInput) {
                         errorOptionCount++;
                     }
                 });
 
                 if (errorOptionCount != 0) {
-                    toastr.error('{{__("quiz.Option title is required")}}', '{{__("common.Error")}}');
+                    toastr.error('{{__("quiz.Option title is required when no image is uploaded")}}', '{{__("common.Error")}}');
                     return false;
                 }
 
@@ -1928,7 +1929,7 @@
                 appendRow += "<div class='row  mt-25'>";
                 appendRow += "<div class='col-lg-7'>";
                 appendRow += "<div class='input-effect'>"
-                appendRow += "<input class='primary_input_field name' placeholder='option " + i + "' type='text' name='option[]' autocomplete='off' required>";
+                appendRow += "<input class='primary_input_field name' placeholder='option " + i + "' type='text' name='option[]' autocomplete='off'>";
                 appendRow += "</div>";
                 appendRow += "</div>";
                 appendRow += "<div class='col-lg-3'>";

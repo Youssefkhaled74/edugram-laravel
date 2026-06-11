@@ -12,7 +12,7 @@ class QuestionBankMuOption extends Model
 
     use Tenantable;
 
-    protected $fillable = [];
+    protected $fillable = ['title', 'status', 'question_bank_id', 'created_by', 'updated_by', 'position', 'group', 'type', 'option_index', 'image'];
 
     public function question()
     {
