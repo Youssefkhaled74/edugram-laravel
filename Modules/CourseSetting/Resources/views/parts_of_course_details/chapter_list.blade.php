@@ -334,10 +334,10 @@
 
 
                                                                     <a target="_blank"
-                                                                       href="{{$lesson->is_quiz==0?route('fullScreenView',[$course->id,$lesson->id]):route('quizStart',[$course->id,$lesson->quiz_id,$lesson->lessonQuiz->title])}}"
+                                                                       href="{{$lesson->is_quiz==0 || !$lesson->quiz_id ? route('fullScreenView',[$course->id,$lesson->id]) : route('quizStart',[$course->id,$lesson->quiz_id,$lesson->lessonQuiz->title])}}"
                                                                        class="dropdown-item">{{__('common.View')}}</a>
 
-                                                                    @if($lesson->is_quiz==1)
+                                                                    @if($lesson->is_quiz==1 && $lesson->quiz_id)
                                                                         <a target="_blank"
                                                                            href="{{route('set-quiz.set-question', [$lesson->quiz_id])}}"
                                                                            class="dropdown-item">{{__('common.Add')}} {{__('common.Question')}}</a>

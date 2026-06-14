@@ -179,6 +179,90 @@ class OnlineQuizController extends Controller
         return $query;
     }
 
+    private function createOrUpdateLesson(Request $request, bool $isType2): Lesson
+    {
+        $lesson = $request->lesson_id ? Lesson::find($request->lesson_id) : new Lesson();
+
+        if (!$lesson) {
+            $lesson = new Lesson();
+        }
+
+        $lesson->course_id = $request->course_id;
+        $lesson->chapter_id = $isType2 ? $request->chapterId : $request->chapterId;
+        $lesson->is_quiz = 1;
+
+        if ($isType2) {
+            $code = auth()->user()->language_code;
+            $lesson->name = $request->title[$code] ?? $request->title[array_key_first($request->title)] ?? 'Quiz';
+        } else {
+            $quiz = OnlineQuiz::find($request->quiz);
+            $lesson->name = $quiz ? $quiz->title : 'Quiz';
+            $lesson->quiz_id = $request->quiz;
+        }
+
+        $lesson->is_lock = (int)$request->lock;
+        $lesson->save();
+
+        return $lesson;
+    }
+
+    private function createOrUpdateOnlineQuiz(Request $request): OnlineQuiz
+    {
+        $online_exam = $request->quiz_id ? OnlineQuiz::find($request->quiz_id) : new OnlineQuiz();
+
+        if (!$online_exam) {
+            $online_exam = new OnlineQuiz();
+        }
+
+        foreach ((array)$request->title as $key => $title) {
+            $online_exam->setTranslation('title', $key, $title);
+        }
+        foreach ((array)$request->instruction as $key => $instruction) {
+            $online_exam->setTranslation('instruction', $key, $instruction);
+        }
+
+        $sub = $request->sub_category;
+        if (empty($sub)) {
+            $sub = null;
+        }
+
+        $online_exam->category_id = (int)$request->category;
+        $online_exam->sub_category_id = (int)$sub;
+        $online_exam->percentage = (int)$request->percentage;
+        $online_exam->status = 1;
+        $online_exam->created_by = Auth::user()->id;
+        $online_exam->course_id = $request->course_id;
+        $online_exam->save();
+
+        return $online_exam;
+    }
+
+    private function getCourseByRole($courseId, $roleId)
+    {
+        if ($roleId == 2) {
+            return Course::where('id', $courseId)->where('user_id', Auth::id())->first();
+        }
+        return Course::find($courseId);
+    }
+
+    private function sendCourseQuizNotifications($course, $chapter, $quiz)
+    {
+        if (!$course || !$quiz) {
+            return;
+        }
+
+        if (isset($course->enrollUsers) && !empty($course->enrollUsers)) {
+            foreach ($course->enrollUsers as $user) {
+                $this->sendNotification('Course_Lesson_Added', $user, [
+                    'time' => Carbon::now()->format('d-M-Y, g:i A'),
+                    'course' => $course->getTranslation('title', $user->language_code ?? config('app.fallback_locale')),
+                    'chapter' => $chapter->name ?? '',
+                    'lesson' => $quiz->title ?? 'Quiz',
+                ]);
+            }
+        }
+    }
+
     public function CourseQuizStore(Request $request)
     {
         if (demoCheck()) {
@@ -213,14 +297,6 @@ class OnlineQuizController extends Controller
             $course = $this->getCourseByRole($request->course_id, $user->role_id);
             $chapter = Chapter::where('course_id', optional($course)->id)->find($request->chapterId);
 
-            if (!$isType2 && $user->role_id == 2) {
-                $ownedQuiz = OnlineQuiz::where('id', $request->quiz)->where('created_by', $user->id)->first();
-                if (!$ownedQuiz) {
-                    Toastr::error('لا يمكنك استخدام هذا الكويز لأنه لم يتم إنشاؤه بواسطتك', trans('common.Failed'));
-                    return redirect()->back();
-                }
-            }
-
             if ($course && $chapter) {
                 $lesson = $this->createOrUpdateLesson($request, $isType2);
 
@@ -239,50 +315,9 @@ class OnlineQuizController extends Controller
                 Toastr::success(trans('common.Operation successful'), trans('common.Success'));
                 return redirect()->back();
             } else {
-                    Toastr::error('لا يمكنك استخدام هذا الكويز لأنه لم يتم إنشاؤه بواسطتك', trans('common.Failed'));
-                }
-            } else {
                 Toastr::error('لا تملك صلاحية الوصول لهذا الكورس', trans('common.Failed'));
-                    return redirect()->back();
-                }
-            }
-            $sub = $request->sub_category;
-            if (empty($sub)) {
-                $sub = null;
-            }
-            $online_exam = OnlineQuiz::find($request->quiz_id);
-            if (!$online_exam) {
-                Toastr::error(trans('frontend.Invalid Request'), trans('common.Failed'));
                 return redirect()->back();
             }
-            if (Auth::user()->role_id == 2 && (int)$online_exam->created_by !== (int)Auth::id()) {
-                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
-                return redirect()->back();
-            }
-            foreach ((array)$request->title as $key => $title) {
-                $online_exam->setTranslation('title', $key, $title);
-            }
-            foreach ((array)$request->instruction as $key => $instruction) {
-                $online_exam->setTranslation('instruction', $key, $instruction);
-            }
-            $online_exam->category_id = (int)$request->category;
-            $online_exam->sub_category_id = (int)$sub;
-            $online_exam->percentage = (int)$request->percentage;
-
-            $online_exam->status = 1;
-            $online_exam->created_by = Auth::user()->id;
-            $result = $online_exam->save();
-            if ($request->lesson_id) {
-                $lesson = Lesson::find($request->lesson_id);
-                if ($lesson) {
-                    $lesson->is_lock = (int)$request->lock;
-                    $lesson->save();
-                }
-            }
-
-
-            Toastr::success(trans('common.Operation successful'), trans('common.Success'));
-            return redirect()->route('courseDetails', $request->course_id);
         } catch (Exception $e) {
             Toastr::error(trans('common.Operation failed'), trans('common.Failed'));
             return redirect()->back();
