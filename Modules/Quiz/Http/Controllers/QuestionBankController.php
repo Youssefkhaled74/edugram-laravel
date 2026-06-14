@@ -201,14 +201,14 @@ class QuestionBankController extends Controller
             $groupId = (int)$request->group;
             $group = QuestionGroup::find($groupId);
             if (!$group || !$this->teacherCanUseGroup($groupId)) {
-                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
                 return redirect()->back();
             }
         }
 
         try {
             if (!$this->teacherCanUseGroup((int)$request->group)) {
-                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
                 return redirect()->back();
             }
 
@@ -525,7 +525,7 @@ class QuestionBankController extends Controller
             $banks = [];
             $bank = QuestionBank::with('category', 'subCategory', 'questionGroup')->findOrFail($id);
             if (!$this->teacherCanAccessQuestion($bank)) {
-                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
                 return redirect()->route('question-bank-list');
             }
             $categories = Category::where('status', 1)->orderBy('position_order', 'asc')->get();
@@ -681,11 +681,11 @@ class QuestionBankController extends Controller
         try {
             $online_question = QuestionBank::findOrFail($id);
             if (!$this->teacherCanAccessQuestion($online_question)) {
-                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
                 return redirect()->route('question-bank-list');
             }
             if (!$this->teacherCanUseGroup((int)$request->group)) {
-                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
                 return redirect()->back();
             }
             $online_question->type = $request->question_type;
@@ -909,7 +909,7 @@ class QuestionBankController extends Controller
 
             $online_question = QuestionBank::findOrFail($id);
             if (!$this->teacherCanAccessQuestion($online_question)) {
-                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
                 return redirect()->route('question-bank-list');
             }
 

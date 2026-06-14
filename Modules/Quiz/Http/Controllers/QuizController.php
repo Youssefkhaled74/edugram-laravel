@@ -200,7 +200,7 @@ class QuizController extends Controller
             $user = Auth::user();
             $group = QuestionGroup::findOrFail($id);
             if (!$this->canAccessGroup($group)) {
-                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
                 return redirect()->route('question-group');
             }
             $query = QuestionGroup::where('active_status', 1);
@@ -237,7 +237,7 @@ class QuizController extends Controller
             } else {
                 $group = QuestionGroup::findOrFail($request->id);
                 if (!$this->canAccessGroup($group) || (int)$group->user_id === 1) {
-                    Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                    Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
                     return redirect()->route('question-group');
                 }
                 $group->title = $request->title;
@@ -266,7 +266,7 @@ class QuizController extends Controller
             if (isModuleActive('AdvanceQuiz')) {
                 $group = QuestionGroup::findOrFail($id);
                 if (!$this->canAccessGroup($group) || ((int)Auth::user()->role_id === 2 && (int)$group->user_id === 1)) {
-                    Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                    Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
                     return redirect()->route('question-group');
                 }
                 $childs = $group->getAllChildIds($group);
@@ -278,7 +278,7 @@ class QuizController extends Controller
             } else {
                 $group = QuestionGroup::findOrFail($id);
                 if (!$this->canAccessGroup($group) || ((int)Auth::user()->role_id === 2 && (int)$group->user_id === 1)) {
-                    Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                    Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
                     return redirect()->route('question-group');
                 }
                 $group = $group->delete();

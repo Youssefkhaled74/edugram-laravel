@@ -721,7 +721,7 @@ class InstructorCourseSettingController extends Controller
                     Toastr::success(trans('common.Operation successful'), trans('common.Success'));
                     return redirect()->route('courseDetails', [$request->course_id]);
                 } else {
-                    Toastr::error('Invalid Access !', 'Failed');
+                    Toastr::error('لا تملك صلاحية الوصول لهذا الكورس', trans('common.Failed'));
                     return redirect()->route('courseDetails', [$request->course_id]);
                 }
             } catch (Exception $e) {
@@ -1115,7 +1115,10 @@ class InstructorCourseSettingController extends Controller
             $categories = Category::get();
             $instructors = User::where('role_id', 2)->get();
             $languages = Language::get();
-            $quizzes = OnlineQuiz::where('category_id', $course->category_id)->get();
+            $quizzes = OnlineQuiz::where('category_id', $course->category_id)
+                ->when(Auth::user()->role_id == 2, function ($q) {
+                    $q->where('created_by', Auth::id());
+                })->get();
             $course_exercises = CourseExercise::where('course_id', $course_id)->get();
             $levels = CourseLevel::where('status', 1)->get();
             // return $course;

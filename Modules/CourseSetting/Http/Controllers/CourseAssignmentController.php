@@ -45,12 +45,12 @@ class CourseAssignmentController extends Controller
         try {
             $course = $this->resolveCourseForUser((int)$request->course_id);
             if (!$course) {
-                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                Toastr::error('لا تملك صلاحية الوصول لهذا الكورس', trans('common.Failed'));
                 return redirect()->back();
             }
             $chapter = Chapter::where('course_id', $course->id)->find($request->chapter_id);
             if (!$chapter) {
-                Toastr::error(trans('frontend.Invalid Request'), trans('common.Failed'));
+                Toastr::error('هذا الفصل غير موجود في الكورس', trans('common.Failed'));
                 return redirect()->back();
             }
 
@@ -138,7 +138,7 @@ class CourseAssignmentController extends Controller
         try {
             $course = $this->resolveCourseForUser((int)$request->course_id);
             if (!$course) {
-                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
                 return redirect()->back();
             }
 
@@ -200,7 +200,7 @@ class CourseAssignmentController extends Controller
             $user = Auth::user();
             $course = $this->resolveCourseForUser((int)$id);
             if (!$course) {
-                Toastr::error(trans('frontend.Invalid Access'), trans('common.Failed'));
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
                 return redirect()->back();
             }
 
