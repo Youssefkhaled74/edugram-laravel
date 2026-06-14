@@ -22,6 +22,13 @@
         $haystack = $route . ' ' . $label;
 
         if (
+            $containsAny($route, ['course.store', 'course.create', 'courses.create', 'courses.store', 'course.add', 'courses.add'])
+            || preg_match('/course(s)?\.(store|create|add)/i', $route)
+        ) {
+            return 'إضافة كورس جديد';
+        }
+
+        if (
             $containsAny($haystack, ['الدورات', 'courses'])
             || preg_match('/(^|\\.)course(s)?(\\.|$)/i', $route)
         ) {

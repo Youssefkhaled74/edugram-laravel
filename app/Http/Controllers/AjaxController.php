@@ -80,10 +80,10 @@ class AjaxController extends Controller
             return response()->json(['warning' => trans('common.For the demo version, you cannot change this')], 200);
         }
         if (!Auth::check()) {
-            return response()->json(['error' => 'Permission Denied'], 403);
+            return response()->json(['error' => 'يرجى تسجيل الدخول أولاً'], 403);
         }
         if (Auth::user()->role_id == 3) {
-            return response()->json(['error' => 'Permission Denied'], 403);
+            return response()->json(['error' => 'لا تملك الصلاحية لتغيير الحالة'], 403);
         }
 
         try {
@@ -102,7 +102,7 @@ class AjaxController extends Controller
 
             if ($table == "courses") {
                 if (isInstructor()) {
-                    return response()->json(['error' => 'Permission Denied'], 403);
+                    return response()->json(['error' => 'لا يمكنك تغيير حالة الكورس، هذه الخاصية متاحة فقط للمشرف (Admin)'], 403);
                 }
                 $course = Course::find($id);
                 $course->updated_at = now();
