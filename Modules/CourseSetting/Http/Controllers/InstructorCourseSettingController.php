@@ -882,7 +882,16 @@ class InstructorCourseSettingController extends Controller
                             $extension = pathinfo(base_path($file), PATHINFO_EXTENSION);
 
                             if (!in_array(strtolower($extension), ['mp4', 'webm', 'ogg'])) {
-                                Toastr::error(trans('courses.Invalid Video file'), trans('common.Error'));
+                                $extToHost = [
+                                    'pdf' => 'PDF', 'doc' => 'Word', 'docx' => 'Word',
+                                    'xls' => 'Excel', 'xlsx' => 'Excel', 'ppt' => 'PowerPoint',
+                                    'pptx' => 'PowerPoint', 'txt' => 'Text', 'zip' => 'Zip',
+                                    'png' => 'Image', 'jpg' => 'Image', 'jpeg' => 'Image',
+                                    'gif' => 'Image', 'svg' => 'Image', 'webp' => 'Image',
+                                ];
+                                $suggestedHost = $extToHost[strtolower($extension)] ?? '';
+                                $msg = 'ملف غير صالح. اختر "' . $suggestedHost . '" من قائمة Host لرفع هذا النوع من الملفات';
+                                Toastr::error($msg, trans('common.Error'));
                                 return redirect()->back();
                             }
                             $lesson->video_url = $file;
