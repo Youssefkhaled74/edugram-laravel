@@ -62,7 +62,7 @@ class CourseController extends Controller
 
         try {
             $is_cart = 0;
-            $course = Course::with('enrollUsers', 'user', 'user.courses', 'user.courses.enrollUsers', 'user.courses.lessons', 'chapters.lessons', 'enrolls', 'lessons', 'reviews', 'chapters', 'activeReviews')
+            $course = Course::with('enrollUsers', 'user', 'user.courses', 'user.courses.enrollUsers', 'user.courses.lessons', 'chapters.lessons.quiz', 'enrolls', 'lessons', 'reviews', 'chapters', 'activeReviews')
                 ->where('slug', $slug)->first();
 
             if (!$course) {

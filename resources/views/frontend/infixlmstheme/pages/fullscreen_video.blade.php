@@ -660,20 +660,26 @@
                                 <h3>{{ $lesson->lessonQuiz->title }}
                                 </h3>
                             </div>
+                            
 
                             <div class="quiz_header_right">
                                 <span class="question_time">
                                 <span>{{__('frontend.Remaining')}}:</span>
                                 <span>
                                     @php
+                                        $quizTime = $lesson->lessonQuiz->question_time ?? 0;
+                                        $quizTimeType = $lesson->lessonQuiz->question_time_type ?? 0;
                                         $timer = 0;
 
-                                        if (!empty($lesson->lessonQuiz->question_time_type == 1)) {
-                                            $timer = $lesson->lessonQuiz->question_time;
-                                        } else {
-                                            $timer = $lesson->lessonQuiz->question_time * count($questions);
+                                        if ($quizTimeType == 1) {
+                                            $timer = $quizTime;
+                                        } elseif ($quizTime > 0) {
+                                            $timer = $quizTime * count($questions);
                                         }
 
+                                        if ($timer <= 0) {
+                                            $timer = 10;
+                                        }
                                     @endphp
 
                                     <span id="timer">{{ $timer }}:00</span> {{ __('quiz.Min') }}</span>

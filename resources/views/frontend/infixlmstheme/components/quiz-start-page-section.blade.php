@@ -183,17 +183,21 @@
 
                                             <span class="question_time">
                                 @php
-                                    $timer =0;
-                                        if (!empty($course->duration)){
-                                            $timer =$course->duration;
-                                        }else{
-                                            if(!empty($quiz->question_time_type==1)){
-                                            $timer=$quiz->question_time;
-                                        }else{
-                                           $timer= $quiz->question_time*count($questions);
+                                    $timer = 0;
+                                    if (!empty($course->duration)) {
+                                        $timer = $course->duration;
+                                    } else {
+                                        $qTime = $quiz->question_time ?? 0;
+                                        $qTimeType = $quiz->question_time_type ?? 0;
+                                        if ($qTimeType == 1) {
+                                            $timer = $qTime;
+                                        } elseif ($qTime > 0) {
+                                            $timer = $qTime * count($questions);
                                         }
-                                        }
-
+                                    }
+                                    if ($timer <= 0) {
+                                        $timer = 10;
+                                    }
                                 @endphp
                                              <span class="me-2">{{__('frontend.Remaining')}}:</span>
                                                 <span id="timer">{{ $timer }}:00</span>

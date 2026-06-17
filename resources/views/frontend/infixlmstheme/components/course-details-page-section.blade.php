@@ -327,7 +327,7 @@
                                                                                     @if ($lesson->is_lock==1)
                                                                                         @if (Auth::check())
                                                                                             @if ($isEnrolled)
-                                                                                                @if ($lesson->is_quiz==1)
+                                                                                                @if ($lesson->is_quiz==1 && count($lesson->quiz))
 
                                                                                                     @foreach ($lesson->quiz as $quiz)
                                                                                                         <span
@@ -362,7 +362,7 @@
                                                                                                 @endif
                                                                                             @else
                                                                                                 <i class="ti-lock"></i>
-                                                                                                @if ($lesson->is_quiz==1)
+                                                                                                @if ($lesson->is_quiz==1 && count($lesson->quiz))
                                                                                                     @foreach ($lesson->quiz as $quiz)
                                                                                                         <span
                                                                                                             class="quiz_name">{{@$key+1}} {{@$quiz->title}} [{{__('frontend.Quiz')}}]</span>
@@ -375,7 +375,7 @@
                                                                                             @endif
                                                                                         @else
                                                                                             <i class="ti-lock"></i>
-                                                                                            @if ($lesson->is_quiz==1)
+                                                                                            @if ($lesson->is_quiz==1 && count($lesson->quiz))
                                                                                                 @foreach ($lesson->quiz as $quiz)
                                                                                                     <span
                                                                                                         class="quiz_name">{{@$key+1}} {{@$quiz->title}} [{{__('frontend.Quiz')}}]</span>
@@ -387,7 +387,7 @@
                                                                                             @endif
                                                                                         @endif
                                                                                     @else
-                                                                                        @if ($lesson->is_quiz==1)
+                                                                                        @if ($lesson->is_quiz==1 && count($lesson->quiz))
                                                                                             @foreach ($lesson->quiz as $quiz)
                                                                                                 @if (Auth::check() && $isEnrolled)
                                                                                                     <span
@@ -473,7 +473,7 @@
                                                                                 </div>
                                                                                 <div class="curriculam_middle col-md-3">
                                                                                     @if ($lesson->is_lock==0)
-                                                                                        @if ($lesson->is_quiz==0)
+                                                                                        @if ($lesson->is_quiz==0 || count($lesson->quiz)==0)
                                                                                             <a href="#"
                                                                                                {{--                                                                                   class="theme_btn_lite course_play_name"--}}
                                                                                                data-course="{{$course->id}}"
@@ -490,7 +490,7 @@
 
                                                                                     @else
                                                                                         @if (Auth::check() && $isEnrolled)
-                                                                                            @if ($lesson->is_quiz==0)
+                                                                                            @if ($lesson->is_quiz==0 || count($lesson->quiz)==0)
                                                                                                 <a href="#"
                                                                                                    data-course="{{$course->id}}"
                                                                                                    data-lesson="{{$lesson->id}}"
