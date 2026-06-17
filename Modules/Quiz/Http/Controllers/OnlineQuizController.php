@@ -87,8 +87,10 @@ class OnlineQuizController extends Controller
                 }
                 $online_exams = $query->with('subCategory', 'category', 'assign')->withCount('assign')->latest()->get();
                 $categories = Category::where('status', 1)->orderBy('position_order', 'asc')->get();
-                $groups = QuestionGroup::select('title', 'id')->where('active_status', 1)->latest()->pluck('title', 'id');
                 $groups_query = QuestionGroup::where('active_status', 1);
+                if ($user->role_id == 2) {
+                    $groups_query->where('user_id', $user->id);
+                }
                 if (isModuleActive('Organization') && $user->isOrganization()) {
                     $groups_query->whereHas('user', function ($q) {
                         $q->where('organization_id', Auth::id());
@@ -508,6 +510,9 @@ class OnlineQuizController extends Controller
                     return redirect()->route('online-quiz');
                 }
                 $groups_query = QuestionGroup::where('active_status', 1);
+                if ($user->role_id == 2) {
+                    $groups_query->where('user_id', $user->id);
+                }
                 if (isModuleActive('Organization') && $user->isOrganization()) {
                     $groups_query->whereHas('user', function ($q) {
                         $q->where('organization_id', Auth::id());
