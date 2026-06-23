@@ -222,7 +222,7 @@ class QuestionBankController extends Controller
             $online_question->user_id = (int)$user->id;
             $online_question->shuffle = (int)($request->question_type == 'M' ? $request->shuffle : 0);
             $online_question->explanation = $request->explanation;
-
+            $online_question->video_url = $request->video_url;
 
             if (isModuleActive('AdvanceQuiz')) {
                 $online_question->level = (int)$request->level;
@@ -701,6 +701,7 @@ class QuestionBankController extends Controller
             }
 
             $online_question->explanation = $request->explanation;
+            $online_question->video_url = $request->video_url;
 
             if ($request->question_type == "F") {
                 $online_question->suitable_words = $request->suitable_words;

@@ -272,6 +272,15 @@ class AjaxController extends Controller
                 $quiz_list->where('course_id', $request->course_id);
             }
 
+            $user = Auth::user();
+            if ($user->role_id == 2) {
+                $quiz_list->where('created_by', $user->id);
+            } elseif (isModuleActive('Organization') && $user->isOrganization()) {
+                $quiz_list->whereHas('user', function ($q) {
+                    $q->where('organization_id', Auth::id());
+                    $q->orWhere('created_by', Auth::id());
+                });
+            }
 
             $quiz_list = $quiz_list->with('category', 'subCategory', 'course')->get();
 

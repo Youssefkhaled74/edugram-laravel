@@ -1412,6 +1412,24 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                         </div>
+
+                                                        <div class="">
+                                                            <div class="row  mt-25">
+                                                                <div class="col-lg-12">
+                                                                    <div class="input-effect">
+                                                                        <label
+                                                                            class="primary_input_label mt-1"> {{__('quiz.Video URL')}} </label>
+                                                                        <input
+                                                                            class="primary_input_field"
+                                                                            type="text"
+                                                                            name="video_url"
+                                                                            value="{{isset($bank)? $bank->video_url:(old('video_url')!=''?(old('video_url')):'')}}"
+                                                                            placeholder="https://www.youtube.com/watch?v=...">
+                                                                        <span class="focus-border"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
 
                                                         <div class="row mt-3">

@@ -128,6 +128,15 @@
                                                                 {!! $question['qusBank']->explanation !!}
                                                             </p>
                                                         @endif
+                                                        @if(!empty($question['qusBank']->video_url))
+                                                            <div class="mb-4">
+                                                                <button type="button" class="theme_text3 f_w_600 font_16 border-0 bg-transparent"
+                                                                        data-bs-toggle="modal" data-bs-target="#previewVideoModal"
+                                                                        data-video-url="{{ $question['qusBank']->video_url }}">
+                                                                    <i class="ti-control-play"></i> {{__('quiz.Show Video')}}
+                                                                </button>
+                                                            </div>
+                                                        @endif
                                                         <div class="row mt-4">
                                                             <div class="col-lg-12">
 
@@ -323,3 +332,48 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="previewVideoModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{__('quiz.Video')}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="video-wrapper" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
+                    <iframe id="previewVideoIframe" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var modal = document.getElementById('previewVideoModal');
+        if (modal) {
+            modal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var url = button.getAttribute('data-video-url');
+                var iframe = document.getElementById('previewVideoIframe');
+                if (url) {
+                    var embedUrl = url;
+                    var ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+                    if (ytMatch) {
+                        embedUrl = 'https://www.youtube.com/embed/' + ytMatch[1];
+                    }
+                    var vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+                    if (vimeoMatch) {
+                        embedUrl = 'https://player.vimeo.com/video/' + vimeoMatch[1];
+                    }
+                    iframe.src = embedUrl;
+                }
+            });
+            modal.addEventListener('hidden.bs.modal', function () {
+                var iframe = document.getElementById('previewVideoIframe');
+                iframe.src = '';
+            });
+        }
+    });
+</script>

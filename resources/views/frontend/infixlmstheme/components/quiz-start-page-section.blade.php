@@ -360,6 +360,17 @@
                                                                                     class="img-fluid" alt="">
                                                                             </div>
                                                                         @endif
+                                                                        @if (!empty($assign->questionBank->video_url))
+                                                                            <div class="mb_20 mt-3">
+                                                                                <button type="button"
+                                                                                        class="quiz_secondary_btn theme_text3 submit_q_btn"
+                                                                                        data-bs-toggle="modal"
+                                                                                        data-bs-target="#videoModal"
+                                                                                        data-video-url="{{ $assign->questionBank->video_url }}">
+                                                                                    <i class="ti-control-play"></i> {{__('quiz.Show Video')}}
+                                                                                </button>
+                                                                            </div>
+                                                                        @endif
                                                                         <div
                                                                             class="sumit_skip_btns d-flex align-items-center mb_50">
                                                                             @if (count($questions) != $count)
@@ -406,5 +417,49 @@
         </div>
     </div>
 
+    <div class="modal fade" id="videoModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{__('quiz.Video')}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="video-wrapper" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
+                        <iframe id="videoIframe" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var videoModal = document.getElementById('videoModal');
+            if (videoModal) {
+                videoModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var url = button.getAttribute('data-video-url');
+                    var iframe = document.getElementById('videoIframe');
+                    if (url) {
+                        var embedUrl = url;
+                        var ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+                        if (ytMatch) {
+                            embedUrl = 'https://www.youtube.com/embed/' + ytMatch[1];
+                        }
+                        var vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+                        if (vimeoMatch) {
+                            embedUrl = 'https://player.vimeo.com/video/' + vimeoMatch[1];
+                        }
+                        iframe.src = embedUrl;
+                    }
+                });
+                videoModal.addEventListener('hidden.bs.modal', function () {
+                    var iframe = document.getElementById('videoIframe');
+                    iframe.src = '';
+                });
+            }
+        });
+    </script>
 
 </div>
