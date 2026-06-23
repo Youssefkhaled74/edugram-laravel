@@ -36,5 +36,13 @@ return [
     'Last 14 Days' => 'آخر 14 يومًا',
     'Last 30 Days' => 'آخر 30 يومًا',
     'Others' => 'آخرون',
-    'Total student by each course' => 'إجمالي عدد الطلاب في كل مقرر دراسي'
+    'Total student by each course' => 'إجمالي عدد الطلاب في كل مقرر دراسي',
+    'Unique Students' => 'الطلاب الفريدين',
+    'Avg Order Value' => 'متوسط قيمة الطلب',
+    'Enrollment over time' => 'التسجيلات عبر الوقت',
+    'Revenue over time' => 'الإيرادات عبر الوقت',
+    'Insufficient Data' => 'لا توجد بيانات كافية',
+    'Top Courses by Revenue' => 'أفضل الدورات من حيث الإيرادات',
+    'Top Courses by Students' => 'أفضل الدورات من حيث الطلاب',
+    'Student Watch Time' => 'وقت مشاهدة الطلاب',
 ];

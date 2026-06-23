@@ -132,7 +132,7 @@
                                                             <div class="mb-4">
                                                                 <button type="button" class="theme_text3 f_w_600 font_16 border-0 bg-transparent"
                                                                         data-bs-toggle="modal" data-bs-target="#previewVideoModal"
-                                                                        data-video-url="{{ $question['qusBank']->video_url }}">
+                                                                         data-video-url="{{ asset($question['qusBank']->video_url) }}">
                                                                     <i class="ti-control-play"></i> {{__('quiz.Show Video')}}
                                                                 </button>
                                                             </div>
@@ -341,9 +341,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="video-wrapper" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
-                    <iframe id="previewVideoIframe" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe>
-                </div>
+                <video id="previewVideoPlayer" controls style="width:100%;max-height:80vh;">
+                    <source id="previewVideoSource" src="" type="video/mp4">
+                </video>
             </div>
         </div>
     </div>
@@ -356,23 +356,18 @@
             modal.addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
                 var url = button.getAttribute('data-video-url');
-                var iframe = document.getElementById('previewVideoIframe');
+                var player = document.getElementById('previewVideoPlayer');
+                var source = document.getElementById('previewVideoSource');
                 if (url) {
-                    var embedUrl = url;
-                    var ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-                    if (ytMatch) {
-                        embedUrl = 'https://www.youtube.com/embed/' + ytMatch[1];
-                    }
-                    var vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-                    if (vimeoMatch) {
-                        embedUrl = 'https://player.vimeo.com/video/' + vimeoMatch[1];
-                    }
-                    iframe.src = embedUrl;
+                    source.src = url;
+                    player.load();
+                    player.play();
                 }
             });
             modal.addEventListener('hidden.bs.modal', function () {
-                var iframe = document.getElementById('previewVideoIframe');
-                iframe.src = '';
+                var player = document.getElementById('previewVideoPlayer');
+                player.pause();
+                player.currentTime = 0;
             });
         }
     });

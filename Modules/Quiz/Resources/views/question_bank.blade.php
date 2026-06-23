@@ -1414,23 +1414,16 @@
                                                             </div>
                                                          </div>
 
-                                                        <div class="">
-                                                            <div class="row  mt-25">
-                                                                <div class="col-lg-12">
-                                                                    <div class="input-effect">
-                                                                        <label
-                                                                            class="primary_input_label mt-1"> {{__('quiz.Video URL')}} </label>
-                                                                        <input
-                                                                            class="primary_input_field"
-                                                                            type="text"
-                                                                            name="video_url"
-                                                                            value="{{isset($bank)? $bank->video_url:(old('video_url')!=''?(old('video_url')):'')}}"
-                                                                            placeholder="https://www.youtube.com/watch?v=...">
-                                                                        <span class="focus-border"></span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                         <div class="col-xl-6">
+                                                             <div class=" mt-25">
+                                                                 <x-upload-file
+                                                                     name="video"
+                                                                     type="video"
+                                                                     media_id="{{isset($bank)?$bank->video_media?->media_id:''}}"
+                                                                     label="{{__('quiz.Video')}}"
+                                                                 />
+                                                             </div>
+                                                         </div>
 
                                                         <div class="row mt-3">
                                                             <div class="col-lg-12 text-center">
@@ -1453,7 +1446,7 @@
             </div>
         </div>
     </section>
-    <button type="button" class="math-keyboard-toggle" id="mathKeyboardToggle" title="Math Keyboard (Ctrl+Shift+M)">
+    <button type="button" class="math-keyboard-toggle" id="mathKeyboardToggle" title="{{__('quiz.Math Keyboard')}} (Ctrl+Shift+M)">
         <span class="pulse-ring"></span>
         ∑
         <span class="kbd-hint">⌘M</span>

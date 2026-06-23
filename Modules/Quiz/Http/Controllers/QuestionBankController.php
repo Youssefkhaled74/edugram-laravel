@@ -222,8 +222,6 @@ class QuestionBankController extends Controller
             $online_question->user_id = (int)$user->id;
             $online_question->shuffle = (int)($request->question_type == 'M' ? $request->shuffle : 0);
             $online_question->explanation = $request->explanation;
-            $online_question->video_url = $request->video_url;
-
             if (isModuleActive('AdvanceQuiz')) {
                 $online_question->level = (int)$request->level;
                 $online_question->pre_condition = (int)$request->get('pre_condition', 0);
@@ -244,6 +242,10 @@ class QuestionBankController extends Controller
 
             if ($request->image) {
                 $online_question->image = $this->generateLink($request->image, $online_question->id, get_class($online_question), 'image');
+            }
+            $online_question->video_url = null;
+            if ($request->video) {
+                $online_question->video_url = $this->generateLink($request->video, $online_question->id, get_class($online_question), 'video');
             }
             $online_question->save();
             if ($request->question_type == 'M') {
@@ -701,8 +703,6 @@ class QuestionBankController extends Controller
             }
 
             $online_question->explanation = $request->explanation;
-            $online_question->video_url = $request->video_url;
-
             if ($request->question_type == "F") {
                 $online_question->suitable_words = $request->suitable_words;
             } elseif ($request->question_type == "T") {
@@ -716,6 +716,10 @@ class QuestionBankController extends Controller
             $this->removeLink($online_question->id, get_class($online_question));
             if ($request->image) {
                 $online_question->image = $this->generateLink($request->image, $online_question->id, get_class($online_question), 'image');
+            }
+            $online_question->video_url = null;
+            if ($request->video) {
+                $online_question->video_url = $this->generateLink($request->video, $online_question->id, get_class($online_question), 'video');
             }
             $online_question->save();
 

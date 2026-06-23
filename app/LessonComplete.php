@@ -11,6 +11,8 @@ class LessonComplete extends Model
 {
     use Tenantable;
 
+    protected $guarded = ['id'];
+
     public function course()
     {
         return $this->belongsTo(Course::class, 'course_id');

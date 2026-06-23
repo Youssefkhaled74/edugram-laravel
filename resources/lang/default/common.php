@@ -322,6 +322,7 @@
     "Access Denied" => "Access Denied",
     "Optional" => "Optional",
     "In Minute" => "In Minute",
+    "Hours" => "Hours",
     "Complete course sequence" => "Complete course sequence",
     "gender" => "Gender",
     "Grid" => "Grid",

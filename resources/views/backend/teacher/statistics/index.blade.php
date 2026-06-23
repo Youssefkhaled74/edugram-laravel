@@ -29,9 +29,9 @@
                 <form method="GET" action="{{ route('teacher.statistics.courses') }}">
                     <div class="row">
                         <div class="col-lg-4 mt-20">
-                            <label class="primary_input_label">Ø§Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„ÙƒÙˆØ±Ø³Ø§Øª</label>
+                            <label class="primary_input_label">{{__('courses.Course Statistics')}}</label>
                             <select class="primary_select" name="course_id">
-                                <option value="">ÙƒÙ„ Ø§Ù„ÙƒÙˆØ±Ø³Ø§Øª</option>
+                                <option value="">{{__('common.All')}} {{__('courses.Courses')}}</option>
                                 @foreach($courses as $course)
                                     <option value="{{ $course->id }}" {{ (int)$selectedCourseId === (int)$course->id ? 'selected' : '' }}>
                                         {{ $course->title }}
@@ -40,47 +40,47 @@
                             </select>
                         </div>
                         <div class="col-lg-2 mt-40">
-                            <button type="submit" class="primary-btn fix-gr-bg">Ø¹Ø±Ø¶</button>
+                            <button type="submit" class="primary-btn fix-gr-bg">{{__('common.View')}}</button>
                         </div>
                     </div>
                 </form>
             </div>
 
             <div class="row row-gap-24">
-                <div class="col-md-6 col-xl-2"><div class="white-box stats-card"><h3>{{ translatedNumber($summary['total_courses']) }}</h3><p>Ø§Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ÙƒÙˆØ±Ø³Ø§Øª</p></div></div>
-                <div class="col-md-6 col-xl-2"><div class="white-box stats-card"><h3>{{ translatedNumber($summary['total_enrolled_students']) }}</h3><p>Ø¹Ø¯Ø¯ Ø§Ù„ØªØ³Ø¬ÙŠÙ„Ø§Øª</p></div></div>
-                <div class="col-md-6 col-xl-2"><div class="white-box stats-card"><h3>{{ translatedNumber($summary['unique_students_count']) }}</h3><p>Ø§Ù„Ø·Ù„Ø§Ø¨ Ø§Ù„ÙØ±ÙŠØ¯ÙŠÙ†</p></div></div>
-                <div class="col-md-6 col-xl-2"><div class="white-box stats-card"><h3>{{ getPriceFormat($summary['total_revenue']) }}</h3><p>Ø§Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø§ÙŠØ±Ø§Ø¯Ø§Øª</p></div></div>
-                <div class="col-md-6 col-xl-2"><div class="white-box stats-card"><h3>{{ getPriceFormat($summary['total_sales']) }}</h3><p>Ø§Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª</p></div></div>
-                <div class="col-md-6 col-xl-2"><div class="white-box stats-card"><h3>{{ getPriceFormat($summary['avg_order_value']) }}</h3><p>Ù…ØªÙˆØ³Ø· Ù‚ÙŠÙ…Ø© Ø§Ù„Ø´Ø±Ø§Ø¡</p></div></div>
+                <div class="col-md-6 col-xl-2"><div class="white-box stats-card"><h3>{{ translatedNumber($summary['total_courses']) }}</h3><p>{{__('common.Total Courses')}}</p></div></div>
+                <div class="col-md-6 col-xl-2"><div class="white-box stats-card"><h3>{{ translatedNumber($summary['total_enrolled_students']) }}</h3><p>{{__('common.Total Enrolled')}}</p></div></div>
+                <div class="col-md-6 col-xl-2"><div class="white-box stats-card"><h3>{{ translatedNumber($summary['unique_students_count']) }}</h3><p>{{__('dashboard.Unique Students')}}</p></div></div>
+                <div class="col-md-6 col-xl-2"><div class="white-box stats-card"><h3>{{ getPriceFormat($summary['total_revenue']) }}</h3><p>{{__('courses.Total Revenue')}}</p></div></div>
+                <div class="col-md-6 col-xl-2"><div class="white-box stats-card"><h3>{{ getPriceFormat($summary['total_sales']) }}</h3><p>{{__('common.Total Sales')}}</p></div></div>
+                <div class="col-md-6 col-xl-2"><div class="white-box stats-card"><h3>{{ getPriceFormat($summary['avg_order_value']) }}</h3><p>{{__('dashboard.Avg Order Value')}}</p></div></div>
             </div>
             <div class="row row-gap-24 mt-2">
-                <div class="col-md-6 col-xl-3"><div class="white-box stats-card"><h3>{{ translatedNumber($summary['paid_enrollments']) }} / {{ translatedNumber($summary['free_enrollments']) }}</h3><p>Ù…Ø¯ÙÙˆØ¹ / Ù…Ø¬Ø§Ù†ÙŠ</p></div></div>
-                <div class="col-md-6 col-xl-3"><div class="white-box stats-card"><h3>{{ translatedNumber($summary['active_students']) }} / {{ translatedNumber($summary['completed_students']) }}</h3><p>Ù†Ø´Ø· / Ù…ÙƒØªÙ…Ù„</p></div></div>
-                <div class="col-md-6 col-xl-3"><div class="white-box stats-card"><h3>{{ translatedNumber(number_format($summary['avg_completion'], 2)) }}%</h3><p>Ù…ØªÙˆØ³Ø· Ø§ÙƒÙ…Ø§Ù„ Ø§Ù„ÙƒÙˆØ±Ø³Ø§Øª</p></div></div>
-                <div class="col-md-6 col-xl-3"><div class="white-box stats-card"><h3>{{ translatedNumber(number_format($summary['completion_students_rate'], 2)) }}%</h3><p>Ù†Ø³Ø¨Ø© Ø§Ù„Ø·Ù„Ø§Ø¨ Ø§Ù„Ù…ÙƒØªÙ…Ù„ÙŠÙ†</p></div></div>
+                <div class="col-md-6 col-xl-3"><div class="white-box stats-card"><h3>{{ translatedNumber($summary['paid_enrollments']) }} / {{ translatedNumber($summary['free_enrollments']) }}</h3><p>{{__('common.Paid')}} / {{__('common.Free')}}</p></div></div>
+                <div class="col-md-6 col-xl-3"><div class="white-box stats-card"><h3>{{ translatedNumber($summary['active_students']) }} / {{ translatedNumber($summary['completed_students']) }}</h3><p>{{__('common.Active')}} / {{__('common.Completed')}}</p></div></div>
+                <div class="col-md-6 col-xl-3"><div class="white-box stats-card"><h3>{{ translatedNumber(number_format($summary['avg_completion'], 2)) }}%</h3><p>{{__('courses.Avg Completion')}}</p></div></div>
+                <div class="col-md-6 col-xl-3"><div class="white-box stats-card"><h3>{{ translatedNumber(number_format($summary['completion_students_rate'], 2)) }}%</h3><p>{{__('courses.Completion Rate')}}</p></div></div>
             </div>
 
             <div class="white-box mt-30">
-                <div class="main-title mb-20"><h3>Ø§Ø­ØµØ§Ø¦ÙŠØ§Øª ÙƒÙ„ ÙƒÙˆØ±Ø³</h3></div>
+                <div class="main-title mb-20"><h3>{{__('courses.Course Statistics')}}</h3></div>
                 <div class="QA_section QA_section_heading_custom check_box_table">
                     <div class="QA_table">
                         <table class="table Crm_table_active3">
                             <thead>
                             <tr>
-                                <th>Ø§Ø³Ù… Ø§Ù„ÙƒÙˆØ±Ø³</th>
-                                <th>Ø§Ù„Ø·Ù„Ø§Ø¨</th>
-                                <th>Ø§Ù„Ø§ÙƒÙ…Ø§Ù„ %</th>
-                                <th>Ø§Ù„Ù…Ø­Ø§Ø¶Ø±Ø§Øª</th>
-                                <th>Ø§Ù„Ø§Ø®ØªØ¨Ø§Ø±Ø§Øª</th>
-                                <th>Ù…ØªÙˆØ³Ø· Ø§Ù„Ø§Ø®ØªØ¨Ø§Ø±Ø§Øª</th>
-                                <th>Ø§Ù„ÙˆØ§Ø¬Ø¨Ø§Øª</th>
-                                <th>Ø§Ù„Ø§ÙŠØ±Ø§Ø¯</th>
-                                <th>Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª</th>
-                                <th>Ù…Ø¯ÙÙˆØ¹/Ù…Ø¬Ø§Ù†ÙŠ</th>
-                                <th>Ù†Ø´Ø·/Ù…ÙƒØªÙ…Ù„</th>
-                                <th>Ø§Ù„ØªÙ‚ÙŠÙŠÙ…</th>
-                                <th>Ø§Ø¬Ø±Ø§Ø¡</th>
+                                <th>{{__('courses.Course Title')}}</th>
+                                <th>{{__('common.Students')}}</th>
+                                <th>{{__('courses.Completion')}} %</th>
+                                <th>{{__('courses.Lectures')}}</th>
+                                <th>{{__('courses.Quizzes')}}</th>
+                                <th>{{__('courses.Quiz Avg')}}</th>
+                                <th>{{__('courses.Assignments')}}</th>
+                                <th>{{__('courses.Revenue')}}</th>
+                                <th>{{__('courses.Sales')}}</th>
+                                <th>{{__('common.Paid')}}/{{__('common.Free')}}</th>
+                                <th>{{__('common.Active')}}/{{__('common.Completed')}}</th>
+                                <th>{{__('common.Rating')}}</th>
+                                <th>{{__('common.Action')}}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -98,10 +98,10 @@
                                     <td>{{ translatedNumber($row['paid_enrollments']) }} / {{ translatedNumber($row['free_enrollments']) }}</td>
                                     <td>{{ translatedNumber($row['active_students']) }} / {{ translatedNumber($row['completed_students']) }}</td>
                                     <td>{{ translatedNumber(number_format($row['rating_avg'], 2)) }} ({{ translatedNumber($row['rating_count']) }})</td>
-                                    <td><a class="primary-btn small fix-gr-bg" href="{{ route('teacher.courses.analytics', $row['course']->id) }}">ØªÙØ§ØµÙŠÙ„</a></td>
+                                    <td><a class="primary-btn small fix-gr-bg" href="{{ route('teacher.courses.analytics', $row['course']->id) }}">{{__('common.Details')}}</a></td>
                                 </tr>
                             @empty
-                                <tr><td colspan="13" class="text-center">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ø­ØªÙ‰ Ø§Ù„Ø§Ù†</td></tr>
+                                <tr><td colspan="13" class="text-center">{{__('dashboard.No Results Found')}}</td></tr>
                             @endforelse
                             </tbody>
                         </table>
@@ -110,20 +110,20 @@
             </div>
 
             <div class="row mt-30 row-gap-24">
-                <div class="col-lg-6"><div class="white-box"><h4>Enrollment over time</h4>@if(count($charts['enrollment']['data']))<div class="chart-wrap"><canvas id="enrollmentChart"></canvas></div>@else <p class="mt-3">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª ÙƒØ§ÙÙŠØ© Ù„Ø¹Ø±Ø¶ Ø§Ù„Ø±Ø³Ù… Ø§Ù„Ø¨ÙŠØ§Ù†ÙŠ</p>@endif</div></div>
-                <div class="col-lg-6"><div class="white-box"><h4>Revenue over time</h4>@if(count($charts['revenue']['data']))<div class="chart-wrap"><canvas id="revenueChart"></canvas></div>@else <p class="mt-3">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª ÙƒØ§ÙÙŠØ© Ù„Ø¹Ø±Ø¶ Ø§Ù„Ø±Ø³Ù… Ø§Ù„Ø¨ÙŠØ§Ù†ÙŠ</p>@endif</div></div>
-                <div class="col-lg-6"><div class="white-box"><h4>Completion percentage</h4>@if(count($charts['completion']['data']))<div class="chart-wrap"><canvas id="completionChart"></canvas></div>@else <p class="mt-3">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª ÙƒØ§ÙÙŠØ© Ù„Ø¹Ø±Ø¶ Ø§Ù„Ø±Ø³Ù… Ø§Ù„Ø¨ÙŠØ§Ù†ÙŠ</p>@endif</div></div>
-                <div class="col-lg-6"><div class="white-box"><h4>Quiz average score</h4>@if(count($charts['quiz_avg']['data']))<div class="chart-wrap"><canvas id="quizAvgChart"></canvas></div>@else <p class="mt-3">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª ÙƒØ§ÙÙŠØ© Ù„Ø¹Ø±Ø¶ Ø§Ù„Ø±Ø³Ù… Ø§Ù„Ø¨ÙŠØ§Ù†ÙŠ</p>@endif</div></div>
-                <div class="col-lg-6"><div class="white-box"><h4>Top courses by revenue</h4>@if(count($charts['top_revenue_courses']['data']))<div class="chart-wrap"><canvas id="topRevenueCoursesChart"></canvas></div>@else <p class="mt-3">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª ÙƒØ§ÙÙŠØ© Ù„Ø¹Ø±Ø¶ Ø§Ù„Ø±Ø³Ù… Ø§Ù„Ø¨ÙŠØ§Ù†ÙŠ</p>@endif</div></div>
-                <div class="col-lg-6"><div class="white-box"><h4>Top courses by students</h4>@if(count($charts['top_students_courses']['data']))<div class="chart-wrap"><canvas id="topStudentsCoursesChart"></canvas></div>@else <p class="mt-3">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª ÙƒØ§ÙÙŠØ© Ù„Ø¹Ø±Ø¶ Ø§Ù„Ø±Ø³Ù… Ø§Ù„Ø¨ÙŠØ§Ù†ÙŠ</p>@endif</div></div>
+                <div class="col-lg-6"><div class="white-box"><h4>{{__('dashboard.Enrollment over time')}}</h4>@if(count($charts['enrollment']['data']))<div class="chart-wrap"><canvas id="enrollmentChart"></canvas></div>@else <p class="mt-3">{{__('dashboard.Insufficient Data')}}</p>@endif</div></div>
+                <div class="col-lg-6"><div class="white-box"><h4>{{__('dashboard.Revenue over time')}}</h4>@if(count($charts['revenue']['data']))<div class="chart-wrap"><canvas id="revenueChart"></canvas></div>@else <p class="mt-3">{{__('dashboard.Insufficient Data')}}</p>@endif</div></div>
+                <div class="col-lg-6"><div class="white-box"><h4>{{__('courses.Completion Percentage')}}</h4>@if(count($charts['completion']['data']))<div class="chart-wrap"><canvas id="completionChart"></canvas></div>@else <p class="mt-3">{{__('dashboard.Insufficient Data')}}</p>@endif</div></div>
+                <div class="col-lg-6"><div class="white-box"><h4>{{__('courses.Quiz Average Score')}}</h4>@if(count($charts['quiz_avg']['data']))<div class="chart-wrap"><canvas id="quizAvgChart"></canvas></div>@else <p class="mt-3">{{__('dashboard.Insufficient Data')}}</p>@endif</div></div>
+                <div class="col-lg-6"><div class="white-box"><h4>{{__('dashboard.Top Courses by Revenue')}}</h4>@if(count($charts['top_revenue_courses']['data']))<div class="chart-wrap"><canvas id="topRevenueCoursesChart"></canvas></div>@else <p class="mt-3">{{__('dashboard.Insufficient Data')}}</p>@endif</div></div>
+                <div class="col-lg-6"><div class="white-box"><h4>{{__('dashboard.Top Courses by Students')}}</h4>@if(count($charts['top_students_courses']['data']))<div class="chart-wrap"><canvas id="topStudentsCoursesChart"></canvas></div>@else <p class="mt-3">{{__('dashboard.Insufficient Data')}}</p>@endif</div></div>
             </div>
 
             <div class="white-box mt-30">
-                <div class="main-title mb-20"><h3>Ø§Ø®Ø± Ø§Ù„ØªØ³Ø¬ÙŠÙ„Ø§Øª</h3></div>
+                <div class="main-title mb-20"><h3>{{__('dashboard.Recent Enrolls')}}</h3></div>
                 <div class="QA_section QA_section_heading_custom check_box_table">
                     <div class="QA_table">
                         <table class="table Crm_table_active3">
-                            <thead><tr><th>Ø§Ù„Ø·Ø§Ù„Ø¨</th><th>Ø§Ù„Ø¨Ø±ÙŠØ¯</th><th>Ø§Ù„ÙƒÙˆØ±Ø³</th><th>Ø§Ù„ØªØ§Ø±ÙŠØ®</th><th>Ø§Ù„Ù…Ø¨Ù„Øº</th></tr></thead>
+                            <thead><tr><th>{{__('common.Student')}}</th><th>{{__('common.Email')}}</th><th>{{__('courses.Course')}}</th><th>{{__('common.Date')}}</th><th>{{__('common.Price')}}</th></tr></thead>
                             <tbody>
                             @forelse($recentEnrollments as $enroll)
                                 <tr>
@@ -134,7 +134,7 @@
                                     <td>{{ getPriceFormat($enroll->reveune > 0 ? $enroll->reveune : $enroll->purchase_price) }}</td>
                                 </tr>
                             @empty
-                                <tr><td colspan="5" class="text-center">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ø­ØªÙ‰ Ø§Ù„Ø§Ù†</td></tr>
+                                <tr><td colspan="5" class="text-center">{{__('dashboard.No Results Found')}}</td></tr>
                             @endforelse
                             </tbody>
                         </table>
@@ -189,4 +189,3 @@
         drawBar('topStudentsCoursesChart', topStudentsCourses, 'Students');
     </script>
 @endpush
-

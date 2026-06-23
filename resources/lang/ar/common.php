@@ -322,6 +322,7 @@
     "Access Denied"=>"تم رفض الوصول",
     "Optional"=>"اختياري",
     "In Minute"=>"في دقيقة",
+    "Hours"=>"ساعات",
     "Complete course sequence"=>"إكمال تسلسل الدورة التدريبية",
     "gender"=>"الجنس",
     "Grid"=>"شبكة",

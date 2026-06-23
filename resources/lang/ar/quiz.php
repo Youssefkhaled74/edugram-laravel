@@ -256,4 +256,7 @@ return [
     'Auto result not allow in Short & Long Question' => 'لا يسمح بالنتيجة التلقائية في الأسئلة القصيرة والطويلة',
     'Suitable Words' => 'الكلمات المناسبة',
     'Select Correct Answer' => 'اختر الإجابة الصحيحة',
+    'Math Keyboard' => 'لوحة المفاتيح الرياضية',
+    'Video' => 'فيديو',
+    'Show Video' => 'عرض الفيديو',
 ];

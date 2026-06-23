@@ -256,4 +256,7 @@ return [
     'Auto result not allow in Short & Long Question'=>'Auto result not allow in Short & Long Question',
     'Suitable Words' => 'Suitable Words',
     'Select Correct Answer' => 'Select Correct Answer',
+    'Math Keyboard' => 'Math Keyboard',
+    'Video' => 'Video',
+    'Show Video' => 'Show Video',
 ];

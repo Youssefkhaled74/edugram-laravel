@@ -272,6 +272,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/validateGenerate', 'HomeController@validateGenerateSubmit')->name('validateGenerateSubmit');
     Route::post('lesson-complete', 'Frontend\WebsiteController@lessonComplete')->name('lesson.complete');
     Route::any('lesson-complete-ajax', 'Frontend\WebsiteController@lessonCompleteAjax')->name('lesson.complete.ajax');
+    Route::post('lesson-watchtime-update', 'Frontend\WebsiteController@updateWatchTime')->name('lesson.watchtime.update');
 
     Route::get('get-notifications', 'NotificationController@getNotificationUpdate')->name('getNotificationUpdate');
     Route::get('ajaxNotificationMakeRead', 'NotificationController@ajaxNotificationMakeRead')->name('ajaxNotificationMakeRead');

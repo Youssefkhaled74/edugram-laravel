@@ -1110,15 +1110,7 @@ class CourseSettingController extends Controller
 
 
         if ($pageType == 'courseDetails') {
-            $instructor_query = User::select('name', 'id');
-            if (isModuleActive('UserType')) {
-                $instructor_query->whereHas('userRoles', function ($q) {
-                    $q->whereIn('role_id', [1, 2]);
-                });
-            } else {
-                $instructor_query->whereIn('role_id', [1, 2]);
-            }
-            $data['instructors'] = $instructor_query->where('status', 1)->get();
+            $data['instructors'] = User::select('name', 'id')->where('id', $user->id)->where('status', 1)->get();
 
             $query = Category::where('status', 1)->orderBy('position_order', 'ASC');
             if (isModuleActive('OrgInstructorPolicy') && \auth()->user()->role_id != 1) {
@@ -1478,24 +1470,7 @@ class CourseSettingController extends Controller
             $quizzes_query = OnlineQuiz::query()->where('status', 1);
         }
 
-        $instructor_query = User::select('name', 'id');
-        if (isModuleActive('UserType')) {
-            $instructor_query->whereHas('userRoles', function ($q) {
-                $q->whereIn('role_id', [1, 2]);
-            });
-        } else {
-            $instructor_query->whereIn('role_id', [1, 2]);
-        }
-        if (isModuleActive('Organization') && $user->isOrganization()) {
-            $instructor_query->where('organization_id', $user->id);
-            $quizzes_query->whereHas('user', function ($q) {
-                $q->where('organization_id', Auth::id());
-                $q->orWhere('created_by', Auth::id());
-            });
-
-        }
-
-        $instructors = $instructor_query->where('status', 1)->get();
+        $instructors = User::select('name', 'id')->where('id', $user->id)->where('status', 1)->get();
         $quizzes = $quizzes_query->latest()->get();
 
         $languages = Language::select('id', 'native', 'code')

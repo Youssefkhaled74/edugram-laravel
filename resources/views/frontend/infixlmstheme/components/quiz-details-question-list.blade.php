@@ -130,30 +130,23 @@
                             <button type="button" class="theme_text3 f_w_600 font_16 border-0 bg-transparent" onclick="toggleVideo{{$qus->id}}()">
                                 <i class="ti-control-play"></i> {{__('quiz.Show Video')}}
                             </button>
-                            <div id="video-container-{{$qus->id}}" class="d-none mt-2" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
-                                <iframe class="embed-responsive-item" id="video-iframe-{{$qus->id}}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe>
+                            <div id="video-container-{{$qus->id}}" class="d-none mt-2">
+                                <video id="video-player-{{$qus->id}}" controls style="width:100%;max-height:60vh;">
+                                    <source src="{{ asset($qus->video_url) }}" type="video/mp4">
+                                </video>
                             </div>
                         </div>
                         <script>
                             function toggleVideo{{$qus->id}}() {
                                 var container = document.getElementById('video-container-{{$qus->id}}');
-                                var iframe = document.getElementById('video-iframe-{{$qus->id}}');
+                                var player = document.getElementById('video-player-{{$qus->id}}');
                                 if (container.classList.contains('d-none')) {
-                                    var url = '{{ $qus->video_url }}';
-                                    var embedUrl = url;
-                                    var ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-                                    if (ytMatch) {
-                                        embedUrl = 'https://www.youtube.com/embed/' + ytMatch[1];
-                                    }
-                                    var vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-                                    if (vimeoMatch) {
-                                        embedUrl = 'https://player.vimeo.com/video/' + vimeoMatch[1];
-                                    }
-                                    iframe.src = embedUrl;
                                     container.classList.remove('d-none');
+                                    player.play();
                                 } else {
                                     container.classList.add('d-none');
-                                    iframe.src = '';
+                                    player.pause();
+                                    player.currentTime = 0;
                                 }
                             }
                         </script>

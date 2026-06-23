@@ -460,11 +460,11 @@
                         </div>
                         <div class="col-xl-4 makeResize responsiveResize" id="durationBox">
                             <label class="primary_input_label d-flex"
-                                   for="">{{__('common.Duration')}} ({{__('common.In Minute')}})
+                                   for="">{{__('common.Duration')}} ({{__('common.Hours')}})
                             </label>
                             <div class="primary_input mb-25">
                                 <input class="primary_input_field" name="duration"
-                                       placeholder="{{__('common.Duration')}} ({{__('common.In Minute')}})"
+                                       placeholder="{{__('common.Duration')}} ({{__('common.Hours')}})"
                                        id="addDuration"
                                        min="0" step="any" type="number"
                                        value="{{old('duration')}}" {{$errors->has('duration') ? 'autofocus' : ''}}>

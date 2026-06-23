@@ -254,5 +254,7 @@ return [
     'Enter Question'=>'Enter Question',
     'Action Not Allowed'=>'Action Not Allowed',
     'Auto result not allow in Short & Long Question'=>'Auto result not allow in Short & Long Question',
-
+    'Math Keyboard' => 'Math Keyboard',
+    'Video' => 'Video',
+    'Show Video' => 'Show Video',
 ];

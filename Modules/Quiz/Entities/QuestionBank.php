@@ -72,6 +72,17 @@ class QuestionBank extends Model
         return $this->morphOne(UsedMedia::class, 'usable')->where('used_for', 'image');
     }
 
+    public function video_media()
+    {
+        return $this->morphOne(UsedMedia::class, 'usable')->where('used_for', 'video');
+    }
+
+    public function matchingOptions()
+    {
+        return $this->hasMany(MatchingTypeQuestionAssign::class, 'question_id', 'id');
+    }
+}
+
     public function matchingOptions()
     {
         return $this->hasMany(MatchingTypeQuestionAssign::class, 'question_id', 'id');

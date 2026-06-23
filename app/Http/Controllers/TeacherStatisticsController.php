@@ -106,11 +106,46 @@ class TeacherStatisticsController extends Controller
 
         $charts = $this->buildCourseCharts($metrics, $course->id);
 
+        $enrolls = CourseEnrolled::query()
+            ->where('course_id', $course->id)
+            ->with('user:id,name,email')
+            ->get();
+
+        $studentWatchData = [];
+        $totalLessons = Lesson::query()->where('course_id', $course->id)->count();
+        $totalCourseDuration = (int)Lesson::query()->where('course_id', $course->id)->sum('duration');
+
+        foreach ($enrolls as $enroll) {
+            $userId = (int)$enroll->user_id;
+            $completed = LessonComplete::query()
+                ->where('course_id', $course->id)
+                ->where('user_id', $userId)
+                ->where('status', 1)
+                ->count();
+            $watchSeconds = (int)LessonComplete::query()
+                ->where('course_id', $course->id)
+                ->where('user_id', $userId)
+                ->sum('watch_time_seconds');
+            $completion = $totalLessons > 0 ? ceil($completed / $totalLessons * 100) : 0;
+            if ($completion > 100) $completion = 100;
+            $studentWatchData[] = [
+                'user' => $enroll->user,
+                'completed_lessons' => $completed,
+                'total_lessons' => $totalLessons,
+                'completion_percentage' => $completion,
+                'watch_seconds' => $watchSeconds,
+            ];
+        }
+
+        usort($studentWatchData, fn($a, $b) => $b['watch_seconds'] <=> $a['watch_seconds']);
+
         return view('backend.teacher.statistics.course', [
             'course' => $course,
             'metrics' => $metrics,
             'charts' => $charts,
             'recentEnrollments' => $recentEnrollments,
+            'studentWatchData' => $studentWatchData,
+            'totalCourseDuration' => $totalCourseDuration,
         ]);
     }
 

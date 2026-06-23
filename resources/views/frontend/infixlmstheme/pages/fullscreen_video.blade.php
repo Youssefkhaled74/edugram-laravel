@@ -1966,10 +1966,56 @@ if ($assign->questionBank->shuffle==1){
                 }
             });
 
+            let watchSeconds = 0;
+            let watchTimer = null;
+            let watchLastReported = 0;
+
+            function startWatchTimer() {
+                if (watchTimer) return;
+                watchTimer = setInterval(() => {
+                    watchSeconds++;
+                    if (watchSeconds - watchLastReported >= 30) {
+                        reportWatchTime();
+                    }
+                }, 1000);
+            }
+
+            function stopWatchTimer() {
+                if (watchTimer) {
+                    clearInterval(watchTimer);
+                    watchTimer = null;
+                }
+            }
+
+            function reportWatchTime() {
+                if (watchSeconds <= watchLastReported) return;
+                watchLastReported = watchSeconds;
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('lesson.watchtime.update') }}',
+                    data: {
+                        course_id: course,
+                        lesson_id: lesson,
+                        watch_time_seconds: watchSeconds,
+                        _token: '{{ csrf_token() }}'
+                    }
+                });
+            }
+
+            player.on('playing', startWatchTimer);
+            player.on('pause', stopWatchTimer);
             player.on('ended', () => {
+                stopWatchTimer();
+                reportWatchTime();
                 lessonAutoComplete(course_id, {{ showPicName(Request::url()) }})
             });
 
+            window.addEventListener('beforeunload', function () {
+                if (watchTimer) {
+                    stopWatchTimer();
+                    reportWatchTime();
+                }
+            });
 
         </script>
 

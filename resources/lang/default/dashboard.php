@@ -36,5 +36,13 @@ return [
     'Last 14 Days' => 'Last 14 Days',
     'Last 30 Days' => 'Last 30 Days',
     'Others' => 'Others',
-    'Total student by each course' => 'Total student by each course'
+    'Total student by each course' => 'Total student by each course',
+    'Unique Students' => 'Unique Students',
+    'Avg Order Value' => 'Avg Order Value',
+    'Enrollment over time' => 'Enrollment over time',
+    'Revenue over time' => 'Revenue over time',
+    'Insufficient Data' => 'Insufficient Data',
+    'Top Courses by Revenue' => 'Top Courses by Revenue',
+    'Top Courses by Students' => 'Top Courses by Students',
+    'Student Watch Time' => 'Student Watch Time',
 ];

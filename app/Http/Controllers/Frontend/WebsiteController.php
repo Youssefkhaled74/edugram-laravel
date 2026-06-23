@@ -2249,6 +2249,30 @@ if ($certificate){
 
     }
 
+    public function updateWatchTime(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $lesson = LessonComplete::query()
+            ->where('course_id', (int)$request->course_id)
+            ->where('lesson_id', (int)$request->lesson_id)
+            ->where('user_id', (int)$user->id)
+            ->first();
+
+        if ($lesson) {
+            $newTime = (int)$request->watch_time_seconds;
+            if ($newTime > $lesson->watch_time_seconds) {
+                $lesson->watch_time_seconds = $newTime;
+                $lesson->save();
+            }
+        }
+
+        return response()->json(['success' => true]);
+    }
+
     public function subscriptionCourses()
     {
         if (!Auth::check()) {

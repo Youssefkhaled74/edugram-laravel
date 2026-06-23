@@ -352,8 +352,8 @@
                 <div class="col-xl-4 makeResize  responsiveResize mb-25">
                     <div class="primary_input ">
                         <input class="primary_input_field" name="duration"
-                               placeholder="{{ __('common.Duration') }}   ({{ __('common.In Minute') }})"
-                               min="0" step="any"
+                               placeholder="{{ __('common.Duration') }}   ({{ __('common.Hours') }})"
+                               id="addDuration"
                                type="number" value="{{ @$course->duration }}">
                     </div>
                 </div>
