@@ -82,10 +82,3 @@ class QuestionBank extends Model
         return $this->hasMany(MatchingTypeQuestionAssign::class, 'question_id', 'id');
     }
 }
-
-    public function matchingOptions()
-    {
-        return $this->hasMany(MatchingTypeQuestionAssign::class, 'question_id', 'id');
-    }
-
-}
