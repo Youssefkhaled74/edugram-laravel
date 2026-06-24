@@ -849,8 +849,19 @@ if ($assign->questionBank->shuffle==1){
                                                                          class="img-fluid" alt="">
                                                                 </div>
                                                             @endif
+                                                            @if (!empty($assign->questionBank->video_url))
+                                                                <div class="mb_20 mt-3">
+                                                                    <button type="button"
+                                                                            class="quiz_secondary_btn theme_text3 submit_q_btn"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#videoModal"
+                                                                            data-video-url="{{ asset($assign->questionBank->video_url) }}">
+                                                                        <i class="ti-control-play"></i> {{__('quiz.Show Video')}}
+                                                                    </button>
+                                                                </div>
+                                                            @endif
                                                             <div
-                                                                class="sumit_skip_btns d-flex align-items-center mb_50">
+                                                                 class="sumit_skip_btns d-flex align-items-center mb_50">
                                                                 @if (count($questions) != $count)
                                                                     <span class="quiz_primary_btn  mr_20 next"
                                                                           data-question_id="{{ $assign->questionBank->id }}"
@@ -1858,6 +1869,22 @@ if ($assign->questionBank->shuffle==1){
         @include('whatsappsupport::partials._popup')
     @endif
 
+    <div class="modal fade" id="videoModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{__('quiz.Video')}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <video id="videoPlayer" controls style="width:100%;max-height:80vh;">
+                        <source id="videoSource" src="" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 @push('js')
     @if(isModuleActive("WhatsappSupport"))
@@ -2070,6 +2097,30 @@ if ($assign->questionBank->shuffle==1){
         @endif
         @include(theme('partials._quiz_exp_script'))
     @endif
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var videoModal = document.getElementById('videoModal');
+            if (videoModal) {
+                videoModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var url = button.getAttribute('data-video-url');
+                    var player = document.getElementById('videoPlayer');
+                    var source = document.getElementById('videoSource');
+                    if (url) {
+                        source.src = url;
+                        player.load();
+                        player.play();
+                    }
+                });
+                videoModal.addEventListener('hidden.bs.modal', function () {
+                    var player = document.getElementById('videoPlayer');
+                    player.pause();
+                    player.currentTime = 0;
+                });
+            }
+        });
+    </script>
 
 
 

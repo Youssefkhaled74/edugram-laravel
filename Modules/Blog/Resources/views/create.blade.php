@@ -172,11 +172,17 @@
                                                 <x-upload-file
                                                     name="image"
                                                     type="image"
-                                                    {{--                                                    media_id="{{isset($edit)?$edit->image_media?->media_id:''}}"--}}
                                                     label="{{ __('common.Image') }}"
                                                     note="{{__('student.Recommended size')}} (1170x600)"
                                                 />
 
+                                            </div>
+                                            <div class="mb-35">
+                                                <x-upload-file
+                                                    name="file"
+                                                    type="document"
+                                                    label="{{ __('common.File') }}"
+                                                />
                                             </div>
                                             {{--                                            <div class="primary_input mb-35">--}}
                                             {{--                                                <label class="primary_input_label"--}}

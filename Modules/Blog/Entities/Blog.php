@@ -111,4 +111,9 @@ class Blog extends Model
         return $this->morphOne(UsedMedia::class, 'usable')->where('used_for', 'thumbnail');
     }
 
+    public function file_media()
+    {
+        return $this->morphOne(UsedMedia::class, 'usable')->where('used_for', 'file');
+    }
+
 }

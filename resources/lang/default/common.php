@@ -176,6 +176,7 @@
     "Yes" => "Yes",
     "Files" => "Files",
     "File" => "File",
+    "Download File" => "Download File",
     "Send" => "Send",
     "Paid" => "Paid",
     "Unpaid" => "Unpaid",

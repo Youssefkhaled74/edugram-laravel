@@ -128,6 +128,9 @@ class BlogController extends Controller
                 $blog->image = $this->generateLink($request->image, $blog->id, get_class($blog), 'image');
                 $blog->thumbnail = $this->generateLink($request->image, $blog->id, get_class($blog), 'thumbnail');
             }
+            if ($request->file) {
+                $blog->file = $this->generateLink($request->file, $blog->id, get_class($blog), 'file');
+            }
             $code = auth()->user()->language_code??Settings('language_code');
             $blog->words_count  =$request->word_count_description[$code]??0;
             $blog->save();
@@ -262,6 +265,7 @@ class BlogController extends Controller
             $blog->minutes = (int)$request->minutes;
             $blog->image = null;
             $blog->thumbnail = null;
+            $blog->file = null;
             $blog->save();
 
             $this->removeLink($blog->id, get_class($blog));
@@ -269,6 +273,9 @@ class BlogController extends Controller
             if ($request->image) {
                 $blog->image = $this->generateLink($request->image, $blog->id, get_class($blog), 'image');
                 $blog->thumbnail = $this->generateLink($request->image, $blog->id, get_class($blog), 'thumbnail');
+            }
+            if ($request->file) {
+                $blog->file = $this->generateLink($request->file, $blog->id, get_class($blog), 'file');
             }
             $blog->save();
 

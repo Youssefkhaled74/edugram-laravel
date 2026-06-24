@@ -177,6 +177,14 @@
                                                 />
 
                                             </div>
+                                            <div class="mb-35">
+                                                <x-upload-file
+                                                    name="file"
+                                                    type="document"
+                                                    media_id="{{isset($blog)?$blog->file_media?->media_id:''}}"
+                                                    label="{{ __('common.File') }}"
+                                                />
+                                            </div>
                                             <!--
                                             <div class="primary_input mb-35">
                                                 <label class="primary_input_label"

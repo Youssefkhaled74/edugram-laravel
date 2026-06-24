@@ -32,6 +32,23 @@
 
                             {!! $blog->description !!}
                         </p>
+
+                        @if($blog->file)
+                            <div class="mb_25">
+                                <a href="{{asset($blog->file)}}" download
+                                   class="theme_btn small_btn2">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                         xmlns="http://www.w3.org/2000/svg" style="display:inline;vertical-align:middle;margin-right:8px">
+                                        <path d="M12 3V16M12 16L8 12M12 16L16 12" stroke="currentColor" stroke-width="2"
+                                              stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M4 17V19C4 20.1 4.9 21 6 21H18C19.1 21 20 20.1 20 19V17"
+                                              stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                              stroke-linejoin="round"/>
+                                    </svg>
+                                    {{__('common.Download File')}}
+                                </a>
+                            </div>
+                        @endif
                         <br>
 
                         <h4 class="blog_share_title">Share This Article</h4>
