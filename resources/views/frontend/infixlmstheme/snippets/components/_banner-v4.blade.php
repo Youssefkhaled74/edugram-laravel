@@ -222,8 +222,6 @@
                             <h1>{{ @$homeContent->slider_title }}</h1>
                             <p class="pe-0 pe-xl-5">{{ @$homeContent->slider_text }}</p>
                             <a href="{{route('courses')}}" class="theme-btn text-capitalize">View All Courses</a>
-                            <a href="{{route('quizzes')}}" class="theme-btn text-capitalize bg-white">View All
-                                Quizzes</a>
                         </div>
                     </div>
                 </div>

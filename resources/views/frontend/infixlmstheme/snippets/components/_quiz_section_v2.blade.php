@@ -334,9 +334,7 @@
                                     {{@$homeContent->quiz_title}}
                                 </h3>
                             </div>
-                            <div class="section-subtitle-action">
-                                <a href="{{route('quizzes')}}" class="theme-btn bg-white ms-2">All Quiz</a>
-                            </div>
+
                         </div>
                     </div>
                 </div>

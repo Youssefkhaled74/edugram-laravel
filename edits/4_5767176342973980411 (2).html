@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التحليل الشامل لمنصة EduGram التعليمية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            animation: bgMove 30s linear infinite;
+        }
+
+        @keyframes bgMove {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--gradient-1);
+            padding: 80px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 2px 4px 8px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .hero .subtitle {
+            font-size: 1.4rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .hero .date {
+            background: rgba(255,255,255,0.2);
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Navigation */
+        .toc {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .toc h2 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .toc-item {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: #c7d2fe;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toc-item:hover {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15));
+            transform: translateX(-5px);
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+
+        .toc-item .num {
+            background: var(--primary);
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        /* Section Styles */
+        .section {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 50px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .section-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .section h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #f1f5f9;
+        }
+
+        .section h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin: 35px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section h3::before {
+            content: '';
+            width: 4px;
+            height: 25px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        /* Alert Cards */
+        .alert {
+            padding: 25px 30px;
+            border-radius: 16px;
+            margin: 25px 0;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .alert-critical {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-right: 4px solid var(--danger);
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.1));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-right: 4px solid var(--warning);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-right: 4px solid var(--secondary);
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-right: 4px solid var(--info);
+        }
+
+        .alert-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .alert-content h4 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .alert-content p {
+            opacity: 0.9;
+            line-height: 1.7;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card.critical {
+            border-color: rgba(239, 68, 68, 0.4);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+        }
+
+        .stat-card.warning {
+            border-color: rgba(245, 158, 11, 0.4);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));
+        }
+
+        .stat-card.success {
+            border-color: rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-card.critical .stat-number { color: var(--danger); }
+        .stat-card.warning .stat-number { color: var(--warning); }
+        .stat-card.success .stat-number { color: var(--secondary); }
+
+        .stat-label {
+            font-size: 0.95rem;
+            opacity: 0.8;
+        }
+
+        /* Tables */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 25px 0;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 16px 20px;
+            text-align: right;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        th {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15));
+            font-weight: 700;
+            color: #f1f5f9;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover td {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 25px;
+            margin: 20px 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            direction: ltr;
+            text-align: left;
+        }
+
+        .code-block .comment { color: #6b7280; }
+        .code-block .string { color: #10b981; }
+        .code-block .key { color: #818cf8; }
+        .code-block .error { color: #ef4444; }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-right: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            right: 12px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            right: -34px;
+            top: 30px;
+            width: 16px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 50%;
+            border: 3px solid #1e293b;
+        }
+
+        .timeline-item h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #f1f5f9;
+        }
+
+        /* Role Cards */
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .role-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .role-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #f1f5f9;
+        }
+
+        .role-card .permissions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .permission {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+        }
+
+        .permission.show { border-right: 3px solid var(--secondary); }
+        .permission.hide { border-right: 3px solid var(--danger); opacity: 0.7; }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 60px 40px;
+            text-align: center;
+            margin-top: 60px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        footer p {
+            opacity: 0.7;
+            margin-bottom: 15px;
+        }
+
+        footer .credit {
+            font-size: 0.9rem;
+            opacity: 0.5;
+        }
+
+        /* Comparison Table */
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-item {
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .comparison-item.wrong {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .comparison-item.correct {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .comparison-item.neutral {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        /* Print Styles */
+        @media print {
+            body { background: white; color: black; }
+            .hero { background: #6366f1; }
+            .section { box-shadow: none; border: 1px solid #ddd; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .section { padding: 25px; }
+            .comparison-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <h1>📋 تقرير فحص منصة EduGram التعليمية</h1>
+        <p class="subtitle">تقرير مبسّط يوضح كل المشاكل الموجودة في المنصة بلغة سهلة ومفهومة، مع حلول واضحة لكل مشكلة</p>
+        <div class="date">📅 تاريخ التقرير: فبراير 2026</div>
+        <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <span style="background: rgba(239, 68, 68, 0.3); padding: 8px 20px; border-radius: 20px;">🔴 4 مشاكل حرجة</span>
+            <span style="background: rgba(245, 158, 11, 0.3); padding: 8px 20px; border-radius: 20px;">⚠️ 70+ مشكلة متوسطة</span>
+            <span style="background: rgba(16, 185, 129, 0.3); padding: 8px 20px; border-radius: 20px;">✅ حلول لكل مشكلة</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- دليل القراءة السريع -->
+        <div class="section" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1)); margin-bottom: 30px; padding: 30px;">
+            <h2 style="margin-bottom: 20px;">📖 إزاي تقرأ التقرير ده؟</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div style="background: rgba(239, 68, 68, 0.2); padding: 15px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 2rem;">🔴</div>
+                    <strong>حرج</strong>
+                    <p style="font-size: 0.85rem; opacity: 0.9;">مشكلة لازم تتصلح فوراً</p>
+                </div>
+                <div style="background: rgba(245, 158, 11, 0.2); padding: 15px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 2rem;">⚠️</div>
+                    <strong>متوسط</strong>
+                    <p style="font-size: 0.85rem; opacity: 0.9;">مشكلة مهمة لكن مش عاجلة</p>
+                </div>
+                <div style="background: rgba(16, 185, 129, 0.2); padding: 15px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 2rem;">✅</div>
+                    <strong>تمام</strong>
+                    <p style="font-size: 0.85rem; opacity: 0.9;">شغال صح ومفيش مشكلة</p>
+                </div>
+                <div style="background: rgba(59, 130, 246, 0.2); padding: 15px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 2rem;">❌</div>
+                    <strong>مفقود</strong>
+                    <p style="font-size: 0.85rem; opacity: 0.9;">خاصية مش موجودة أصلاً</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table of Contents -->
+        <nav class="toc">
+            <h2>📑 فهرس المحتويات - اضغط على أي عنوان للانتقال إليه</h2>
+            <div class="toc-grid">
+                <a href="#summary" class="toc-item"><span class="num">1</span> ملخص سريع للمشاكل</a>
+                <a href="#origin" class="toc-item"><span class="num">2</span> أصل المنصة (مهم جداً!)</a>
+                <a href="#errors" class="toc-item" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4);"><span class="num">3</span> 🔴 أخطاء الترجمة الكارثية</a>
+                <a href="#users" class="toc-item"><span class="num">4</span> قسم المستخدمين</a>
+                <a href="#education" class="toc-item"><span class="num">5</span> قسم التعليم</a>
+                <a href="#ecommerce" class="toc-item"><span class="num">6</span> المدفوعات والخصومات</a>
+                <a href="#content" class="toc-item"><span class="num">7</span> قسم المحتوى</a>
+                <a href="#communication" class="toc-item"><span class="num">8</span> الرسائل والتواصل</a>
+                <a href="#admin" class="toc-item"><span class="num">9</span> إعدادات المنصة</a>
+                <a href="#additional" class="toc-item"><span class="num">10</span> أقسام إضافية</a>
+                <a href="#roles" class="toc-item"><span class="num">11</span> صلاحيات كل مستخدم</a>
+                <a href="#tech-naming" class="toc-item" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4);"><span class="num">12</span> ⚠️ كلمات صعبة محتاجة تتغير</a>
+                <a href="#egypt-structure" class="toc-item"><span class="num">13</span> 🏫 التعليم المصري</a>
+                <a href="#missing-sections" class="toc-item" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4);"><span class="num">14</span> 🔴 خصائص مفقودة!</a>
+                <a href="#ux-problems" class="toc-item"><span class="num">15</span> 🖥️ صعوبة الاستخدام</a>
+                <a href="#arabic-content" class="toc-item"><span class="num">16</span> 🌍 مشاكل العربي</a>
+                <a href="#security-extra" class="toc-item" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4);"><span class="num">17</span> 🔒 مشاكل الأمان</a>
+                <a href="#requirements-comparison" class="toc-item" style="background: linear-gradient(135deg, rgba(240, 147, 251, 0.2), rgba(245, 87, 108, 0.15)); border-color: rgba(240, 147, 251, 0.5);"><span class="num">18</span> 🆕 مقارنة المتطلبات</a>
+            </div>
+        </nav>
+
+        <!-- Executive Summary -->
+        <section id="summary" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: var(--gradient-2);">🔴</div>
+                <h2>ملخص سريع - أهم المشاكل الموجودة</h2>
+            </div>
+
+            <div class="alert alert-info" style="margin-bottom: 25px;">
+                <div class="alert-icon">📌</div>
+                <div class="alert-content">
+                    <h4>الخلاصة في جملة واحدة</h4>
+                    <p>المنصة فيها <strong>4 مشاكل حرجة</strong> محتاجة تتصلح فوراً، و<strong>70+ مشكلة متوسطة</strong> محتاجة مراجعة، و<strong>6 خصائص أساسية مفقودة</strong> لأي منصة تعليمية.</p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card critical">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">أخطاء ترجمة كارثية</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-number">30+</div>
+                    <div class="stat-label">عناصر غير مترجمة</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-number">40+</div>
+                    <div class="stat-label">مسميات تحتاج تعديل</div>
+                </div>
+                <div class="stat-card critical">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">مشكلات أمنية</div>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>البند</th>
+                            <th>التفاصيل</th>
+                            <th>الخطورة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>أصل السكريبت</strong></td>
+                            <td>InfixLMS من CodeCanyon - سعره ~$69-99</td>
+                            <td><span class="badge badge-warning">⚠️ متوسط</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>خطأ ترجمة #1</strong></td>
+                            <td>"PM" (مساءً) ← "مدير المشروع" 😱</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>خطأ ترجمة #2</strong></td>
+                            <td>"Sunday" (الأحد) ← "شمس" 😅</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>كلمة السر</strong></td>
+                            <td>1234@1234 - ضعيفة جداً</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Platform Origin -->
+        <section id="origin" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: var(--gradient-3);">🔍</div>
+                <h2>من فين جاية المنصة دي؟ (مهم تفهمه!)</h2>
+            </div>
+
+            <div class="alert alert-info">
+                <div class="alert-icon">💡</div>
+                <div class="alert-content">
+                    <h4>يعني إيه "سكريبت جاهز"؟</h4>
+                    <p><strong>السكريبت الجاهز</strong> = برنامج موجود على الإنترنت أي حد يقدر يشتريه ويستخدمه. يعني المنصة دي مش مبنية من الصفر، لكن حد اشترى سكريبت اسمه <strong>InfixLMS</strong> من موقع CodeCanyon بحوالي <strong>$69-99 دولار</strong> (حوالي 2000-3000 جنيه) وعدّل عليه شوية وسماه EduGram.</p>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                    <h4>ليه دي معلومة مهمة؟</h4>
+                    <p>لو حد قالك إن المنصة دي "تطوير خاص" أو "مبنية من الصفر" وطلب منك فلوس كتير، يبقى لازم تعرف إن الأساس بتاعها سكريبت جاهز سعره رخيص. التعديلات اللي عملوها هي الترجمة العربي والألوان والشعار بس.</p>
+                </div>
+            </div>
+
+            <h3>الأدلة القاطعة</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الدليل</th><th>التفاصيل</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>📁 هيكل المجلدات</strong></td>
+                            <td>/public/backend/ • /public/vendor/ • /admin/course/ • /quiz/ • /certificate/ • /virtualclass/</td>
+                        </tr>
+                        <tr>
+                            <td><strong>📌 الإصدار</strong></td>
+                            <td>v=9.0.0 (نفس إصدار InfixLMS)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>📦 المكتبات</strong></td>
+                            <td>uppy.min.js • livewire • alpine.min.js • filepond • pusher</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>ماذا يعني هذا؟</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>إذا قالوا لك...</th>
+                            <th>الحقيقة</th>
+                            <th>التقييم</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>"طورناها من الصفر"</td>
+                            <td>غير صحيح - سكريبت جاهز معدّل</td>
+                            <td><span class="badge badge-critical">❌ غير صحيح</span></td>
+                        </tr>
+                        <tr>
+                            <td>"تطوير خاص ومكلف"</td>
+                            <td>التعريب والتخصيص فقط</td>
+                            <td><span class="badge badge-warning">⚠️ جزئي</span></td>
+                        </tr>
+                        <tr>
+                            <td>"تكلفة عالية"</td>
+                            <td>السكريبت الأصلي ~$69-99</td>
+                            <td><span class="badge badge-info">❓ قارن الأسعار</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Translation Errors -->
+        <section id="errors" class="section" style="border-color: rgba(239, 68, 68, 0.3);">
+            <div class="section-header">
+                <div class="section-icon" style="background: var(--gradient-2);">🚨</div>
+                <h2>🔴 أخطاء الترجمة الكارثية (مهم جداً!)</h2>
+            </div>
+
+            <div class="alert alert-critical">
+                <div class="alert-icon">🚨</div>
+                <div class="alert-content">
+                    <h4>إيه المشكلة؟</h4>
+                    <p>اللي ترجم المنصة استخدم Google Translate بدون ما يراجع، فطلعت أخطاء مضحكة وكارثية! دي أوضح مثالين:</p>
+                </div>
+            </div>
+
+            <div class="alert alert-critical">
+                <div class="alert-icon">😱</div>
+                <div class="alert-content">
+                    <h4>الخطأ الكارثي #1: PM = مدير المشروع!</h4>
+                    <p><strong>شرح المشكلة:</strong> في الإنجليزي، PM معناها "مساءً" (بعد الظهر). لكن اللي ترجم المنصة فاكر PM اختصار "Project Manager" يعني "مدير المشروع"!</p>
+                    <p style="margin-top: 10px;"><strong>النتيجة:</strong> لما تفتح أي حاجة فيها وقت بعد الظهر، هتلاقيها مكتوبة كده:</p>
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-top: 10px; text-align: center;">
+                        <span style="font-size: 1.5rem;">❌ "الساعة ٢ مدير المشروع"</span><br>
+                        <span style="opacity: 0.7;">بدل</span><br>
+                        <span style="font-size: 1.5rem; color: #10b981;">✅ "الساعة ٢ مساءً"</span>
+                    </div>
+                    <p style="margin-top: 15px; opacity: 0.9;">يعني كل أوقات بعد الظهر (من 12 ظهر لـ 11 بالليل) مكتوبة غلط!</p>
+                </div>
+            </div>
+
+            <div class="comparison-row">
+                <div class="comparison-item neutral"><strong>المفتاح</strong><br>data_am</div>
+                <div class="comparison-item correct"><strong>الترجمة</strong><br>صباحًا ✅</div>
+                <div class="comparison-item correct"><strong>الحالة</strong><br>صحيح</div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-item neutral"><strong>المفتاح</strong><br>data_pm</div>
+                <div class="comparison-item wrong"><strong>الترجمة الخاطئة</strong><br>مدير المشروع 😱</div>
+                <div class="comparison-item correct"><strong>الصحيح</strong><br>مساءً</div>
+            </div>
+
+            <h3>كل الأوقات المتأثرة بالخطأ:</h3>
+            <div class="comparison-row">
+                <div class="comparison-item neutral"><strong>الوقت الأصلي</strong><br>12 PM - 11 PM</div>
+                <div class="comparison-item wrong"><strong>ما يظهر حالياً ❌</strong><br>١٢ مدير المشروع ... ١١ مدير المشروع</div>
+                <div class="comparison-item correct"><strong>الصحيح ✅</strong><br>١٢ مساءً ... ١١ مساءً</div>
+            </div>
+
+            <div class="alert alert-critical">
+                <div class="alert-icon">😅</div>
+                <div class="alert-content">
+                    <h4>الخطأ الكارثي #2: Sunday = شمس!</h4>
+                    <p><strong>شرح المشكلة:</strong> Sunday معناها "يوم الأحد"، لكن اللي ترجم ترجمها "شمس" لأن كلمة Sun (جزء من Sunday) معناها شمس!</p>
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-top: 10px; text-align: center;">
+                        <span style="font-size: 1.5rem;">❌ "شمس" ☀️</span><br>
+                        <span style="opacity: 0.7;">بدل</span><br>
+                        <span style="font-size: 1.5rem; color: #10b981;">✅ "الأحد"</span>
+                    </div>
+                    <p style="margin-top: 15px; opacity: 0.9;"><strong>السبب:</strong> واضح إن اللي ترجم استخدم Google Translate بدون ما يراجع الترجمة!</p>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>المفتاح</th><th>الترجمة الحالية</th><th>الحالة</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>data_Sun</td>
+                            <td><span class="badge badge-critical">شمس 😅</span></td>
+                            <td>❌ خطأ! الصحيح: الأحد</td>
+                        </tr>
+                        <tr>
+                            <td>data_Mon</td>
+                            <td><span class="badge badge-success">الإثنين</span></td>
+                            <td>✅ صحيح</td>
+                        </tr>
+                        <tr>
+                            <td>data_Tue</td>
+                            <td><span class="badge badge-success">الثلاثاء</span></td>
+                            <td>✅ صحيح</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>عناصر أخرى بالإنجليزية تحتاج ترجمة (30+)</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>العنصر الحالي ❌</th>
+                            <th>الترجمة المطلوبة ✅</th>
+                            <th>الموقع</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Account Settings</td><td>إعدادات الحساب</td><td>قائمة البروفايل</td></tr>
+                        <tr><td>Super admin</td><td>المدير الأعلى</td><td>تحت اسم المستخدم</td></tr>
+                        <tr><td>Processing...</td><td>جاري المعالجة...</td><td>الجداول</td></tr>
+                        <tr><td>No matching records found</td><td>لم يتم العثور على نتائج</td><td>الجداول</td></tr>
+                        <tr><td>Preview ON/OFF</td><td>معاينة تشغيل/إيقاف</td><td>المحرر</td></tr>
+                        <tr><td>Save</td><td>حفظ</td><td>المحرر</td></tr>
+                        <tr><td>Add content</td><td>إضافة محتوى</td><td>المحرر</td></tr>
+                        <tr><td>Move up / Move down</td><td>تحريك لأعلى/لأسفل</td><td>المحرر</td></tr>
+                        <tr><td>Cut / Delete</td><td>قص / حذف</td><td>المحرر</td></tr>
+                        <tr><td>Type to search...</td><td>اكتب للبحث...</td><td>المحرر</td></tr>
+                        <tr><td>Drag to resize</td><td>اسحب لتغيير الحجم</td><td>المحرر</td></tr>
+                        <tr><td>Container Settings</td><td>إعدادات الحاوية</td><td>المحرر</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Users Section Analysis -->
+        <section id="users" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: var(--gradient-1);">👥</div>
+                <h2>قسم المستخدمين (الطلاب والمدرسين)</h2>
+            </div>
+
+            <h3>🎓 الطلاب</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>قائمة الطلاب</td><td>عرض جميع الطلاب</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                        <tr><td>استيراد الطلاب</td><td>رفع من Excel/CSV</td><td><span class="badge badge-warning">⚠️ تغيير إلى "رفع قائمة طلاب"</span></td></tr>
+                        <tr><td>الإعدادات</td><td>حقول التسجيل</td><td><span class="badge badge-warning">⚠️ تغيير إلى "إعدادات تسجيل الطلاب"</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>👨‍🏫 المدرسون</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>جميع المدرسين</td><td>قائمة المدرسين</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                        <tr><td>قائمة المدفوعات</td><td>مستحقات المدرسين</td><td><span class="badge badge-warning">⚠️ تغيير إلى "مستحقات المدرسين المالية"</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>⚙️ مدير المستخدمين</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>الموظفون</td><td>موظفي الإدارة</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                        <tr><td>القسم</td><td>الأقسام الإدارية</td><td><span class="badge badge-warning">⚠️ تغيير إلى "الأقسام الإدارية"</span></td></tr>
+                        <tr><td>الأدوار</td><td>الصلاحيات</td><td><span class="badge badge-warning">⚠️ تغيير إلى "الأدوار والصلاحيات"</span></td></tr>
+                        <tr><td>طلب الحذف</td><td>طلبات حذف الحسابات</td><td><span class="badge badge-warning">⚠️ تغيير إلى "طلبات حذف الحسابات"</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Education Section -->
+        <section id="education" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: var(--gradient-4);">📚</div>
+                <h2>قسم التعليم (الدورات والاختبارات)</h2>
+            </div>
+
+            <div class="alert alert-info">
+                <div class="alert-icon">💡</div>
+                <div class="alert-content">
+                    <h4>اقتراح مهم للسياق المصري</h4>
+                    <p>تغيير "الدورات" إلى "المواد الدراسية" - لأن "دورة" = كورس أونلاين، لكن "مادة دراسية" = رياضيات، علوم، إلخ</p>
+                </div>
+            </div>
+
+            <h3>📖 الدورات/المواد</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>قائمة الفئات</td><td>تصنيفات الدورات</td><td><span class="badge badge-warning">⚠️ تغيير إلى "المراحل الدراسية"</span></td></tr>
+                        <tr><td>جميع الدورات</td><td>كل الدورات</td><td><span class="badge badge-warning">⚠️ تغيير إلى "جميع المواد والدورات"</span></td></tr>
+                        <tr><td>مستوى الدورة</td><td>المستويات</td><td><span class="badge badge-warning">⚠️ تغيير إلى "الصفوف الدراسية"</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>📝 الاختبارات</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>مجموعة الأسئلة</td><td>تجميع الأسئلة</td><td><span class="badge badge-warning">⚠️ تغيير إلى "تصنيفات الأسئلة"</span></td></tr>
+                        <tr><td>بنك الأسئلة</td><td>جميع الأسئلة</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                        <tr><td>استيراد الأسئلة</td><td>رفع من ملف</td><td><span class="badge badge-warning">⚠️ تغيير إلى "رفع أسئلة من ملف"</span></td></tr>
+                        <tr><td>تقرير الاختبار</td><td>النتائج</td><td><span class="badge badge-warning">⚠️ تغيير إلى "نتائج الاختبارات"</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>📹 الفصول الافتراضية</h3>
+            <div class="alert alert-warning">
+                <div class="alert-icon">💡</div>
+                <div class="alert-content">
+                    <h4>اقتراح تحسين</h4>
+                    <p>"قائمة الفصول الافتراضية" ← تغييرها إلى "الحصص المباشرة (Live)" - أوضح وأبسط للمستخدم العادي</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- E-commerce Section -->
+        <section id="ecommerce" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">�</div>
+                <h2>المدفوعات والخصومات (الفلوس)</h2>
+            </div>
+
+            <h3>🏷️ القسائم</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الحالي</th><th>المقترح</th><th>السبب</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>قائمة القسائم</td><td>أكواد الخصم</td><td>أوضح للمستخدم المصري</td></tr>
+                        <tr><td>القسائم العامة</td><td>خصومات عامة</td><td>تبسيط المصطلح</td></tr>
+                        <tr><td>القسائم الفردية</td><td>خصومات خاصة</td><td>تبسيط المصطلح</td></tr>
+                        <tr><td>الدعوة بالرمز</td><td>أكواد دعوة الأصدقاء</td><td>أوضح للمستخدم</td></tr>
+                        <tr><td>إعدادات الإحالة</td><td>برنامج دعوة صديق</td><td>مصطلح شائع</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>💳 المدفوعات</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الحالي</th><th>المقترح</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>الدفع المستلم عبر الإنترنت</td><td>المدفوعات الإلكترونية</td></tr>
+                        <tr><td>الدفع خارج الإنترنت</td><td>الدفع النقدي/الكاش</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Content Section -->
+        <section id="content" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #10b981, #059669);">📝</div>
+                <h2>المحتوى والواجهة (شكل الموقع)</h2>
+            </div>
+
+            <h3>🎨 إدارة الواجهة</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الحالي</th><th>المقترح</th><th>الحالة</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>قائمة الرأس</td><td>قوائم التنقل</td><td><span class="badge badge-warning">⚠️ غير واضح</span></td></tr>
+                        <tr><td>الشريط المنزلق</td><td>البانر الرئيسي</td><td><span class="badge badge-warning">⚠️ مصطلح غريب</span></td></tr>
+                        <tr><td>Banner/Slider Setting</td><td>إعدادات البانر</td><td><span class="badge badge-critical">🔴 إنجليزي!</span></td></tr>
+                        <tr><td>Header/Footer Style</td><td>نمط أعلى/أسفل الموقع</td><td><span class="badge badge-critical">🔴 إنجليزي!</span></td></tr>
+                        <tr><td>منشئ صفحات أورا</td><td>منشئ الصفحات</td><td><span class="badge badge-warning">⚠️ اسم غريب</span></td></tr>
+                        <tr><td>CSS و JS مخصص</td><td>-</td><td><span class="badge badge-info">إخفاء عن غير التقنيين</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🎮 اللعب الجماعي (Gamification)</h3>
+            <div class="alert alert-warning">
+                <div class="alert-icon">🔄</div>
+                <div class="alert-content">
+                    <h4>"اللعب الجماعي" ترجمة غير دقيقة!</h4>
+                    <p>Gamification لا تعني "لعب جماعي" - المقترح: <strong>"نظام النقاط والشارات"</strong> أو <strong>"نظام التحفيز"</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Communication Section -->
+        <section id="communication" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">💬</div>
+                <h2>الرسائل والتواصل</h2>
+            </div>
+
+            <h3>📨 الرسائل</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>رسالة خاصة</td><td>الرسائل الخاصة</td><td><span class="badge badge-warning">⚠️ تغيير إلى "الرسائل الخاصة"</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>💭 التعليقات</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>تعليقات المدونة</td><td>تعليقات المقالات</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                        <tr><td>تعليقات الموضوع</td><td>تعليقات الدروس</td><td><span class="badge badge-warning">⚠️ تغيير إلى "تعليقات الدروس"</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>❓ الأسئلة والأجوبة</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>قائمة الأسئلة</td><td>أسئلة الطلاب</td><td><span class="badge badge-warning">⚠️ تغيير إلى "أسئلة واستفسارات الطلاب"</span></td></tr>
+                        <tr><td>إعدادات الأسئلة</td><td>إعدادات Q&A</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Administration Section -->
+        <section id="admin" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">⚙️</div>
+                <h2>إعدادات المنصة (للمدير فقط)</h2>
+            </div>
+
+            <h3>🔧 إعدادات النظام</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>الإعدادات العامة</td><td>إعدادات الموقع</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                        <tr><td>إعداد البريد الإلكتروني</td><td>إعدادات الإيميل</td><td><span class="badge badge-info">⚠️ للمطورين فقط</span></td></tr>
+                        <tr><td>قالب البريد الإلكتروني</td><td>قوالب الإيميل</td><td><span class="badge badge-warning">⚠️ تغيير إلى "رسائل البريد التلقائية"</span></td></tr>
+                        <tr><td>إعدادات API</td><td>واجهات برمجية</td><td><span class="badge badge-critical">❌ إخفاء عن غير المطورين</span></td></tr>
+                        <tr><td>العمولة</td><td>نسبة المنصة</td><td><span class="badge badge-warning">⚠️ تغيير إلى "نسبة أرباح المنصة"</span></td></tr>
+                        <tr><td>إعداد Vimeo</td><td>ربط Vimeo</td><td><span class="badge badge-critical">❌ للمطورين فقط</span></td></tr>
+                        <tr><td>إعداد SEO</td><td>محركات البحث</td><td><span class="badge badge-warning">⚠️ تغيير إلى "إعدادات الظهور في جوجل"</span></td></tr>
+                        <tr><td>Cookie/GDPR Setting</td><td>الخصوصية</td><td><span class="badge badge-critical">🔴 يجب ترجمته!</span></td></tr>
+                        <tr><td>إعدادات Pusher</td><td>إعدادات Pusher</td><td><span class="badge badge-critical">❌ للمطورين فقط</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🎨 المظهر</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>السمات</td><td>قوالب الموقع</td><td><span class="badge badge-warning">⚠️ تغيير إلى "شكل الموقع"</span></td></tr>
+                        <tr><td>نظام ألوان الموضوع</td><td>تخصيص الألوان</td><td><span class="badge badge-warning">⚠️ تغيير إلى "ألوان الموقع"</span></td></tr>
+                        <tr><td>خط الموضوع</td><td>الخطوط</td><td><span class="badge badge-warning">⚠️ تغيير إلى "خطوط الموقع"</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🔔 الإشعارات</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>إعداد الإشعارات</td><td>إعدادات الإشعارات</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                        <tr><td>منشور</td><td>الإشعارات المرسلة</td><td><span class="badge badge-warning">⚠️ تغيير إلى "الإشعارات المرسلة"</span></td></tr>
+                        <tr><td>الإشعارات الفورية</td><td>Push Notifications</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Additional Sections -->
+        <section id="additional" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #14b8a6, #0d9488);">📌</div>
+                <h2>أقسام إضافية (الشهادات، الدردشة، الفواتير)</h2>
+            </div>
+
+            <h3>📜 الشهادات المطبوعة</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>قائمة الطلبات</td><td>طلبات طباعة الشهادات</td><td><span class="badge badge-warning">⚠️ تغيير إلى "طلبات الشهادات المطبوعة"</span></td></tr>
+                        <tr><td>الإعدادات</td><td>إعدادات الطباعة</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🖼️ مدير الوسائط</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>جميع الملفات</td><td>مكتبة الملفات</td><td><span class="badge badge-warning">⚠️ تغيير إلى "مكتبة الملفات والصور"</span></td></tr>
+                        <tr><td>تحميل جديد</td><td>رفع ملفات</td><td><span class="badge badge-warning">⚠️ تغيير إلى "رفع ملف جديد"</span></td></tr>
+                        <tr><td>الإعدادات</td><td>إعدادات الملفات</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>⭐ المراجعات</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>مراجعات الموضوع</td><td>تقييمات الدروس</td><td><span class="badge badge-warning">⚠️ تغيير إلى "تقييمات الطلاب للدروس"</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>💬 الدردشة</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>صندوق الدردشة</td><td>المحادثات</td><td><span class="badge badge-warning">⚠️ تغيير إلى "المحادثات"</span></td></tr>
+                        <tr><td>الدعوة</td><td>طلبات الدردشة</td><td><span class="badge badge-warning">⚠️ تغيير إلى "طلبات المحادثة"</span></td></tr>
+                        <tr><td>المستخدم المحظور</td><td>المحظورين</td><td><span class="badge badge-warning">⚠️ تغيير إلى "المحظورين من الدردشة"</span></td></tr>
+                        <tr><td>الإعدادات</td><td>إعدادات الدردشة</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🧾 الفواتير</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>الصفحة</th><th>الوظيفة</th><th>التوصية</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>الدفع المعلق</td><td>مدفوعات بانتظار التأكيد</td><td><span class="badge badge-warning">⚠️ تغيير إلى "مدفوعات تنتظر التأكيد"</span></td></tr>
+                        <tr><td>الفاتورة</td><td>الفواتير</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                        <tr><td>الإعدادات</td><td>إعدادات الفواتير</td><td><span class="badge badge-success">✅ واضح</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Role Recommendations -->
+        <section id="roles" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: var(--gradient-1);">👤</div>
+                <h2>كل واحد لازم يشوف إيه؟ (الصلاحيات)</h2>
+            </div>
+
+            <div class="alert alert-info">
+                <div class="alert-icon">💡</div>
+                <div class="alert-content">
+                    <h4>يعني إيه صلاحيات؟</h4>
+                    <p>يعني كل واحد يشوف الحاجات اللي بتخصه بس. المدرس يشوف طلابه، المحاسب يشوف الفلوس، المدير يشوف كل حاجة. وده المفروض يكون:</p>
+                </div>
+            </div>
+
+            <div class="role-grid">
+                <div class="role-card">
+                    <h4>👑 مدير المنصة (Super Admin)</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ جميع الأقسام</div>
+                        <div class="permission show">✅ التقارير المالية</div>
+                        <div class="permission show">✅ إعدادات النظام</div>
+                        <div class="permission show">✅ الأدوار والصلاحيات</div>
+                    </div>
+                </div>
+
+                <div class="role-card">
+                    <h4>📝 مدير المحتوى</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ الدورات والمواد</div>
+                        <div class="permission show">✅ الاختبارات</div>
+                        <div class="permission show">✅ المدونات</div>
+                        <div class="permission hide">❌ إعدادات النظام</div>
+                        <div class="permission hide">❌ المدفوعات</div>
+                    </div>
+                </div>
+
+                <div class="role-card">
+                    <h4>💰 المحاسب</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ المدفوعات</div>
+                        <div class="permission show">✅ الفواتير</div>
+                        <div class="permission show">✅ التقارير المالية</div>
+                        <div class="permission hide">❌ المحتوى التعليمي</div>
+                        <div class="permission hide">❌ إعدادات النظام</div>
+                    </div>
+                </div>
+
+                <div class="role-card">
+                    <h4>🎓 مدير الطلاب</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ قائمة الطلاب</div>
+                        <div class="permission show">✅ التسجيلات</div>
+                        <div class="permission show">✅ التواصل</div>
+                        <div class="permission hide">❌ المدفوعات</div>
+                        <div class="permission hide">❌ إعدادات النظام</div>
+                    </div>
+                </div>
+
+                <div class="role-card">
+                    <h4>👨‍🏫 المدرس</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ دوراته فقط</div>
+                        <div class="permission show">✅ طلابه فقط</div>
+                        <div class="permission show">✅ اختباراته</div>
+                        <div class="permission hide">❌ إدارة المستخدمين</div>
+                        <div class="permission hide">❌ المدفوعات العامة</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Naming Problems -->
+        <section id="tech-naming" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #f97316, #ea580c);">🔧</div>
+                <h2>كلمات صعبة محتاجة تتغير (مسميات تقنية)</h2>
+            </div>
+
+            <div class="alert alert-info">
+                <div class="alert-icon">💡</div>
+                <div class="alert-content">
+                    <h4>إيه المشكلة هنا؟</h4>
+                    <p>المنصة فيها كلمات "تقنية" المدرس أو الطالب أو المحاسب مش هيفهمها. يعني لو سألت مدرس "تعرف يعني إيه API؟" هيقولك لأ. وده بيخلي الناس تتوه في المنصة ومش بتعرف تستخدمها صح.</p>
+                </div>
+            </div>
+
+            <h3>مسميات صعبة على المستخدم العادي</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المسمى الحالي ❌</th>
+                            <th>ليه مشكلة؟</th>
+                            <th>المقترح ✅</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>الفصل الافتراضي</strong></td>
+                            <td>كلمة "افتراضي" تقنية ومش واضحة</td>
+                            <td><span class="badge badge-success">الحصص المباشرة</span> أو <span class="badge badge-success">البث المباشر</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>بنك الأسئلة</strong></td>
+                            <td>"بنك" مصطلح تقني</td>
+                            <td><span class="badge badge-success">مخزن الأسئلة</span> أو <span class="badge badge-success">الأسئلة المحفوظة</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gamification / اللعب الجماعي</strong></td>
+                            <td>ترجمة غلط + مش مفهوم</td>
+                            <td><span class="badge badge-success">نظام المكافآت</span> أو <span class="badge badge-success">النقاط والشارات</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>إعداد SEO</strong></td>
+                            <td>SEO مصطلح تقني جداً</td>
+                            <td><span class="badge badge-success">إعدادات الظهور في جوجل</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>إعدادات API</strong></td>
+                            <td>API للمبرمجين فقط</td>
+                            <td><span class="badge badge-critical">إخفاء تماماً</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>إعدادات Pusher</strong></td>
+                            <td>اسم تقني</td>
+                            <td><span class="badge badge-critical">إخفاء تماماً</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>CSRF Token</strong></td>
+                            <td>مصطلح أمني تقني</td>
+                            <td><span class="badge badge-critical">مش لازم يظهر</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="alert alert-warning">
+                <div class="alert-icon">🎯</div>
+                <div class="alert-content">
+                    <h4>القاعدة الذهبية</h4>
+                    <p>لو المستخدم العادي سأل "دي إيه؟" → يبقى المسمى محتاج يتغير!<br>
+                    ❌ "الفصل الافتراضي" → المستخدم: "يعني إيه افتراضي؟"<br>
+                    ✅ "الحصص المباشرة" → المستخدم: "آه فاهم، الحصة اللي بتتبث لايف"</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Egyptian Education Structure -->
+        <section id="egypt-structure" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #22c55e, #16a34a);">🏫</div>
+                <h2>المنصة مش مناسبة للتعليم المصري (ليه؟)</h2>
+            </div>
+
+            <div class="alert alert-warning">
+                <div class="alert-icon">🏫</div>
+                <div class="alert-content">
+                    <h4>إيه المشكلة؟</h4>
+                    <p>المنصة دي مصممة للعالم كله، مش للتعليم المصري بالذات. ففيها حاجات مش مناسبة لنظام التعليم عندنا (ابتدائي، إعدادي، ثانوي، جامعي). خلينا نوضح:</p>
+                </div>
+            </div>
+
+            <h3>التقسيم الحالي (مش مناسب)</h3>
+            <div class="alert alert-critical">
+                <div class="alert-icon">❌</div>
+                <div class="alert-content">
+                    <h4>الهيكل الحالي غير مناسب للتعليم المصري</h4>
+                    <p>
+                        <strong>الدورات (Courses)</strong> ← <strong>الفئات (Categories)</strong> ← <strong>المستوى (Level)</strong><br>
+                        <span style="opacity: 0.7;">المشكلة: مفيش مكان واضح للـ "الصف الدراسي" أو "الفصل الدراسي"</span>
+                    </p>
+                </div>
+            </div>
+
+            <h3>التقسيم المقترح للتعليم المصري</h3>
+            <div class="role-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                <div class="role-card" style="border-color: rgba(16, 185, 129, 0.4); background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));">
+                    <h4>🎒 ابتدائي</h4>
+                    <div class="permissions">
+                        <div class="permission show">الصف الأول</div>
+                        <div class="permission show">الصف الثاني</div>
+                        <div class="permission show">الصف الثالث</div>
+                        <div class="permission show">الصف الرابع</div>
+                        <div class="permission show">الصف الخامس</div>
+                        <div class="permission show">الصف السادس</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(59, 130, 246, 0.4); background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05));">
+                    <h4>📖 إعدادي</h4>
+                    <div class="permissions">
+                        <div class="permission show">الصف الأول</div>
+                        <div class="permission show">الصف الثاني</div>
+                        <div class="permission show">الصف الثالث</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(139, 92, 246, 0.4); background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.05));">
+                    <h4>🎓 ثانوي</h4>
+                    <div class="permissions">
+                        <div class="permission show">الصف الأول</div>
+                        <div class="permission show">الصف الثاني (علمي/أدبي)</div>
+                        <div class="permission show">الصف الثالث (علوم/رياضة/أدبي)</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(245, 158, 11, 0.4); background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));">
+                    <h4>🏛️ جامعي</h4>
+                    <div class="permissions">
+                        <div class="permission show">حسب الكلية والتخصص</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info" style="margin-top: 25px;">
+                <div class="alert-icon">📘</div>
+                <div class="alert-content">
+                    <h4>داخل كل صف دراسي</h4>
+                    <p>
+                        <strong>📚 المواد:</strong> رياضيات، عربي، إنجليزي، علوم...<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;↳ الفصل الدراسي الأول<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;↳ الفصل الدراسي الثاني<br><br>
+                        <strong>📝 الاختبارات:</strong> شهرية، نصف العام، آخر العام
+                    </p>
+                </div>
+            </div>
+
+            <h3>جدول التحويل المطلوب</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>التسمية الحالية ❌</th><th>التسمية المقترحة ✅</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Course / دورة</td><td>مادة دراسية</td></tr>
+                        <tr><td>Category / فئة</td><td>مرحلة دراسية</td></tr>
+                        <tr><td>Level / مستوى</td><td>صف دراسي</td></tr>
+                        <tr><td>Quiz / اختبار</td><td>امتحان</td></tr>
+                        <tr><td>Enrollment / تسجيل</td><td>التحاق بالمادة</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>مشكلة التقارير المبعثرة</h3>
+            <div class="alert alert-warning">
+                <div class="alert-icon">📊</div>
+                <div class="alert-content">
+                    <h4>التقارير موزعة في أماكن مختلفة!</h4>
+                    <p>المستخدم لازم يدور في أكتر من مكان عشان يلاقي التقرير اللي محتاجه. <strong>الحل:</strong> إنشاء قسم موحد للتقارير يشمل: تقارير الطلاب، تقارير المدرسين، تقارير مالية، تقارير المحتوى.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Missing Sections -->
+        <section id="missing-sections" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #ef4444, #b91c1c);">⚠️</div>
+                <h2>خصائص مفقودة ومهمة جداً</h2>
+            </div>
+
+            <div class="alert alert-critical">
+                <div class="alert-icon">🚨</div>
+                <div class="alert-content">
+                    <h4>خصائص أساسية لأي منصة تعليمية مش موجودة!</h4>
+                    <p>الخصائص دي موجودة في أي مدرسة أو معهد، لكن المنصة مش بتدعمها! يعني المنصة مش كاملة كأنها منصة تعليمية مصرية.</p>
+                </div>
+            </div>
+
+            <h3>الأقسام المفقودة</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>القسم</th>
+                            <th>الوظيفة</th>
+                            <th>الأهمية</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>📅 جدول الحصص</strong></td>
+                            <td>جدول أسبوعي للمواد والمواعيد</td>
+                            <td><span class="badge badge-critical">🔴 أساسي جداً</span></td>
+                            <td>❌ غير موجود</td>
+                        </tr>
+                        <tr>
+                            <td><strong>✅ الحضور والغياب</strong></td>
+                            <td>تسجيل حضور الطلاب في كل حصة</td>
+                            <td><span class="badge badge-critical">🔴 أساسي جداً</span></td>
+                            <td>❌ غير موجود</td>
+                        </tr>
+                        <tr>
+                            <td><strong>📝 الواجبات المنزلية</strong></td>
+                            <td>رفع وتسليم الواجبات</td>
+                            <td><span class="badge badge-critical">🔴 أساسي جداً</span></td>
+                            <td>❌ غير موجود</td>
+                        </tr>
+                        <tr>
+                            <td><strong>👨‍👩‍👧 حسابات أولياء الأمور</strong></td>
+                            <td>حسابات خاصة للأهل لمتابعة أولادهم</td>
+                            <td><span class="badge badge-warning">⚠️ مهم جداً</span></td>
+                            <td>❌ غير موجود</td>
+                        </tr>
+                        <tr>
+                            <td><strong>📱 إشعارات للأهل</strong></td>
+                            <td>إرسال تقارير وتنبيهات للأهل</td>
+                            <td><span class="badge badge-warning">⚠️ مهم جداً</span></td>
+                            <td>❌ غير موجود</td>
+                        </tr>
+                        <tr>
+                            <td><strong>💬 محادثة ولي الأمر/المدرس</strong></td>
+                            <td>تواصل مباشر بين المدرس والأهل</td>
+                            <td><span class="badge badge-warning">⚠️ مهم</span></td>
+                            <td>❌ غير موجود</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>شرح أهمية كل قسم</h3>
+            <div class="role-grid">
+                <div class="role-card">
+                    <h4>📅 جدول الحصص</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ الطالب يعرف إيه الحصص اللي عنده النهارده</div>
+                        <div class="permission show">✅ المدرس يعرف جدوله</div>
+                        <div class="permission show">✅ الإدارة تقدر تنظم المواعيد</div>
+                    </div>
+                </div>
+                <div class="role-card">
+                    <h4>✅ الحضور والغياب</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ متابعة التزام الطلاب</div>
+                        <div class="permission show">✅ إشعار الأهل لما ابنهم يغيب</div>
+                        <div class="permission show">✅ ربط الحضور بدرجات أعمال السنة</div>
+                    </div>
+                </div>
+                <div class="role-card">
+                    <h4>📝 الواجبات المنزلية</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ المدرس يرفع الواجب</div>
+                        <div class="permission show">✅ الطالب يحل ويسلم</div>
+                        <div class="permission show">✅ الأهل يتابعوا</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- UX Problems -->
+        <section id="ux-problems" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #a855f7, #9333ea);">🖥️</div>
+                <h2>مشاكل في سهولة استخدام المنصة</h2>
+            </div>
+
+            <div class="alert alert-info">
+                <div class="alert-icon">💡</div>
+                <div class="alert-content">
+                    <h4>يعني إيه "سهولة الاستخدام"؟</h4>
+                    <p>يعني لما أي حد (مدرس، طالب، ولي أمر) يفتح المنصة، يلاقي اللي عايزه بسرعة وبدون ما يتوه. لو المستخدم بيدور كتير عشان يوصل لحاجة، يبقى فيه مشكلة. ودي المشاكل الموجودة:</p>
+                </div>
+            </div>
+
+            <h3>المشاكل الرئيسية</h3>
+            <div class="role-grid">
+                <div class="role-card" style="border-color: rgba(239, 68, 68, 0.4);">
+                    <h4>🔴 القوائم طويلة جداً (94+ صفحة!)</h4>
+                    <div class="permissions">
+                        <div class="permission hide">❌ السايدبار فيه أكتر من 94 رابط</div>
+                        <div class="permission hide">❌ المستخدم بيتوه</div>
+                        <div class="permission hide">❌ مفيش تجميع منطقي</div>
+                        <div class="permission show">✅ الحل: تجميع + إخفاء التفاصيل + بحث</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(245, 158, 11, 0.4);">
+                    <h4>🟡 مفيش Search في القوائم</h4>
+                    <div class="permissions">
+                        <div class="permission hide">❌ لازم يفتح كل القوائم ويدور</div>
+                        <div class="permission show">✅ الحل: إضافة شريط بحث في السايدبار</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(239, 68, 68, 0.4);">
+                    <h4>🔴 Dashboard واحد للكل</h4>
+                    <div class="permissions">
+                        <div class="permission hide">❌ الأدمن والمدرس والمحاسب نفس الصفحة</div>
+                        <div class="permission show">✅ 👑 Admin: كل الإحصائيات</div>
+                        <div class="permission show">✅ 👨‍🏫 Teacher: طلابه وحصصه</div>
+                        <div class="permission show">✅ 💰 Accountant: المدفوعات والفواتير</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(245, 158, 11, 0.4);">
+                    <h4>🟡 الألوان مش موحدة</h4>
+                    <div class="permissions">
+                        <div class="permission hide">❌ مفيش نظام ألوان ثابت</div>
+                        <div class="permission show">✅ 🟢 أخضر = نجاح/موافقة</div>
+                        <div class="permission show">✅ 🔴 أحمر = خطأ/رفض</div>
+                        <div class="permission show">✅ 🟡 أصفر = تحذير</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Arabic Content Problems -->
+        <section id="arabic-content" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">🌍</div>
+                <h2>مشاكل اللغة العربية (الأرقام والتاريخ والعملة)</h2>
+            </div>
+
+            <h3>الأرقام مش موحدة</h3>
+            <div class="comparison-row">
+                <div class="comparison-item wrong"><strong>بعض الأماكن</strong><br>123 (إنجليزي)</div>
+                <div class="comparison-item wrong"><strong>أماكن تانية</strong><br>١٢٣ (عربي)</div>
+                <div class="comparison-item correct"><strong>المطلوب</strong><br>توحيد على نوع واحد</div>
+            </div>
+
+            <h3>مشاكل أخرى</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>المشكلة</th><th>الحالي</th><th>المطلوب</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>التاريخ</strong></td>
+                            <td>مش واضح لو هجري ولا ميلادي</td>
+                            <td>ميلادي (أساسي) + خيار للهجري</td>
+                        </tr>
+                        <tr>
+                            <td><strong>العملة</strong></td>
+                            <td>$ أو USD</td>
+                            <td>ج.م أو جنيه مصري</td>
+                        </tr>
+                        <tr>
+                            <td><strong>رسائل الخطأ</strong></td>
+                            <td>"No matching records found"</td>
+                            <td>"لم يتم العثور على نتائج"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>رسائل التحميل</strong></td>
+                            <td>"Processing..."</td>
+                            <td>"جاري التحميل..."</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Extra Security Issues -->
+        <section id="security-extra" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #dc2626, #991b1b);">🔒</div>
+                <h2>مشاكل أمنية خطيرة (الحماية)</h2>
+            </div>
+
+            <div class="alert alert-critical">
+                <div class="alert-icon">🚨</div>
+                <div class="alert-content">
+                    <h4>ليه الأمان مهم؟</h4>
+                    <p>المنصة فيها <strong>بيانات حساسة</strong>: أسماء الطلاب، أرقام التليفونات، الدرجات، المدفوعات. لو المنصة مش مؤمنة صح، حد ممكن يسرق البيانات دي! ودي المشاكل اللي لاقيناها:</p>
+                </div>
+            </div>
+
+            <h3>حاجات لازم تتأكد منها</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>البند</th>
+                            <th>شرح مبسط</th>
+                            <th>الخطورة</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>كلمة السر 1234@1234</strong></td>
+                            <td>أي حد ممكن يخمنها بسهولة</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                            <td>❌ ضعيفة جداً</td>
+                        </tr>
+                        <tr>
+                            <td><strong>المصادقة الثنائية (2FA)</strong></td>
+                            <td>لما تدخل، يجيلك كود على الموبايل للتأكيد</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                            <td>❓ مش واضح</td>
+                        </tr>
+                        <tr>
+                            <td><strong>قفل الحساب بعد محاولات فاشلة</strong></td>
+                            <td>لو حد حاول يخمن كلمة السر 5 مرات، الحساب يتقفل</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                            <td>❓ مش واضح</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Session Timeout</strong></td>
+                            <td>لو سبت المنصة مفتوحة ساعة، تخرجك تلقائي</td>
+                            <td><span class="badge badge-warning">⚠️ متوسط</span></td>
+                            <td>❓ مش واضح</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Backup تلقائي</strong></td>
+                            <td>نسخ احتياطية للبيانات لو حصل مشكلة</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                            <td>❓ مش واضح</td>
+                        </tr>
+                        <tr>
+                            <td><strong>تشفير البيانات</strong></td>
+                            <td>حماية البيانات من السرقة</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                            <td>❓ مش واضح</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>توصيات أمنية عاجلة</h3>
+            <div class="role-grid">
+                <div class="role-card" style="border-color: rgba(239, 68, 68, 0.4);">
+                    <h4>1️⃣ تغيير كلمة السر فوراً</h4>
+                    <div class="permissions">
+                        <div class="permission hide">❌ الحالي: 1234@1234</div>
+                        <div class="permission show">✅ المطلوب: 12+ حرف، أرقام، رموز، حروف كبيرة وصغيرة</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(16, 185, 129, 0.4);">
+                    <h4>2️⃣ تفعيل المصادقة الثنائية</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ لما تدخل → يجيلك كود على موبايلك → تكتبه عشان تدخل</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(16, 185, 129, 0.4);">
+                    <h4>3️⃣ إعداد Backup تلقائي</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ كل يوم الساعة 3 الفجر يتعمل نسخة احتياطية</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Summary -->
+        <section class="section" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.1));">
+            <div class="section-header">
+                <div class="section-icon" style="background: var(--gradient-1);">📊</div>
+                <h2>الخلاصة النهائية - إيه المفروض يتعمل؟</h2>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card critical">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">أخطاء ترجمة كارثية<br>(PM + Sunday)</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-number">30+</div>
+                    <div class="stat-label">عناصر غير مترجمة</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-number">40+</div>
+                    <div class="stat-label">مسميات تقنية صعبة</div>
+                </div>
+                <div class="stat-card critical">
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">ثغرات أمنية</div>
+                </div>
+                <div class="stat-card critical">
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">أقسام أساسية مفقودة</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-number">100+</div>
+                    <div class="stat-label">إجمالي التعديلات المطلوبة</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 40px;">ملخص التحسينات المطلوبة حسب الأولوية</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الأولوية</th>
+                            <th>التحسين المطلوب</th>
+                            <th>التأثير</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge badge-critical">🔴 عاجل</span></td>
+                            <td>تغيير كلمة السر الضعيفة</td>
+                            <td>أمان المنصة بالكامل</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-critical">🔴 عاجل</span></td>
+                            <td>إصلاح خطأ PM = "مدير المشروع"</td>
+                            <td>كل الأوقات في المنصة</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-critical">🔴 عاجل</span></td>
+                            <td>إصلاح خطأ Sunday = "شمس"</td>
+                            <td>كل الأيام في المنصة</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-warning">⚠️ هام</span></td>
+                            <td>إضافة قسم الحضور والغياب</td>
+                            <td>متابعة الطلاب</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-warning">⚠️ هام</span></td>
+                            <td>إضافة جدول الحصص</td>
+                            <td>تنظيم المواعيد</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-warning">⚠️ هام</span></td>
+                            <td>إضافة قسم الواجبات</td>
+                            <td>متابعة الطلاب</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-warning">⚠️ هام</span></td>
+                            <td>ترجمة العناصر الإنجليزية (30+)</td>
+                            <td>تجربة المستخدم</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-info">💡 موصى</span></td>
+                            <td>تبسيط المسميات التقنية</td>
+                            <td>سهولة الاستخدام</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-info">💡 موصى</span></td>
+                            <td>إضافة حسابات أولياء الأمور</td>
+                            <td>التواصل مع الأهل</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-info">💡 موصى</span></td>
+                            <td>تنظيم القوائم (94+ صفحة)</td>
+                            <td>تجربة المستخدم</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="alert alert-info" style="margin-top: 30px;">
+                <div class="alert-icon">💡</div>
+                <div class="alert-content">
+                    <h4>الخلاصة النهائية - اقرأها كويس!</h4>
+                    <p><strong>📍 المنصة دي إيه؟</strong> سكريبت جاهز اسمه InfixLMS سعره حوالي $69-99 (يعني 2000-3000 جنيه).</p>
+                    <p><strong>🔴 المشاكل الرئيسية:</strong></p>
+                    <ul style="margin: 10px 20px;">
+                        <li>الترجمة فيها أخطاء كارثية (مساءً = مدير المشروع!)</li>
+                        <li>30+ عنصر لسه بالإنجليزي</li>
+                        <li>6 خصائص أساسية مفقودة (الحضور، الواجبات، جدول الحصص)</li>
+                        <li>مشاكل أمنية (كلمة سر ضعيفة)</li>
+                    </ul>
+                    <p><strong>📝 المطلوب:</strong> مطالبة شركة التطوير بإصلاح كل هذه الأخطاء <strong>مجاناً</strong> لأنها أخطاء إهمال ومش تطوير جديد.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ما يجب أن تحصل عليه -->
+        <section class="section" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1)); border-color: rgba(16, 185, 129, 0.4);">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #10b981, #059669);">✅</div>
+                <h2>ما يجب أن تحصل عليه من شركة التطوير</h2>
+            </div>
+
+            <div class="alert alert-success">
+                <div class="alert-icon">📝</div>
+                <div class="alert-content">
+                    <h4>قائمة المطالب</h4>
+                    <p>لو أنت دفعت فلوس عشان المنصة دي، لازم تحصل على كل الحاجات دي من شركة التطوير:</p>
+                </div>
+            </div>
+
+            <div class="role-grid">
+                <div class="role-card" style="border-color: rgba(16, 185, 129, 0.5);">
+                    <h4>🌐 التعريب الكامل</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ كل الكلام بالعربي 100%</div>
+                        <div class="permission show">✅ بدون أخطاء ترجمة</div>
+                        <div class="permission show">✅ اتجاه صحيح من اليمين للشمال</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(16, 185, 129, 0.5);">
+                    <h4>🎨 التخصيص</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ الشعار بتاعك</div>
+                        <div class="permission show">✅ الألوان اللي عايزها</div>
+                        <div class="permission show">✅ اسم المنصة بتاعك</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(16, 185, 129, 0.5);">
+                    <h4>📚 التدريب</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ تدريب على الاستخدام</div>
+                        <div class="permission show">✅ شرح كل الوظائف</div>
+                        <div class="permission show">✅ دليل استخدام بالعربي</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(16, 185, 129, 0.5);">
+                    <h4>🛠️ الدعم الفني</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ دعم فني لفترة محددة</div>
+                        <div class="permission show">✅ إصلاح الأخطاء مجاناً</div>
+                        <div class="permission show">✅ رد سريع على المشاكل</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(16, 185, 129, 0.5);">
+                    <h4>🔐 الأمان</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ كلمات سر قوية</div>
+                        <div class="permission show">✅ نسخ احتياطية يومية</div>
+                        <div class="permission show">✅ حماية البيانات</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(16, 185, 129, 0.5);">
+                    <h4>📄 التوثيق</h4>
+                    <div class="permissions">
+                        <div class="permission show">✅ توثيق بالعربي</div>
+                        <div class="permission show">✅ شرح كيفية التعديل</div>
+                        <div class="permission show">✅ وصول للكود المصدري</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-warning" style="margin-top: 25px;">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                    <h4>ملاحظة مهمة</h4>
+                    <p>لو شركة التطوير رفضت تصلح الأخطاء الموجودة في التقرير ده أو طلبت فلوس إضافية، فده دليل إنهم مش عملوا شغلهم صح من الأول. الأخطاء الموجودة (زي PM = مدير المشروع) دي أخطاء إهمال ولازم يتصلحوا مجاناً.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Requirements Comparison Section - NEW -->
+        <section class="section" id="requirements-comparison" style="border-color: rgba(240, 147, 251, 0.3);">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🔍</div>
+                <h2>🆕 مقارنة المتطلبات (إنت طلبت إيه وهما عملوا إيه؟)</h2>
+            </div>
+
+            <div class="alert alert-info">
+                <div class="alert-icon">📝</div>
+                <div class="alert-content">
+                    <h4>إيه القسم ده؟</h4>
+                    <p>هنا بنقارن بين المتطلبات اللي كانت مطلوبة في ملف edu_platform_requirements واللي فعلاً موجود في المنصة. هتشوف إن فيه حاجات كتير مفقودة!</p>
+                </div>
+            </div>
+
+            <h3>🔴 الوظائف المطلوبة والمفقودة</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>المتطلب المحدد</th>
+                            <th>الحالة في المنصة</th>
+                            <th>التقييم</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td><strong>منع مشاركة الحسابات</strong> - قفل الحساب عند الفتح من أكثر من جهاز</td>
+                            <td>❌ غير واضح/مفقود</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><strong>لوحة تحكم خاصة للمدرس</strong> - داشبورد يوضح أفضل الطلاب وأعلى الدرجات</td>
+                            <td>⚠️ جزئي - dashboard عام فقط</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><strong>بنك أسئلة متقدم</strong> مع أنواع متعددة (اختياري، مقالي، صح وغلط)</td>
+                            <td>✅ موجود</td>
+                            <td><span class="badge badge-success">✅ متوفر</span></td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td><strong>نظام مراقبة الامتحانات</strong> - منع النسخ، التحقق من الهوية</td>
+                            <td>❌ غير واضح/مفقود</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td><strong>شهادات ذكية بـ QR Code</strong> للتحقق من صحتها</td>
+                            <td>⚠️ شهادات موجودة لكن QR غير مؤكد</td>
+                            <td><span class="badge badge-warning">⚠️ متوسط</span></td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td><strong>النسخ الاحتياطي واستعادة البيانات</strong></td>
+                            <td>❌ غير موجود في القوائم</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td><strong>Chatbot بالذكاء الاصطناعي</strong> (Gemini API) لتفسير الإجابات</td>
+                            <td>❌ غير موجود</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td><strong>معلومات عن السيرفر</strong> والقدرة على تحمل الطلاب</td>
+                            <td>❌ غير واضح</td>
+                            <td><span class="badge badge-warning">⚠️ متوسط</span></td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td><strong>حماية الفيديوهات</strong> - منع التحميل، منع Screen Recording</td>
+                            <td>❌ غير واضح/مفقود</td>
+                            <td><span class="badge badge-critical">🔴 حرج</span></td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td><strong>ملكية الكود الكاملة مع التوثيق</strong></td>
+                            <td>⚠️ السكريبت InfixLMS من CodeCanyon</td>
+                            <td><span class="badge badge-warning">⚠️ متوسط</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🎨 مشاكل واجهة المستخدم (UI)</h3>
+            <div class="role-grid">
+                <div class="role-card" style="border-color: rgba(239, 68, 68, 0.4);">
+                    <h4>🔴 فواصل القوائم بالإنجليزية</h4>
+                    <div class="permissions">
+                        <div class="permission hide">❌ Users → المستخدمون</div>
+                        <div class="permission hide">❌ Education → التعليم</div>
+                        <div class="permission hide">❌ E-commerce → التجارة الإلكترونية</div>
+                        <div class="permission hide">❌ Content → المحتوى</div>
+                        <div class="permission hide">❌ Communication → الاتصالات</div>
+                        <div class="permission hide">❌ Administration → الإدارة</div>
+                    </div>
+                </div>
+                <div class="role-card" style="border-color: rgba(239, 68, 68, 0.4);">
+                    <h4>🔴 عناصر غير مترجمة</h4>
+                    <div class="permissions">
+                        <div class="permission hide">❌ Banner/Slider Setting</div>
+                        <div class="permission hide">❌ Header/Footer Style</div>
+                        <div class="permission hide">❌ Cookie/GDPR Setting</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>🖱️ مشاكل تجربة المستخدم (UX)</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الدور</th>
+                            <th>الحالة الحالية</th>
+                            <th>المطلوب</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>👑 Super Admin</td>
+                            <td>Dashboard عام</td>
+                            <td><span class="badge badge-success">✅ كامل</span></td>
+                        </tr>
+                        <tr>
+                            <td>👨‍🏫 المدرس</td>
+                            <td>❌ نفس الـ Dashboard!</td>
+                            <td>داشبورد خاص: طلابه، كورساته، نتائج امتحاناته</td>
+                        </tr>
+                        <tr>
+                            <td>📚 الطالب</td>
+                            <td>❓ غير واضح</td>
+                            <td>داشبورد خاص: موادي، درجاتي، واجباتي</td>
+                        </tr>
+                        <tr>
+                            <td>👨‍👩‍👧 ولي الأمر</td>
+                            <td>❌ غير موجود!</td>
+                            <td>متابعة أداء الأبناء</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>📋 أقسام مفقودة أساسية</h3>
+            <div class="stats-grid">
+                <div class="stat-card critical">
+                    <div class="stat-number">📅</div>
+                    <div class="stat-label">جدول الحصص<br>❌ غير موجود</div>
+                </div>
+                <div class="stat-card critical">
+                    <div class="stat-number">✅</div>
+                    <div class="stat-label">الحضور والغياب<br>❌ غير موجود</div>
+                </div>
+                <div class="stat-card critical">
+                    <div class="stat-number">📝</div>
+                    <div class="stat-label">الواجبات المنزلية<br>❌ غير موجود</div>
+                </div>
+                <div class="stat-card critical">
+                    <div class="stat-number">👨‍👩‍👧</div>
+                    <div class="stat-label">حسابات أولياء الأمور<br>❌ غير موجود</div>
+                </div>
+            </div>
+
+            <h3>⚖️ خلاصة المقارنة</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>البند</th>
+                            <th>متطلبات edu_platform</th>
+                            <th>الموجود في Menasa</th>
+                            <th>نسبة الفجوة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>الأمان والحماية</td>
+                            <td>4 متطلبات</td>
+                            <td>~1 جزئي</td>
+                            <td><span class="badge badge-critical">🔴 75% فجوة</span></td>
+                        </tr>
+                        <tr>
+                            <td>الوظائف التعليمية</td>
+                            <td>أساسية</td>
+                            <td>موجودة</td>
+                            <td><span class="badge badge-success">✅ 80%</span></td>
+                        </tr>
+                        <tr>
+                            <td>الذكاء الاصطناعي</td>
+                            <td>مطلوب</td>
+                            <td>غير موجود</td>
+                            <td><span class="badge badge-critical">🔴 100% فجوة</span></td>
+                        </tr>
+                        <tr>
+                            <td>التوثيق والملكية</td>
+                            <td>مطلوب</td>
+                            <td>غير واضح</td>
+                            <td><span class="badge badge-warning">⚠️ غير واضح</span></td>
+                        </tr>
+                        <tr>
+                            <td>تجربة المستخدم</td>
+                            <td>متقدمة</td>
+                            <td>أساسية</td>
+                            <td><span class="badge badge-warning">⚠️ 50% فجوة</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>📊 التوصيات حسب المرحلة</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>🚨 المرحلة 1 - إصلاحات فورية (أسبوع)</h4>
+                    <ul style="margin-top: 10px; padding-right: 20px;">
+                        <li>إصلاح أخطاء الترجمة (PM، Sun)</li>
+                        <li>ترجمة الفواصل والعناصر الإنجليزية</li>
+                        <li>إضافة نظام النسخ الاحتياطي</li>
+                        <li>توضيح نظام حماية الحسابات</li>
+                    </ul>
+                </div>
+                <div class="timeline-item">
+                    <h4>🔧 المرحلة 2 - تطوير الوظائف (شهر)</h4>
+                    <ul style="margin-top: 10px; padding-right: 20px;">
+                        <li>إضافة Dashboard مخصص لكل دور</li>
+                        <li>إضافة قسم الحضور والغياب</li>
+                        <li>إضافة قسم الواجبات المنزلية</li>
+                        <li>إضافة جدول الحصص</li>
+                    </ul>
+                </div>
+                <div class="timeline-item">
+                    <h4>🚀 المرحلة 3 - الميزات المتقدمة (3 أشهر)</h4>
+                    <ul style="margin-top: 10px; padding-right: 20px;">
+                        <li>نظام مراقبة الامتحانات (Proctoring)</li>
+                        <li>Chatbot بالذكاء الاصطناعي</li>
+                        <li>حماية الفيديوهات المتقدمة (DRM)</li>
+                        <li>حسابات أولياء الأمور</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="alert alert-critical" style="margin-top: 30px;">
+                <div class="alert-icon">🎯</div>
+                <div class="alert-content">
+                    <h4>النتيجة النهائية للمقارنة</h4>
+                    <p>المنصة الحالية تغطي <strong>~40%</strong> فقط من المتطلبات المحددة في ملف edu_platform_requirements. هناك <strong>8 وظائف حرجة مفقودة</strong> تحتاج تطوير جديد، و<strong>4 وظائف جزئية</strong> تحتاج تحسين. يجب مطالبة المطور بخطة زمنية واضحة لتنفيذ هذه المتطلبات.</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = 'all 0.6s ease-out';
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

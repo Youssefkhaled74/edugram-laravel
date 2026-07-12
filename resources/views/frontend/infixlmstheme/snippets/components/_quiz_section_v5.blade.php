@@ -380,9 +380,7 @@
                             <div>
                                 <h3 class="mb-0 text-white">Top Online Quiz</h3>
                             </div>
-                            <div class="section-subtitle-action mt-0">
-                                <a href="{{route('quizzes')}}" class="theme-btn bg-primary ms-2">All Quiz</a>
-                            </div>
+
                         </div>
                     </div>
                 </div>

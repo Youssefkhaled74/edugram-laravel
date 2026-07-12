@@ -75,12 +75,6 @@
                         @endforeach
                     @endif
                 </div>
-                <div class="row">
-                    <div class="col-12 text-center pt_70">
-                        <a href="{{route('quizzes')}}"
-                           class="theme_btn mb_30">{{__('frontend.View All Quiz')}}</a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
