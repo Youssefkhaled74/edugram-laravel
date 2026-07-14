@@ -148,7 +148,7 @@ return [
 "Instructor" => "Eğitmen",
 "Reviews" => "İncelemeler",
 "Course Description" => "Kurs Açıklaması",
-"Twitter" => "Twitter",
+"Twitter" => "X",
 "Pinterest" => "Pinterest",
 "Linkedin" => "Linkedin",
 "Course Curriculum" => "Ders Ders Programı",

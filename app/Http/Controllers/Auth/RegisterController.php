@@ -128,7 +128,6 @@ class RegisterController extends Controller
             $loginController->multipleLogin($request);
 
 
-            checkGamification('each_login', 'activity');
             checkGamificationReg();
             if ($this->goToCheckout()) {
                 return $request->wantsJson()

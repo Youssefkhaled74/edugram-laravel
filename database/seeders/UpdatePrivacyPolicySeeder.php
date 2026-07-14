@@ -1,10 +1,43 @@
-@extends(theme('layouts.master'))
-@section('title'){{Settings('site_title')  ? Settings('site_title')  : 'EduGram'}} | شروط وأحكام الاستخدام @endsection
-@section('css') @endsection
-@section('js') @endsection
+<?php
 
-@section('mainContent')
+namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+class UpdatePrivacyPolicySeeder extends Seeder
+{
+    public function run(): void
+    {
+        $content = $this->getContent();
+
+        foreach (['/privacy', '/terms'] as $slug) {
+            $existing = DB::table('front_pages')->where('slug', $slug)->first();
+
+            if ($existing) {
+                DB::table('front_pages')->where('slug', $slug)->update([
+                    'details' => $content,
+                    'updated_at' => now(),
+                ]);
+            } else {
+                DB::table('front_pages')->insert([
+                    'title' => 'شروط وأحكام منصة Edugram التعليمية',
+                    'slug' => $slug,
+                    'details' => $content,
+                    'status' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        $this->command->info('Privacy policy and terms pages updated successfully.');
+    }
+
+    private function getContent(): string
+    {
+        return <<<'HTML'
 <div class="container py-5" dir="rtl" style="font-family: 'Cairo', 'Tajawal', sans-serif; max-width: 900px; margin: auto; line-height: 2; color: #10233E;">
     <h1 style="text-align:center; color:#173B78; font-size:28px; margin-bottom:10px;">شروط وأحكام استخدام منصة Edugram التعليمية</h1>
     <p style="text-align:center; color:#66758D; margin-bottom:30px;">تاريخ آخر تحديث: 6 مايو 2026</p>
@@ -141,5 +174,6 @@
         <p style="color:#66758D; font-size:15px;">باستخدامك للمنصة، فإنك تقر بأنك قرأت وفهمت هذه الشروط والأحكام وتوافق على الالتزام بها التزامًا قانونيًا كاملاً.</p>
     </div>
 </div>
-
-@endsection
+HTML;
+    }
+}

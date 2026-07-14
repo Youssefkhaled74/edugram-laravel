@@ -27,7 +27,7 @@ if (!function_exists('socialIconList')) {
     {
         $list = [
             'fa-facebook',
-            'fa-twitter',
+            'fa-x-twitter',
             'fa-linkedin',
             'fa-instagram',
             'fa-dribbble',
@@ -569,9 +569,9 @@ if (!function_exists('htmlPart')) {
 
 
         <div class="social_links">
-            <a href="https://twitter.com/codetheme"> <i class="fab fa-facebook-f"></i> </a>
+            <a href="https://x.com/codetheme"> <i class="fab fa-facebook-f"></i> </a>
             <a href="https://codecanyon.net/user/codethemes/portfolio"><i class="fas fa-code"></i> </a>
-            <a href="https://twitter.com/codetheme" target="_blank"> <i class="fab fa-twitter"></i> </a>
+            <a href="https://x.com/codetheme" target="_blank"> <i class="fab fa-x-twitter"></i> </a>
             <a href="https://dribbble.com/codethemes"> <i class="fab fa-dribbble"></i></a>
         </div>
     </div>

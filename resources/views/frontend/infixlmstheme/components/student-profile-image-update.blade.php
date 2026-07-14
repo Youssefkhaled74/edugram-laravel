@@ -161,8 +161,18 @@
             <img class="profilepic__image" src="{{getProfileImage($profile->image,$profile->name)}}"
                  id="show_profile_image"
                  width="272" height="272" alt="Profibild"/>
+            <label for="my_profile_file_upload"
+                   class="d-flex align-items-center justify-content-center w-100 h-100 position-absolute top-0 left-0"
+                   style="cursor:pointer; background:rgba(0,0,0,0.4); opacity:0; transition:opacity .2s;"
+                   onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+                <i class="fa fa-camera fa-2x text-white"></i>
+            </label>
+            <input type="file" class="d-none" name="file" id="my_profile_file_upload"
+                   accept=".png, .jpg, .jpeg" onchange="previewMyProfilePic(this)">
             <i id="loading" class="fa fa-spinner fa-spin fa-3x fa-fw  site_image_spinner" style="display: none"></i>
         </div>
+
+        <p class="text-muted mt-2" style="font-size:13px;">{{ __('common.Or choose from below') }}</p>
 
         @if(count($profileAvatars))
             <div class="avatar-picker-section text-center">
@@ -183,5 +193,51 @@
             </div>
         @endif
     </form>
+
+    <script>
+        function previewMyProfilePic(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#show_profile_image').attr('src', e.target.result);
+                    $('.avatar-item').removeClass('active');
+                    $('#selected_avatar').val('');
+                    $('#avatar_key').val('');
+                };
+                reader.readAsDataURL(input.files[0]);
+
+                var form_data = new FormData();
+                var token = $("input[name=_token]").val();
+                var submit_url = $('#ajax-update-profile-image').val();
+                var url = $('#url').val();
+                form_data.append('file', input.files[0]);
+                form_data.append('_token', token);
+
+                $('#loading').css('display', 'block');
+
+                $.ajax({
+                    url: submit_url,
+                    data: form_data,
+                    type: 'POST',
+                    contentType: false,
+                    processData: false,
+                    timeout: 30000,
+                    success: function (data) {
+                        if (data && !data.fail) {
+                            $('#show_profile_image').attr('src', data);
+                            var header_image = 'background-image: url(' + data + ')';
+                            $('.studentProfileThumb').attr('style', header_image);
+                        } else if (data && data.fail) {
+                            toastr.error(data.errors['file'], 'Error Alert', { timeOut: 5000 });
+                        }
+                        $('#loading').css('display', 'none');
+                    },
+                    error: function (xhr) {
+                        $('#loading').css('display', 'none');
+                    }
+                });
+            }
+        }
+    </script>
 
 </div>

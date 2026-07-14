@@ -148,7 +148,7 @@ return [
 "Instructor" => "ইনস্ট্রাক্টর",
 "Reviews" => "পর্যালোচনা",
 "Course Description" => "কোর্স বর্ণনা",
-"Twitter" => "টুইটার",
+"Twitter" => "এক্স",
 "Pinterest" => "Pinterest",
 "Linkedin" => "Linkedin",
 "Course Curriculum" => "কোর্স কারুকুলাম",

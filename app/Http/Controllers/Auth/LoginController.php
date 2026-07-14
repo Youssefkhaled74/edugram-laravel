@@ -700,7 +700,6 @@ class LoginController extends Controller
 
         $this->clearLoginAttempts($request);
 
-        checkGamification('each_login', 'activity');
         checkGamificationReg();
         return $this->authenticated($request, $this->guard()->user())
             ?: redirect()->to($goto);

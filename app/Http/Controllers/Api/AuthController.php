@@ -495,7 +495,6 @@ class AuthController extends Controller
                         $response['multipleLogin'] = $check['multipleLogin'];
                     }
                 } else {
-                    checkGamification('each_login', 'activity');
                     $response = [
                         'success' => true,
                         'data' => $data,

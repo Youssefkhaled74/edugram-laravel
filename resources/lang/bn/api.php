@@ -865,7 +865,7 @@
     'NID' => 'এনআইডি',
     'Skills List' => 'দক্ষতার তালিকা',
     'Facebook URL' => 'ফেসবুক ইউআরএল',
-    'Twitter URL' => 'টুইটার ইউআরএল',
+    'Twitter URL' => 'X URL',
     'Linkedin URL' => 'লিঙ্কডইন ইউআরএল',
     'Instagram URL' => 'ইনস্টাগ্রাম ইউআরএল',
     'Password Recovery' => 'পাসওয়ার্ড পুনরুদ্ধার',

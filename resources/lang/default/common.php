@@ -156,7 +156,7 @@
     "Instagram URL" => "Instagram URL",
     "Youtube URL" => "Youtube URL",
     "LinkedIn URL" => "LinkedIn URL",
-    "Twitter URL" => "Twitter URL",
+    "Twitter URL" => "X URL",
     "TikTok URL" => "TikTok URL",
     "Facebook URL" => "Facebook URL",
     "Date of Birth" => "Date of Birth",

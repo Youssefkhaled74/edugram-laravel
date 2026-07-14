@@ -157,7 +157,7 @@ return [
 "Instagram URL" => "URL de Instagram",
 "Youtube URL" => "URL de Youtube",
 "LinkedIn URL" => "URL de LinkedIn",
-"Twitter URL" => "URL de Twitter",
+"Twitter URL" => "URL de X",
 "Facebook URL" => "URL de Facebook",
 "Date of Birth" => "Fecha de nacimiento",
 "Change Status" => "Cambiar estado",

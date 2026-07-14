@@ -148,7 +148,7 @@ return [
 "Instructor" => "Instructor",
 "Reviews" => "Revisiones",
 "Course Description" => "Descripción del curso",
-"Twitter" => "Twitter",
+"Twitter" => "X",
 "Pinterest" => "Pinterest",
 "Linkedin" => "Linkedin",
 "Course Curriculum" => "Curriculum del curso",

@@ -897,7 +897,7 @@ return [
     "NID" => "NID",
     "Skills List" => "Skills List",
     "Facebook URL" => "Facebook URL",
-    "Twitter URL" => "Twitter URL",
+    "Twitter URL" => "X URL",
     "Linkedin URL" => "Linkedin URL",
     "Instagram URL" => "Instagram URL",
     "Password Recovery" => "Password Recovery",

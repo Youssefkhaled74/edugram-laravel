@@ -157,7 +157,7 @@ return [
     "Instagram URL" => "URL Instagram",
     "Youtube URL" => "URL của bạn",
     "LinkedIn URL" => "URL LinkedIn",
-    "Twitter URL" => "URL của Twitter",
+    "Twitter URL" => "URL của X",
     "Facebook URL" => "URL của Facebook",
     "Date of Birth" => "Ngày sinh",
     "Change Status" => "Độ thay đổi",

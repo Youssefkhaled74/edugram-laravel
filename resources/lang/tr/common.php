@@ -157,7 +157,7 @@ return [
     "Instagram URL" => "Instagram URL Adresi",
     "Youtube URL" => "Youtube URL 'si",
     "LinkedIn URL" => "LinkedIn URL Adresi",
-    "Twitter URL" => "Twitter URL 'si",
+    "Twitter URL" => "X URL",
     "Facebook URL" => "Facebook URL 'si",
     "Date of Birth" => "Doğum Tarihi",
     "Change Status" => "Durumu Değiştir",

@@ -156,7 +156,7 @@
     "Instagram URL" => "ইনস্টাগ্রাম ইউআরএল",
     "Youtube URL" => "ইউটিউব ইউ-আর-এল",
     "LinkedIn URL" => "LinkedIn URL",
-    "Twitter URL" => "টুইটার ইউআরএল",
+    "Twitter URL" => "X URL",
     "Facebook URL" => "ফেসবুক ইউআরএল",
     "Date of Birth" => "জন্ম তারিখ",
     "Change Status" => "অবস্থা পরিবর্তন করো",

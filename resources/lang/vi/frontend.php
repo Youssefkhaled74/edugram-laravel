@@ -148,7 +148,7 @@ return [
     "Instructor" => "Giảng viên",
     "Reviews" => "Đánh giá",
     "Course Description" => "Khóa học",
-    "Twitter" => "Twitter",
+    "Twitter" => "X",
     "Pinterest" => "Pinterest",
     "Linkedin" => "Linkedin",
     "Course Curriculum" => "Khóa học",

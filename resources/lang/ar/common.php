@@ -157,7 +157,7 @@
     "Instagram URL"=>"رابط إنستغرام",
     "Youtube URL"=>"رابط يوتيوب",
     "LinkedIn URL"=>"رابط لينكدإن",
-    "Twitter URL"=>"رابط تويتر",
+    "Twitter URL" => "رابط X",
     "TikTok URL"=>"رابط تيك توك",
     "Facebook URL"=>"رابط فيسبوك",
     "Date of Birth"=>"تاريخ الميلاد",

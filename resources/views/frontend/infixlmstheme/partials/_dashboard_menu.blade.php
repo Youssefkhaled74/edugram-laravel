@@ -65,6 +65,19 @@
         </form>
     </div>
     <div class="d-flex align-items-center">
+        @if(isModuleActive('SupportTicket') && permissionCheck('student.support-ticket.index'))
+            <div class="notification_wrapper me-2">
+                <ul>
+                    <li>
+                        <a href="{{route('student.support-ticket.index')}}" title="{{__('ticket.technical_support')}}">
+                            <div class="notify_icon">
+                                <i class="fas fa-headset" style="font-size:20px; color:#2D67D8;"></i>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        @endif
         <div class="notification_wrapper" id="main-nav-for-chat">
             <ul>
 

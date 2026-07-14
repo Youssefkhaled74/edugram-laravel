@@ -142,7 +142,6 @@ class AuthController extends Controller
                 'message'   => trans('api.Email is not verified')
             ];
         } else {
-            checkGamification('each_login', 'activity');
             $response = [
                 'success'   => true,
                 'data'      => $data,

@@ -148,7 +148,7 @@ return [
 "Instructor" => "Инструктор",
 "Reviews" => "Обзоры",
 "Course Description" => "Описание курса",
-"Twitter" => "Twitter",
+"Twitter" => "X",
 "Pinterest" => "Проценты",
 "Linkedin" => "Linkedin",
 "Course Curriculum" => "Учебный план курса",
