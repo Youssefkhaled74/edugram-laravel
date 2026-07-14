@@ -240,6 +240,19 @@
                     }
                 });
 
+                //preview uploaded profile picture
+                function previewProfilePicture(input) {
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            $('#profile_picture_show').attr('src', e.target.result);
+                            $('.settings-avatar-item').removeClass('active');
+                            $('#settings_avatar_key').val('');
+                        };
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
                 //onchange cover photo
                 $(document).on('change', '#cover_photo', function () {
                     imageChangeWithFile($(this)[0], '#cover_photo_show');
@@ -412,22 +425,8 @@
                                 @endif
                                 <!-- image tab -->
                                 @include(theme('profile._images_tab'))
-                                <!-- about tab -->
-                                @include(theme('profile._about_tab'))
-                                <!-- education tab -->
-                                @include(theme('profile._education_tab'))
-                                <!-- experience tab -->
-                                @include(theme('profile._experience_tab'))
                                 <!-- skills tab -->
                                 @include(theme('profile._skills_tab'))
-                                <!-- financial tab -->
-                                @include(theme('profile._financial_tab'))
-                                <!-- api tab -->
-                                @include(theme('profile._api_tab'))
-                                <!-- extra information tab -->
-                                @include(theme('profile._extra_info_tab'))
-                                <!-- identity & documents tab -->
-                                @include(theme('profile._identity_tab'))
                                 <!-- social & contact tab -->
                                 @include(theme('profile._social_tab'))
                                 <!-- delete account -->

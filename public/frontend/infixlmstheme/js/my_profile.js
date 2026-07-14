@@ -21,6 +21,7 @@ function uploadAvatarByKey(avatarKey) {
         type: 'POST',
         contentType: false,
         processData: false,
+        timeout: 30000,
         success: function (data) {
             if (data && !data.fail) {
                 $('#show_profile_image').attr('src', data);

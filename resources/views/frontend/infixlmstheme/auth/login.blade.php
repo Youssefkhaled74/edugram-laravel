@@ -76,7 +76,10 @@
                                 <input type="password" name="password" class="form-control"
                                        autocomplete="new-password"
                                        placeholder="{{__('common.Enter Password')}}" aria-label="password"
-                                       aria-describedby="basic-addon4">
+                                       aria-describedby="basic-addon4" id="login_password">
+                                <span class="input-group-text password-toggle" onclick="togglePassword('login_password', this)" style="cursor:pointer;background:transparent;border:none;">
+                                    <i class="fas fa-eye"></i>
+                                </span>
                             </div>
                             @if($errors->first('password'))
                                 <span class="text-danger" role="alert">{{$errors->first('password')}}</span>
@@ -159,6 +162,19 @@
 
     {!! Toastr::message() !!}
     <script>
+        function togglePassword(fieldId, icon) {
+            var field = document.getElementById(fieldId);
+            var eyeIcon = icon.querySelector('i');
+            if (field.type === 'password') {
+                field.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
         $('form').submit(function (e) {
             $(":submit").attr("disabled", true);
         });

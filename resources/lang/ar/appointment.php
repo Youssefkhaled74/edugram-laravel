@@ -199,7 +199,7 @@ return [
     'Requirements' => 'المتطلبات',
     'Headline' => 'العنوان الرئيسي',
     'Select Category' => 'اختر الفئة',
-    'Privacy Policy' => 'سياسة الخصوصية',
+    'Privacy Policy' => 'سياسة حماية البيانات',
     'Terms of Service' => 'شروط الخدمة',
     'And' => 'و',
     'By clicking Save and continue, you agree to Mastery’s' => 'بالنقر على حفظ ومتابعة، فإنك توافق على شروط ماستري',

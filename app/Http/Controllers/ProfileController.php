@@ -657,17 +657,23 @@ class ProfileController extends Controller
             $avatarKeys = array_keys(config('profile_avatars.items', []));
             $rules = [
                 'avatar_key' => ['nullable', Rule::in($avatarKeys)],
+                'profile_picture' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
             ];
             $request->validate($rules, validationMessage($rules));
         }
 
         try {
             if ($user->role_id == 3) {
-                $selectedAvatarKey = $request->get('avatar_key');
-                $profileAvatars = config('profile_avatars.items', []);
-                if (!empty($selectedAvatarKey) && isset($profileAvatars[$selectedAvatarKey])) {
-                    $user->image = $profileAvatars[$selectedAvatarKey];
+                if ($request->hasFile('profile_picture')) {
+                    $user->image = $this->generateLink($request->profile_picture, $user->id, get_class($user), 'image');
                     $user->save();
+                } else {
+                    $selectedAvatarKey = $request->get('avatar_key');
+                    $profileAvatars = config('profile_avatars.items', []);
+                    if (!empty($selectedAvatarKey) && isset($profileAvatars[$selectedAvatarKey])) {
+                        $user->image = $profileAvatars[$selectedAvatarKey];
+                        $user->save();
+                    }
                 }
 
             } else {

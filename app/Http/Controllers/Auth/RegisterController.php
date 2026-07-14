@@ -159,16 +159,18 @@ class RegisterController extends Controller
             $rules = [
                 'name' => ['required', 'string', 'max:255'],
                 'phone' => 'nullable|string|regex:/^([0-9\s\-\+\(\)]*)$/|min:1|unique:users',
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'ends_with:edugram-eg.com'],
                 'password' => ['required', 'string', 'min:8', 'confirmed'],
+                'guardian_phone' => ['required', 'string', 'regex:/^([0-9\s\-\+\(\)]*)$/', 'min:8'],
                 'g-recaptcha-response' => 'required|captcha'
             ];
         } else {
             $rules = [
                 'name' => ['required', 'string', 'max:255'],
                 'phone' => 'nullable|string|regex:/^([0-9\s\-\+\(\)]*)$/|min:1|unique:users',
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'ends_with:edugram-eg.com'],
                 'password' => ['required', 'string', 'min:8', 'confirmed'],
+                'guardian_phone' => ['required', 'string', 'regex:/^([0-9\s\-\+\(\)]*)$/', 'min:8'],
             ];
         }
 
@@ -176,7 +178,7 @@ class RegisterController extends Controller
             $rules = [
                 'name' => ['required', 'string', 'max:255'],
                 'phone' => 'nullable|string|regex:/^([0-9\s\-\+\(\)]*)$/|min:1|unique:users',
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'ends_with:edugram-eg.com'],
                 'password' => ['required', 'string', 'min:8', 'confirmed'],
                 'institute_name' => ['required', 'string', 'max:255'],
                 'domain' => ['required', 'string', 'max:20', 'unique:lms_institutes'],
@@ -282,7 +284,8 @@ class RegisterController extends Controller
             'referral' => generateUniqueId(),
             'level' => $data['level'] ?? '',
             'special_commission' => null,
-            'referral_code'=>$data['referral_code']??''
+            'referral_code'=>$data['referral_code']??'',
+            'guardian_phone'=>$data['guardian_phone']??''
         ]);
     }
 

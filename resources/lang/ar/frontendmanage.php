@@ -95,7 +95,7 @@ return [
     'Update Social Setting' => 'تحديث إعدادات التواصل الاجتماعي',
 
 //privacy policy
-    'Privacy Policy' => 'سياسة الخصوصية',
+    'Privacy Policy' => 'سياسة حماية البيانات',
     'General' => 'عام',
     'Personal Data' => 'البيانات الشخصية',
     'Voluntary Disclosure' => 'الإفصاح الطوعي',
@@ -268,7 +268,7 @@ return [
     'Homepage Banner Logo' => 'شعار بانر الصفحة الرئيسية',
     'Registration Page' => 'صفحة التسجيل',
     'Forget Password Page' => 'صفحة نسيان كلمة المرور',
-    'Forget Password/Others Page' => 'صفحة نسيت كلمة المرور/أخرى',
+    'Forget Password/Others Page' => 'صفحة نسيت كلمة السر/أخرى',
     'Banner Section Show In Homepage' => 'قسم الشعار يظهر في الصفحة الرئيسية',
     'Category Section Show In Homepage' => 'قسم الفئة يظهر في الصفحة الرئيسية',
     'Instructor Section Show In Homepage' => 'عرض قسم المدرس في الصفحة الرئيسية',
@@ -287,7 +287,7 @@ return [
     'Live Class Title' => 'عنوان الحصة المباشرة',
     'Live Class Section Show In Homepage' => 'عرض قسم الحصة المباشرة في الصفحة الرئيسية',
     'View All Class' => 'عرض جميع الصفوف',
-    'Contact Us' => 'اتصل بنا',
+    'Contact Us' => 'تواصل معنا',
     'How To Buy In Homepage' => 'كيفية الشراء من الصفحة الرئيسية',
     'Popup Content' => 'محتوى النافذة المنبثقة',
     'Show In Frontend' => 'عرض في الواجهة الأمامية',

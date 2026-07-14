@@ -52,9 +52,17 @@
                             <div class="profile-photo mx-auto position-relative overflow-hidden mt-3 mt-md-4">
                                 <img id="profile_picture_show" class="h-100 object-fit-cover w-100"
                                      src="{{getProfileImage(@$user->image,$user->name)}}" alt="Profile Photo">
+                                <label for="profile_picture_upload"
+                                       class="overlay d-flex align-items-center justify-content-center fs-2 w-100 h-100 position-absolute top-0 left-0 bg-black bg-opacity-50 text-white"
+                                       style="cursor:pointer;">
+                                    <i class="fa fa-camera"></i>
+                                </label>
+                                <input type="file" class="d-none" name="profile_picture" id="profile_picture_upload"
+                                       accept=".png, .jpg, .jpeg" onchange="previewProfilePicture(this)">
                             </div>
                             <input type="hidden" name="avatar_key" id="settings_avatar_key" value="{{ $selectedAvatarKey }}">
                             @if(count($profileAvatars))
+                                <p class="mt-3 mb-1 text-muted" style="font-size:13px;">{{ __('common.Or choose from below') }}</p>
                                 <div class="settings-avatar-grid">
                                     @foreach($profileAvatars as $avatarKey => $avatarPath)
                                         <button

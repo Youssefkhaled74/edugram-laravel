@@ -3,6 +3,7 @@
 return [
     'Students' => 'الطلاب',
     'Student' => 'طالب',
+    'Guardian Phone Number' => 'رقم هاتف ولي الأمر',
     'Add Student' => 'إضافة طالب',
     'Add New Student' => 'إضافة طالب جديد',
     'Number of Students' => 'عدد الطلاب',
@@ -93,7 +94,7 @@ return [
     'Quiz you might like' => 'اختبار قد يعجبك',
     'Are you ready for your next lesson' => 'هل أنت مستعد لدروسك القادمة؟',
     'Save' => 'حفظ',
-    'My Account' => 'حسابي',
+    'My Account' => 'الملف الشخصي',
     'Pay Method' => 'طريقة الدفع',
     'Paid' => 'مدفوع',
     'Unpaid' => 'غير مدفوع',

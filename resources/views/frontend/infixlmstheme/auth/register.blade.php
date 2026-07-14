@@ -66,7 +66,7 @@
                         <div class="col-12 mt_20">
                             <div class="input-group custom_group_field">
                                 <input type="email" class="form-control ps-0" required
-                                       placeholder="{{__('common.Enter Email')}} *" aria-label="email" name="email"
+                                       placeholder="5.name@edugram-eg.com *" aria-label="email" name="email"
                                        value="{{old('email')}}">
                             </div>
                             <span class="text-danger" role="alert">{{$errors->first('email')}}</span>
@@ -85,10 +85,21 @@
                         @endif
                         <div class="col-12 mt_20">
                             <div class="input-group custom_group_field">
+                                <input type="text" class="form-control ps-0" required
+                                       placeholder="{{__('student.Guardian Phone Number')}} *"
+                                       aria-label="guardian_phone" name="guardian_phone" value="{{old('guardian_phone')}}">
+                            </div>
+                            <span class="text-danger" role="alert">{{$errors->first('guardian_phone')}}</span>
+                        </div>
+                        <div class="col-12 mt_20">
+                            <div class="input-group custom_group_field">
                                 <input type="password" class="form-control ps-0" required
                                        placeholder="{{__('frontend.Enter Password')}} *"
                                        autocomplete="new-password"
-                                       aria-label="password" name="password">
+                                       aria-label="password" name="password" id="reg_password">
+                                <span class="input-group-text password-toggle" onclick="togglePassword('reg_password', this)" style="cursor:pointer;background:transparent;border:none;">
+                                    <i class="fas fa-eye"></i>
+                                </span>
                             </div>
                             <span class="text-danger" role="alert">{{$errors->first('password')}}</span>
                         </div>
@@ -96,7 +107,10 @@
                             <div class="input-group custom_group_field">
                                 <input type="password" class="form-control ps-0" required
                                        placeholder="{{__('common.Enter Confirm Password')}} *"
-                                       name="password_confirmation" aria-label="password_confirmation">
+                                       name="password_confirmation" aria-label="password_confirmation" id="reg_password_confirmation">
+                                <span class="input-group-text password-toggle" onclick="togglePassword('reg_password_confirmation', this)" style="cursor:pointer;background:transparent;border:none;">
+                                    <i class="fas fa-eye"></i>
+                                </span>
                             </div>
                             <span class="text-danger" role="alert">{{$errors->first('password_confirmation')}}</span>
                         </div>
@@ -166,7 +180,6 @@
                                                 {{--                                                <option value="" data-display="Choose">{{__('common.Choose')}}</option>--}}
                                                 <option value="male">{{__('common.Male')}}</option>
                                                 <option value="female">{{__('common.Female')}}</option>
-                                                <option value="other">{{__('common.Other')}}</option>
                                             </select>
 
                                         </div>
@@ -299,6 +312,19 @@
 
     </div>
     <script>
+        function togglePassword(fieldId, icon) {
+            var field = document.getElementById(fieldId);
+            var eyeIcon = icon.querySelector('i');
+            if (field.type === 'password') {
+                field.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
         $(function () {
             $('#checkbox').click(function () {
 

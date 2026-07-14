@@ -830,3 +830,10 @@
 @include(theme('snippets.components._home_page_instructor_section_v7'))
 @include(theme('snippets.components._home_page_faq_section_v7'))
 @include(theme('snippets.components._home_page_cta_section_v7'))
+
+{{--homepage v8 partials--}}
+@include(theme('snippets.components._home_page_banner_v8'))
+@include(theme('snippets.components._home_page_stats_v8'))
+@include(theme('snippets.components._home_page_teachers_v8'))
+@include(theme('snippets.components._home_page_features_v8'))
+@include(theme('snippets.components._home_page_gamification_v8'))

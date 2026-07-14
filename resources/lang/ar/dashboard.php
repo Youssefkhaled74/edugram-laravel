@@ -4,7 +4,7 @@ return [
     'Dashboard' => 'لوحة التحكم',
     'Subjects' => 'المواد الدراسية',
     'Setting' => 'الإعدادات',
-    'Logout' => 'تسجيل الخروج',
+    'Logout' => 'خروج',
     'Status Overview of Topics' => 'نظرة عامة على حالة المواضيع',
     'Overview of Topics' => 'نظرة عامة على المواضيع',
     'Number of Subjects' => 'عدد المواد الدراسية',
