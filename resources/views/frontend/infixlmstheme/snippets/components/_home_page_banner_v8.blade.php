@@ -1,7 +1,6 @@
 <div data-type="component-text"
      data-preview="{{!function_exists('themeAsset')?'':themeAsset('img/snippets/preview/home/homepage_banner.jpg')}}"
      data-aoraeditor-title="Homepage V8 Banner" data-aoraeditor-categories="Home Page;Banner">
-    <link rel="stylesheet" href="{{themeAsset('css/sections/homepage_v8.css')}}">
 
     <div class="v8-banner">
         <div class="v8-banner-bg-shape"></div>
