@@ -254,10 +254,16 @@
 
 
     @if(isModuleActive("WhatsappSupport"))
-        <script src="{{ asset('public/whatsapp-support/scripts.js') }}{{assetVersion()}}"></script>
+        {{-- WhatsApp icon hidden, replaced by technical support icon --}}
+    @endif
 
-        @include('whatsappsupport::partials._popup')
-
+    @if(auth()->check() && auth()->user()->role_id == 3)
+        <a href="{{ route('student.support-ticket.index') }}"
+           class="support_icon"
+           data-tooltip="{{ __('ticket.technical_support') }}"
+           title="{{ __('ticket.technical_support') }}">
+            <i class="fas fa-headset"></i>
+        </a>
     @endif
 
     <script src="{{ asset('public/frontend/infixlmstheme/js/custom.js') }}{{assetVersion()}}"></script>

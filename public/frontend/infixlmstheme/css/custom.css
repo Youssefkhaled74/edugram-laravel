@@ -16,3 +16,79 @@
     height: 95px;
     margin-top: -33px;
 }
+
+/* Hide WhatsApp floating icon (replaced by support icon) */
+.whatsApp_icon,
+.whatsApp_icon_layout3,
+.whatsApp_popup_layout3,
+.whatsApp_popup_position {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Technical Support floating icon */
+.support_icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2D67D8, #173B78);
+    font-size: 28px;
+    line-height: 60px;
+    text-align: center;
+    color: #fff;
+    position: fixed;
+    right: 30px;
+    bottom: 90px;
+    cursor: pointer;
+    z-index: 10000;
+    box-shadow: 0 4px 20px rgba(45, 103, 216, 0.4);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.support_icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 28px rgba(45, 103, 216, 0.55);
+    color: #fff;
+    text-decoration: none;
+}
+
+.support_icon i {
+    font-size: 26px;
+}
+
+html[dir="rtl"] .support_icon {
+    right: auto;
+    left: 30px;
+}
+
+/* Tooltip for support icon */
+.support_icon[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #173B78;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    margin-bottom: 8px;
+    pointer-events: none;
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+}
+
+.support_icon[data-tooltip]:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
