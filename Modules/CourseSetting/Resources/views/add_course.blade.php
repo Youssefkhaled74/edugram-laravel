@@ -534,6 +534,15 @@
                                         class="mb-0">{{ __('courses.This course is a free course') }}</label>
                                 </div>
                             </div>
+                            <div class="col-xl-4" id="price_div">
+                                <div class="primary_input mb-25">
+                                    <label class="primary_input_label"
+                                           for="">{{ __('courses.Price') }}</label>
+                                    <input class="primary_input_field" name="price" min="0" placeholder="-" step="0.01"
+                                           id="addPrice"
+                                           type="number" value="{{old('price')}}">
+                                </div>
+                            </div>
                         </div>
                         <div class="row mt-20" id="discountDiv">
                             <div class="col-lg-4">
