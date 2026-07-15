@@ -1,8 +1,12 @@
 @php
-    $totalInstructors = countOfAllInstructors();
-    $totalCourses = countOfAllCourse();
-    $totalQuiz = countOfAllQuiz();
-    $totalStudents = countOfAllStudent();
+    use App\User;
+    use Modules\CourseSetting\Entities\Course;
+    use Modules\Quiz\Entities\QuizeSetup;
+
+    $totalInstructors = User::where('role_id', 2)->count();
+    $totalCourses = Course::count();
+    $totalQuiz = QuizeSetup::count();
+    $totalStudents = User::where('role_id', 3)->count();
 @endphp
 
 <div data-type="component-text"

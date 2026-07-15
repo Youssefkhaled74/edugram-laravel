@@ -1,5 +1,5 @@
 @php
-    $instructors = \App\User::where('user_type', 2)->where('active', 1)->take(4)->get();
+    $instructors = \App\User::where('role_id', 2)->where('active', 1)->take(4)->get();
 @endphp
 
 <div data-type="component-text"
