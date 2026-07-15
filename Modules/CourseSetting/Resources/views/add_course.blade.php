@@ -228,7 +228,7 @@
                                 </div>
                             </div>
                         @endif
-                        <div class="col-xl-6">
+                        <!-- <div class="col-xl-6">
                             <div class="primary_input mb-25">
                                 <label class="primary_input_label"
                                        for="assistant_instructors">{{__('courses.Assistant Instructor')}} </label>
@@ -240,7 +240,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                        </div>
+                        </div> -->
 
                     </div>
                     @php
