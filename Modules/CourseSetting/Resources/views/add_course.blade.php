@@ -425,23 +425,7 @@
                             </select>
                         </div>
 
-
-                        <div class="col-xl-4 makeResize ">
-                            <label class="primary_input_label d-flex"
-                                   for="">{{ __('courses.Level') }}<span class="required_mark">*</span>
-                            </label>
-                            <select class="primary_select" name="level">
-{{--                                <option--}}
-{{--                                    data-display="{{ __('common.Select') }} {{ __('courses.Level') }}"--}}
-{{--                                    value="">{{ __('common.Select') }} {{ __('courses.Level') }}--}}
-{{--                                </option>--}}
-                                @foreach($levels as $level)
-                                    <option
-                                        value="{{$level->id}}" {{old('level')==$level->id?"selected":""}} >{{$level->title}}</option>
-                                @endforeach
-
-                            </select>
-                        </div>
+                        <input type="hidden" name="level" value="1">
                         <div class="col-xl-4 makeResize responsiveResize" id="">
                             <label class="primary_input_label d-flex"
                                    for="">{{ __('common.Language') }}<span class="required_mark">*</span>
