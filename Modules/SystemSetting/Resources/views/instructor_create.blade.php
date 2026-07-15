@@ -258,7 +258,7 @@
                 var $sub = $('#subcategory_id');
                 $sub.html('<option value="">{{ __("common.Select One") }}</option>');
                 if (!categoryId) return;
-                $.get('{{ url("/admin/get-subcategories") }}/' + categoryId, function (data) {
+                $.get('{{ url("/admin/systemsetting/get-subcategories") }}/' + categoryId, function (data) {
                     $.each(data, function (i, item) {
                         var selected = (selectCurrent && item.id == currentSubcategory) ? ' selected' : '';
                         $sub.append('<option value="' + item.id + '"' + selected + '>' + item.name + '</option>');

@@ -1,6 +1,6 @@
-    <?php
+<?php
 
-    namespace Modules\SystemSetting\Http\Controllers;
+namespace Modules\SystemSetting\Http\Controllers;
 
     use App\Http\Controllers\Controller;
     use App\Models\UserDocument;
@@ -112,6 +112,8 @@
                 $user->twitter = $request->twitter;
                 $user->linkedin = $request->linkedin;
                 $user->instagram = $request->instagram;
+                $user->category_id = $request->category_id;
+                $user->subcategory_id = $request->subcategory_id;
                 $user->added_by = Auth::user()->id;
                 $user->email_verify = 1;
                 $user->email_verified_at = now();
@@ -296,6 +298,8 @@
                 $user->instagram = $request->instagram;
                 $user->about = $request->about;
                 $user->dob = getPhpDateFormat($request->dob);
+                $user->category_id = $request->category_id;
+                $user->subcategory_id = $request->subcategory_id;
                 if (empty($request->phone)) {
                     $user->phone = null;
                 } else {
