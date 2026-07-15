@@ -258,7 +258,7 @@
     @endif
 
     @if(auth()->check() && auth()->user()->role_id == 3)
-        <a href="{{ route('student.support-ticket.index') }}"
+        <a href="{{ url('/contact-us') }}"
            class="support_icon"
            data-tooltip="{{ __('ticket.technical_support') }}"
            title="{{ __('ticket.technical_support') }}">
