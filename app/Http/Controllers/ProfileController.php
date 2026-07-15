@@ -665,7 +665,7 @@ class ProfileController extends Controller
         try {
             if ($user->role_id == 3) {
                 if ($request->hasFile('profile_picture')) {
-                    $user->image = $this->generateLink($request->profile_picture, $user->id, get_class($user), 'image');
+                    $user->image = $this->saveImage($request->profile_picture);
                     $user->save();
                 } else {
                     $selectedAvatarKey = $request->get('avatar_key');
