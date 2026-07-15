@@ -174,7 +174,7 @@
                         @endif
                     </li>
                 @endif
-                @if(Settings('gamification_status') && Settings('gamification_leaderboard_status'))
+                @if(Settings('gamification_status') && Settings('gamification_leaderboard_status') && auth()->user()->role_id != 2)
                     <li class="">
                         <button title=" {{__('common.points')}}"
                                 class="theme_btn small_btn point_btn gap-1 d-flex align-items-center">

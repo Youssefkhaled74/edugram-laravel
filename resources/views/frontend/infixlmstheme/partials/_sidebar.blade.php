@@ -572,7 +572,7 @@
                         </a>
                     </li>
                 @endif
-                @if (permissionCheck('student.gamification.reward') && showEcommerce() && Settings('gamification_status'))
+                @if (permissionCheck('student.gamification.reward') && showEcommerce() && Settings('gamification_status') && auth()->user()->role_id != 2)
                     <li>
                         <a href="{{route('student.gamification.reward')}}"
                            class=" d-flex align-items-center {{ routeIs('student.gamification.reward')  ? 'active' : '' }}">

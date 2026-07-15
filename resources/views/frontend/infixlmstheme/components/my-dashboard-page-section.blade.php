@@ -9,7 +9,7 @@
 
 
 
-        $isGamification =Settings('gamification_status') && Settings('gamification_leaderboard_show_badges_status');
+        $isGamification =Settings('gamification_status') && Settings('gamification_leaderboard_show_badges_status') && auth()->user()->role_id != 2;
 
         if (count($noticeboards)==0 && !$isGamification){
             $col =12;
@@ -318,7 +318,7 @@
 
                         </div>
                     @endif
-                    @if(Settings('gamification_status') && Settings('gamification_leaderboard_show_badges_status'))
+                    @if(Settings('gamification_status') && Settings('gamification_leaderboard_show_badges_status') && auth()->user()->role_id != 2)
                         <div class="dashboard_card dashboard_badge">
                             <div class="head mb-4">
                                 <h4>{{__('frontend.Upcoming Badge')}}</h4>

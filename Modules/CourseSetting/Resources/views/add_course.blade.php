@@ -534,24 +534,6 @@
                                         class="mb-0">{{ __('courses.This course is a free course') }}</label>
                                 </div>
                             </div>
-                            <div class="col-xl-4" id="price_div">
-                                <div class="primary_input mb-25">
-                                    <label class="primary_input_label"
-                                           for="">{{ __('courses.Price') }}</label>
-                                    <input class="primary_input_field" name="price" min="0" placeholder="-" step="0.01"
-                                           id="addPrice"
-                                           type="number" value="{{old('price')}}">
-                                </div>
-                            </div>
-                            <div class="col-xl-4">
-                                <div class="primary_input mb-25">
-                                    <label class="primary_input_label"
-                                           for="">{{ __('courses.Price Text') }}</label>
-                                    <input class="primary_input_field" name="price_text"   placeholder="-"
-                                           id=" "
-                                           type="text" value="{{old('price_text')}}">
-                                </div>
-                            </div>
                         </div>
                         <div class="row mt-20" id="discountDiv">
                             <div class="col-lg-4">
@@ -571,30 +553,6 @@
                                     <input class="primary_input_field" min="0" name="discount_price" placeholder="-"  step="0.01"
                                            id="addDiscount"
                                            type="number" value="{{old('discount_price')}}">
-                                </div>
-                            </div>
-                        </div>
-
-
-
-                        <div class="row mt-20">
-                            <div class="col-lg-6 mb-25">
-                                <div class="checkbox_wrap d-flex align-items-center mt-40">
-                                    <label for="iap" class="switch_toggle me-2">
-                                        <input type="checkbox" id="iap" value="1" name="iap">
-                                        <i class="slider round"></i>
-                                    </label>
-                                    <label
-                                        class="mb-0">{{ __('courses.This course is a In App purchase course') }}</label>
-                                </div>
-                            </div>
-                            <div class="col-xl-6 d-none" id="iap_div">
-                                <div class="primary_input mb-25">
-                                    <label class="primary_input_label"
-                                           for="">{{ __('courses.In App purchase product ID') }}</label>
-                                    <input class="primary_input_field" name="iap_product_id" placeholder="-"
-                                           id=""
-                                           type="text" value="{{old('iap_product_id')}}">
                                 </div>
                             </div>
                         </div>
@@ -1040,14 +998,6 @@
                 if ($('#type2').is(':checked')) {
                     $('.quizBox').show();
                 }
-            }
-        });
-
-        $('#iap').change(function () {
-            if ($('#iap').is(':checked')) {
-                $('#iap_div').removeClass('d-none');
-            } else {
-                $('#iap_div').addClass('d-none');
             }
         });
 
