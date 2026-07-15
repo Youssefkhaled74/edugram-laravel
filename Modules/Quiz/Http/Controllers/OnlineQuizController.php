@@ -177,6 +177,12 @@ class OnlineQuizController extends Controller
             });
         }
 
+        if (Auth::user()->role_id == 2) {
+            $query->whereHas('course', function ($q) {
+                $q->where('user_id', Auth::id());
+            });
+        }
+
 
         return $query;
     }
