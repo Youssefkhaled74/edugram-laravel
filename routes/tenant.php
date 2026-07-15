@@ -36,6 +36,7 @@ Route::group(['namespace' => 'Frontend'], function () {
     Route::get('/contact-us', 'WebsiteController@contact')->name('contact');
     Route::post('/contact-submit', 'WebsiteController@contactMsgSubmit')->name('contactMsgSubmit');
     Route::get('privacy', 'WebsiteController@privacy')->name('privacy');
+    Route::get('terms', 'WebsiteController@terms')->name('terms');
     Route::get('calendar-view', 'WebsiteController@calendarView')->name('calendar-view');
 
     Route::get('instructors', 'InstructorController@instructors')->name('instructors');

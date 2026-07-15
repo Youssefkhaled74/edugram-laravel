@@ -412,6 +412,11 @@ class WebsiteController extends Controller
         }
     }
 
+    public function terms()
+    {
+        return view(theme('pages.terms'));
+    }
+
 
     public function fullScreenView(Request $request, $course_id, $lesson_id)
     {
