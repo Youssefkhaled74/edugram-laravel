@@ -52,6 +52,29 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-xl-6">
+                                            <div class="primary_input mb-25">
+                                                <label class="primary_input_label"
+                                                       for="">{{__('common.Category')}}</label>
+                                                <select class="primary_input_field" name="category_id" id="category_id">
+                                                    <option value="">{{__('common.Select One')}}</option>
+                                                    @foreach(\Modules\CourseSetting\Entities\Category::where('parent_id', NULL)->where('status', 1)->orderBy('position_order')->get() as $cat)
+                                                        <option value="{{$cat->id}}" {{old('category_id', isset($user)?$user->category_id:'') == $cat->id ? 'selected' : ''}}>{{$cat->name}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-6">
+                                            <div class="primary_input mb-25">
+                                                <label class="primary_input_label"
+                                                       for="">{{__('common.Sub Category')}}</label>
+                                                <select class="primary_input_field" name="subcategory_id" id="subcategory_id">
+                                                    <option value="">{{__('common.Select One')}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xl-6">
                                             <div class="primary_input mb-15">
                                                 <label class="primary_input_label" for="">{{__('common.Date of Birth')}}
                                                 </label>
@@ -226,5 +249,32 @@
 @push('scripts')
 
     <script src="{{asset('public/backend/js/student_list.js')}}"></script>
+
+    <script>
+        $(document).ready(function () {
+            var currentSubcategory = '{{ old("subcategory_id", isset($user) ? $user->subcategory_id : "") }}';
+
+            function loadSubcategories(categoryId, selectCurrent) {
+                var $sub = $('#subcategory_id');
+                $sub.html('<option value="">{{ __("common.Select One") }}</option>');
+                if (!categoryId) return;
+                $.get('{{ url("/admin/get-subcategories") }}/' + categoryId, function (data) {
+                    $.each(data, function (i, item) {
+                        var selected = (selectCurrent && item.id == currentSubcategory) ? ' selected' : '';
+                        $sub.append('<option value="' + item.id + '"' + selected + '>' + item.name + '</option>');
+                    });
+                });
+            }
+
+            var initialCategory = '{{ old("category_id", isset($user) ? $user->category_id : "") }}';
+            if (initialCategory) {
+                loadSubcategories(initialCategory, true);
+            }
+
+            $('#category_id').on('change', function () {
+                loadSubcategories($(this).val(), false);
+            });
+        });
+    </script>
 
 @endpush
