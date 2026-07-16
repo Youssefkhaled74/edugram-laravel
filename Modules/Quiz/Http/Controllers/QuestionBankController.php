@@ -67,6 +67,12 @@ class QuestionBankController extends Controller
             return false;
         }
         return QuestionGroup::where('id', $groupId)
+            ->where('user_id', Auth::id())->exists();
+    }
+        if (empty($groupId)) {
+            return false;
+        }
+        return QuestionGroup::where('id', $groupId)
             ->where('user_id', Auth::id())
             ->exists();
     }
@@ -109,6 +115,16 @@ class QuestionBankController extends Controller
             if ((int)$user->role_id === 2) {
                 $query->where('user_id', $user->id);
             }
+            if (isModuleActive('Organization') && $user->isOrganization()) {
+                $query->whereHas('user', function ($q) {
+                    $q->where('organization_id', Auth::id());
+                    $q->orWhere('id', Auth::id());
+                });
+            }
+            $groups = $query->orderBy('id', 'DESC')->get();
+        }
+        return $groups;
+    }
             if (isModuleActive('Organization') && $user->isOrganization()) {
                 $query->whereHas('user', function ($q) {
                     $q->where('organization_id', Auth::id());

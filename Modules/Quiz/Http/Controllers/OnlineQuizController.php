@@ -842,6 +842,10 @@ class OnlineQuizController extends Controller
     {
         try {
             $online_exam_question = OnlineQuiz::find($id);
+            if (!$online_exam_question || !$this->teacherOwnsQuiz($online_exam_question)) {
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
+                return redirect()->route('online-quiz');
+            }
             $students = User::where('role_id', 3)->get();
             $present_students = [];
             foreach ($students as $student) {
@@ -1039,6 +1043,17 @@ class OnlineQuizController extends Controller
 
         try {
             $test = QuizTest::where('id', $request->quizTestId)->with('details', 'user')->first();
+
+            if (!$test) {
+                Toastr::error(trans('common.Operation failed'), trans('common.Failed'));
+                return redirect()->back();
+            }
+
+            $ownerQuiz = OnlineQuiz::find($test->quiz_id);
+            if (!$ownerQuiz || !$this->teacherOwnsQuiz($ownerQuiz)) {
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
+                return redirect()->back();
+            }
 
             if ($test->publish == 1) {
                 Toastr::error(trans('quiz.Marks Already Given'), trans('common.Failed'));

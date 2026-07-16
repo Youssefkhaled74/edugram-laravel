@@ -27,8 +27,6 @@ class QuizController extends Controller
         }
         return (int)$group->user_id === (int)$user->id;
     }
-        return (int)$group->user_id === (int)$user->id;
-    }
 
     private function canManageOwnGroup(QuestionGroup $group): bool
     {
