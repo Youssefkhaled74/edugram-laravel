@@ -56,6 +56,16 @@ class OnlineQuizController extends Controller
         }
         return QuestionBank::where('id', $questionId)->where('user_id', Auth::id())->exists();
     }
+    private function teacherCanUseGroup(?int $groupId): bool
+    {
+        if (!$this->isTeacher()) {
+            return true;
+        }
+        if (empty($groupId)) {
+            return true;
+        }
+        return QuestionGroup::where('id', $groupId)->where('user_id', Auth::id())->exists();
+    }
 
     public function index()
     {
@@ -68,15 +78,7 @@ class OnlineQuizController extends Controller
                 $user = Auth::user();
                 $query = OnlineQuiz::query();
                 if ($user->role_id == 2) {
-                    $quiz_ids = [];
-                    if (isModuleActive('OrgInstructorPolicy')) {
-                        $ids = $user->policy->course_assigns->pluck('course_id')->toArray();
-                        $course_quiz_ids = Course::select('quiz_id')->whereNotNull('quiz_id')->whereIn('id', $ids)->get()->pluck('quiz_id')->toArray();
-                        $lesson_quiz_ids = Lesson::select('quiz_id')->whereNotNull('quiz_id')->whereIn('id', $ids)->get()->pluck('quiz_id')->toArray();
-                        $quiz_ids = array_merge($course_quiz_ids, $lesson_quiz_ids);
-
-                    }
-                    $query->where('created_by', $user->id)->orWhereIn('id', $quiz_ids);
+                    $query->where('created_by', $user->id);
                 } else {
                     if (isModuleActive('Organization') && Auth::user()->isOrganization()) {
                         $query->whereHas('user', function ($q) {
@@ -363,6 +365,10 @@ class OnlineQuizController extends Controller
             if (empty($group)) {
                 $group = null;
             }
+            if (!$this->teacherCanUseGroup($group ? (int)$group : null)) {
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
+                return redirect()->back();
+            }
             $online_exam = new OnlineQuiz();
             foreach ($request->title as $key => $title) {
                 $online_exam->setTranslation('title', $key, $title);
@@ -490,15 +496,7 @@ class OnlineQuizController extends Controller
                 $user = Auth::user();
                 $query = OnlineQuiz::query();
                 if ($user->role_id == 2) {
-                    $quiz_ids = [];
-                    if (isModuleActive('OrgInstructorPolicy')) {
-                        $ids = $user->policy->course_assigns->pluck('course_id')->toArray();
-                        $course_quiz_ids = Course::select('quiz_id')->whereNotNull('quiz_id')->whereIn('id', $ids)->get()->pluck('quiz_id')->toArray();
-                        $lesson_quiz_ids = Lesson::select('quiz_id')->whereNotNull('quiz_id')->whereIn('id', $ids)->get()->pluck('quiz_id')->toArray();
-                        $quiz_ids = array_merge($course_quiz_ids, $lesson_quiz_ids);
-
-                    }
-                    $query->where('created_by', $user->id)->orWhereIn('id', $quiz_ids);
+                    $query->where('created_by', $user->id);
                 } else {
                     if (isModuleActive('Organization') && Auth::user()->isOrganization()) {
                         $query->whereHas('user', function ($q) {
@@ -564,6 +562,10 @@ class OnlineQuizController extends Controller
             $group = $request->group_id;
             if (empty($group)) {
                 $group = null;
+            }
+            if (!$this->teacherCanUseGroup($group ? (int)$group : null)) {
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
+                return redirect()->back();
             }
             $online_exam = OnlineQuiz::find($id);
             if (!$online_exam || !$this->teacherOwnsQuiz($online_exam)) {
@@ -985,6 +987,9 @@ class OnlineQuizController extends Controller
 
         try {
             $question_bank = QuestionBank::find($id);
+            if (!$question_bank || !$this->teacherCanUseQuestion((int)$question_bank->id)) {
+                abort(403);
+            }
             return view('quiz::online_eaxm_question_view_modal', compact('question_bank'));
         } catch (Exception $e) {
             GettingError($e->getMessage(), url()->current(), request()->ip(), request()->userAgent());
@@ -1115,6 +1120,10 @@ class OnlineQuizController extends Controller
             }
 
             $quiz = OnlineQuiz::find($id);
+            if (!$quiz || !$this->teacherOwnsQuiz($quiz)) {
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
+                return redirect()->route('online-quiz');
+            }
             if (empty($quiz_type)) {
                 $quizTests = QuizTest::where('quiz_id', $quiz->id)->with('details', 'quiz', 'user', 'course')->get();
             } else {
@@ -1162,6 +1171,14 @@ class OnlineQuizController extends Controller
     {
         try {
             $quizTest = QuizTest::where('id', $quiz_test_id)->with('details', 'user')->first();
+            if (!$quizTest) {
+                abort(404);
+            }
+            $ownerQuiz = OnlineQuiz::find($quizTest->quiz_id);
+            if (!$ownerQuiz || !$this->teacherOwnsQuiz($ownerQuiz)) {
+                Toastr::error(trans('frontend.Permission Denied'), trans('common.Failed'));
+                return redirect()->route('online-quiz');
+            }
             $data = [];
 
             $user = $quizTest->user->id;
@@ -1321,6 +1338,13 @@ class OnlineQuizController extends Controller
     public function quizReTest($id)
     {
         $test = QuizTest::find($id);
+        if ($test) {
+            $quiz = OnlineQuiz::find($test->quiz_id);
+            if (!$quiz || !$this->teacherOwnsQuiz($quiz)) {
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
+                return redirect()->route('online-quiz');
+            }
+        }
         if ($test) {
             $details = $test->details;
             foreach ($details as $item) {

@@ -67,9 +67,8 @@ class QuestionBankController extends Controller
             return false;
         }
         return QuestionGroup::where('id', $groupId)
-            ->where(function ($q) {
-                $q->where('user_id', Auth::id())->orWhere('user_id', 1);
-            })->exists();
+            ->where('user_id', Auth::id())
+            ->exists();
     }
 
     private function teacherCanAccessQuestion(QuestionBank $question): bool
@@ -103,16 +102,12 @@ class QuestionBankController extends Controller
         $user = Auth::user();
         if (isModuleActive('AdvanceQuiz') && $user->role_id == 2) {
             $groups = QuestionGroup::where('parent_id', 0)
-                ->where(function ($q) use ($user) {
-                    $q->where('user_id', $user->id)->orWhere('user_id', 1);
-                })
+                ->where('user_id', $user->id)
                 ->with('parent', 'childs')->orderBy('order', 'asc')->get();
         } else {
             $query = QuestionGroup::where('active_status', 1);
             if ((int)$user->role_id === 2) {
-                $query->where(function ($q) use ($user) {
-                    $q->where('user_id', $user->id)->orWhere('user_id', 1);
-                });
+                $query->where('user_id', $user->id);
             }
             if (isModuleActive('Organization') && $user->isOrganization()) {
                 $query->whereHas('user', function ($q) {
@@ -148,6 +143,10 @@ class QuestionBankController extends Controller
             $groups = $this->questionGroups();
             $banks = [];
             $bank = QuestionBank::with('category', 'subCategory', 'questionGroup')->find($id);
+            if (!$bank || !$this->teacherCanAccessQuestion($bank)) {
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
+                return redirect()->route('question-bank-list');
+            }
             $categories = Category::where('status', 1)->orderBy('position_order', 'asc')->get();
 
             //return $bank;
@@ -449,6 +448,11 @@ class QuestionBankController extends Controller
 
 
         try {
+            $targetQuestion = QuestionBank::findOrFail($id);
+            if (!$this->teacherCanAccessQuestion($targetQuestion) || !$this->teacherCanUseGroup((int)$request->group)) {
+                Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
+                return redirect()->back();
+            }
             if ($request->question_type != 'M') {
                 $online_question = QuestionBank::find($id);
                 $online_question->type = $request->question_type;
@@ -565,6 +569,10 @@ class QuestionBankController extends Controller
         }
 
         $this->validate($request, $rules, validationMessage($rules));
+        if (!$this->teacherCanUseGroup((int)$request->group)) {
+            Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
+            return redirect()->back();
+        }
         try {
             if ($request->question_type != 'M') {
                 $online_question = new QuestionBank();

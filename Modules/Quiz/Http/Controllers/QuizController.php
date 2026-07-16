@@ -25,8 +25,7 @@ class QuizController extends Controller
         if ((int)$user->role_id !== 2) {
             return true;
         }
-        // Allow teacher owned groups and intentionally global groups (user_id = 1).
-        return (int)$group->user_id === (int)$user->id || (int)$group->user_id === 1;
+        return (int)$group->user_id === (int)$user->id;
     }
 
     private function canManageOwnGroup(QuestionGroup $group): bool
@@ -130,9 +129,7 @@ class QuizController extends Controller
             } else {
                 $query = QuestionGroup::query();
                 if ((int)Auth::user()->role_id === 2) {
-                    $query->where(function ($q) {
-                        $q->where('user_id', Auth::id())->orWhere('user_id', 1);
-                    });
+                    $query->where('user_id', Auth::id());
                 }
                 if (isModuleActive('Organization') && Auth::user()->isOrganization()) {
                     $query->whereHas('user', function ($q) {
@@ -205,9 +202,7 @@ class QuizController extends Controller
             }
             $query = QuestionGroup::where('active_status', 1);
             if ((int)$user->role_id === 2) {
-                $query->where(function ($q) {
-                    $q->where('user_id', Auth::id())->orWhere('user_id', 1);
-                });
+                $query->where('user_id', Auth::id());
             }
             if (isModuleActive('Organization') && $user->isOrganization()) {
                 $query->whereHas('user', function ($q) {
