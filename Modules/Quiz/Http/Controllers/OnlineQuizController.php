@@ -62,7 +62,7 @@ class OnlineQuizController extends Controller
             return true;
         }
         if (empty($groupId)) {
-            return true;
+            return false;
         }
         return QuestionGroup::where('id', $groupId)->where('user_id', Auth::id())->exists();
     }
