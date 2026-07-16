@@ -427,12 +427,25 @@ namespace Modules\SystemSetting\Http\Controllers;
 
         public function getSubcategories($categoryId)
         {
-            $subcategories = \Modules\CourseSetting\Entities\SubCategory::where('category_id', $categoryId)
+            $subsFromCategories = \Modules\CourseSetting\Entities\Category::where('parent_id', $categoryId)
                 ->where('status', 1)
                 ->orderBy('position_order')
                 ->select('id', 'name')
                 ->get();
-            return response()->json($subcategories);
+
+            if ($subsFromCategories->isNotEmpty()) {
+                $subsFromCategories->each(function ($item) {
+                    $item->name = $item->getTranslation('name', app()->getLocale()) ?? $item->getTranslation('name', config('app.fallback_locale')) ?? (is_array($item->name) ? reset($item->name) : $item->name);
+                });
+                return response()->json($subsFromCategories);
+            }
+
+            $subsFromTable = \Modules\CourseSetting\Entities\SubCategory::where('category_id', $categoryId)
+                ->where('status', 1)
+                ->orderBy('position_order')
+                ->select('id', 'name')
+                ->get();
+            return response()->json($subsFromTable);
         }
 
     }
