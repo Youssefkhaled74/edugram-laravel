@@ -427,7 +427,7 @@ namespace Modules\SystemSetting\Http\Controllers;
 
         public function getSubcategories($categoryId)
         {
-            $subcategories = \Modules\CourseSetting\Entities\Category::where('parent_id', $categoryId)
+            $subcategories = \Modules\CourseSetting\Entities\SubCategory::where('category_id', $categoryId)
                 ->where('status', 1)
                 ->orderBy('position_order')
                 ->select('id', 'name')

@@ -69,13 +69,6 @@ class QuestionBankController extends Controller
         return QuestionGroup::where('id', $groupId)
             ->where('user_id', Auth::id())->exists();
     }
-        if (empty($groupId)) {
-            return false;
-        }
-        return QuestionGroup::where('id', $groupId)
-            ->where('user_id', Auth::id())
-            ->exists();
-    }
 
     private function teacherCanAccessQuestion(QuestionBank $question): bool
     {
