@@ -295,6 +295,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin', 'as' => 'admin.', 'mi
     Route::post('/get-user-data/{id}', 'AdminController@getUserDate')->name('getUserDate');
     Route::post('remove-image', 'AdminController@removeImageByAjax')->name('removeImageByAjax');
 
+    Route::get('/get-subcategories/{id}', '\Modules\SystemSetting\Http\Controllers\InstructorSettingController@getSubcategories');
+
 
     Route::get('/reveune-list', 'AdminController@reveuneList')->name('reveuneList')->middleware('RoutePermissionCheck:admin.reveuneList');
     Route::get('/reveuneListInstructor', 'AdminController@reveuneListInstructor')->name('reveuneListInstructor')->middleware('RoutePermissionCheck:admin.reveuneListInstructor');

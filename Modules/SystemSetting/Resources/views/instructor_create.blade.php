@@ -57,7 +57,15 @@
                                                        for="">{{__('common.Category')}}</label>
                                                 <select class="primary_input_field" name="category_id" id="category_id">
                                                     <option value="">{{__('common.Select One')}}</option>
-                                                    @foreach(\Modules\CourseSetting\Entities\Category::where('parent_id', NULL)->where('status', 1)->orderBy('position_order')->get() as $cat)
+                                                    @php
+                                                        $parentCategories = \Modules\CourseSetting\Entities\Category::where('parent_id', NULL)->where('status', 1)->orderBy('position_order')->get();
+                                                        $allSubCategories = \Modules\CourseSetting\Entities\SubCategory::where('status', 1)->get()->keyBy('category_id');
+                                                        $subCatsFromCategories = \Modules\CourseSetting\Entities\Category::where('parent_id', '!=', NULL)->where('status', 1)->get()->keyBy('parent_id');
+                                                    @endphp
+                                                    @foreach($parentCategories as $cat)
+                                                        @php
+                                                            $subKey = 'cat_' . $cat->id;
+                                                        @endphp
                                                         <option value="{{$cat->id}}" {{old('category_id', isset($user)?$user->category_id:'') == $cat->id ? 'selected' : ''}}>{{$cat->name}}</option>
                                                     @endforeach
                                                 </select>
@@ -250,19 +258,36 @@
 
     <script src="{{asset('public/backend/js/student_list.js')}}"></script>
 
+    @php
+        $subCatsFromCategories = \Modules\CourseSetting\Entities\Category::where('parent_id', '!=', NULL)->where('status', 1)->get();
+        $allSubCategories = \Modules\CourseSetting\Entities\SubCategory::where('status', 1)->get();
+        $subData = [];
+        foreach ($subCatsFromCategories as $sc) {
+            $catId = $sc->parent_id;
+            if (!isset($subData[$catId])) $subData[$catId] = [];
+            $name = is_array($sc->name) ? ($sc->getTranslation('name', app()->getLocale()) ?? reset($sc->name)) : $sc->name;
+            $subData[$catId][] = ['id' => (int)$sc->id, 'name' => $name];
+        }
+        foreach ($allSubCategories as $sc) {
+            $catId = $sc->category_id;
+            if (!isset($subData[$catId])) $subData[$catId] = [];
+            $subData[$catId][] = ['id' => (int)$sc->id, 'name' => (string)$sc->name];
+        }
+    @endphp
+
     <script>
         $(document).ready(function () {
             var currentSubcategory = '{{ old("subcategory_id", isset($user) ? $user->subcategory_id : "") }}';
+            var subCategoriesData = {!! json_encode($subData) !!};
 
             function loadSubcategories(categoryId, selectCurrent) {
                 var $sub = $('#subcategory_id');
                 $sub.html('<option value="">{{ __("common.Select One") }}</option>');
                 if (!categoryId) return;
-                $.get('{{ url("/admin/systemsetting/get-subcategories") }}/' + categoryId, function (data) {
-                    $.each(data, function (i, item) {
-                        var selected = (selectCurrent && item.id == currentSubcategory) ? ' selected' : '';
-                        $sub.append('<option value="' + item.id + '"' + selected + '>' + item.name + '</option>');
-                    });
+                var items = subCategoriesData[categoryId] || [];
+                $.each(items, function (i, item) {
+                    var selected = (selectCurrent && item.id == currentSubcategory) ? ' selected' : '';
+                    $sub.append('<option value="' + item.id + '"' + selected + '>' + item.name + '</option>');
                 });
             }
 

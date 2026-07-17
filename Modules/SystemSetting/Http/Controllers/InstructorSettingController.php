@@ -427,25 +427,32 @@ namespace Modules\SystemSetting\Http\Controllers;
 
         public function getSubcategories($categoryId)
         {
-            $subsFromCategories = \Modules\CourseSetting\Entities\Category::where('parent_id', $categoryId)
-                ->where('status', 1)
-                ->orderBy('position_order')
-                ->select('id', 'name')
-                ->get();
+            $categoryId = (int) $categoryId;
+            $results = collect();
 
-            if ($subsFromCategories->isNotEmpty()) {
-                $subsFromCategories->each(function ($item) {
-                    $item->name = $item->getTranslation('name', app()->getLocale()) ?? $item->getTranslation('name', config('app.fallback_locale')) ?? (is_array($item->name) ? reset($item->name) : $item->name);
-                });
-                return response()->json($subsFromCategories);
+            if (\Illuminate\Support\Facades\Schema::hasColumn('sub_categories', 'category_id')) {
+                $results = \Modules\CourseSetting\Entities\SubCategory::where('category_id', $categoryId)
+                    ->where('status', 1)
+                    ->orderBy('position_order')
+                    ->select('id', 'name')
+                    ->get();
             }
 
-            $subsFromTable = \Modules\CourseSetting\Entities\SubCategory::where('category_id', $categoryId)
-                ->where('status', 1)
-                ->orderBy('position_order')
-                ->select('id', 'name')
-                ->get();
-            return response()->json($subsFromTable);
+            if ($results->isEmpty() && \Illuminate\Support\Facades\Schema::hasColumn('categories', 'parent_id')) {
+                $results = \Modules\CourseSetting\Entities\Category::where('parent_id', $categoryId)
+                    ->where('status', 1)
+                    ->orderBy('position_order')
+                    ->select('id', 'name')
+                    ->get()
+                    ->map(function ($item) {
+                        if (is_array($item->name)) {
+                            $item->name = $item->getTranslation('name', app()->getLocale()) ?? reset($item->name);
+                        }
+                        return $item;
+                    });
+            }
+
+            return response()->json($results);
         }
 
     }
