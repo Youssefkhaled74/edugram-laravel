@@ -4,9 +4,10 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 col-xl-3">
-                    <x-class-page-section-sidebar :level="$level" :type="$type" :categories="$categories"
-                                                  :category="$category" :languages="$languages" :language="$language"
-                                                  :mode="$mode"/>
+                    <x-class-page-section-sidebar :subcategories="$subcategories ?? collect()" :subCat="$subCat ?? ''" :type="$type"
+                                                   :categories="$categories"
+                                                   :category="$category" :languages="$languages" :language="$language"
+                                                   :mode="$mode"/>
                 </div>
                 <div class="col-lg-8 col-xl-9">
                     <div class="row">

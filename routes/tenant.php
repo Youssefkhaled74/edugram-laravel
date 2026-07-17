@@ -158,6 +158,8 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['student']], function 
     Route::get('my-assignment', 'StudentController@myAssignment')->name('myAssignment');
     Route::get('my-assignment/{id}', 'StudentController@myAssignmentDetails')->name('myAssignment_details');
     Route::get('my-wishlist', 'StudentController@myWishlists')->name('myWishlists');
+    Route::get('bookmarkSave/{id}', '\Modules\StudentSetting\Http\Controllers\BookmarkController@bookmarkSave')->name('bookmarkSave');
+    Route::get('bookmarksDelete/{id}', '\Modules\StudentSetting\Http\Controllers\BookmarkController@bookmarksDelete')->name('bookmarksDelete');
     Route::get('my-purchases', 'StudentController@myPurchases')->name('myPurchases');
     Route::get('my-refund-dispute', 'StudentController@myRefundDispute')->name('myRefundDispute');
     Route::get('/my-refund-details/{id}', 'StudentController@my_refund_show')->name('refund.frontend.my_refund_order_detail');

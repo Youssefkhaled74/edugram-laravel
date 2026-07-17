@@ -51,6 +51,26 @@
                 </div>
             @endif
 
+            @if(isset($subcategories) && $subcategories->count())
+            <div class="single_course_categry">
+                <h4 class="font_18 f_w_700">
+                    {{__('common.Sub Category')}}
+                </h4>
+                <ul class="Check_sidebar">
+                    @foreach($subcategories as $sub)
+                        <li>
+                            <label class="primary_checkbox d-flex">
+                                <input type="checkbox" value="{{$sub->id}}"
+                                       class="subcategory" {{in_array($sub->id, explode(',', $subCat)) ? 'checked' : ''}}>
+                                <span class="checkmark mr_15"></span>
+                                <span class="label_name">{{$sub->name}}</span>
+                            </label>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
             <div class="single_course_categry">
                 <h4 class="font_18 f_w_700">
                     {{__('frontend.Class Price')}}

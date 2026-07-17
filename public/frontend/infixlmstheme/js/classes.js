@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    $("#order,  .price,  .language, .level, .category").on('change keyup paste', function (e) {
+    $("#order,  .price,  .language, .category, .subcategory").on('change keyup paste', function (e) {
         ApplyFilter();
     });
 });
@@ -21,18 +21,18 @@ function ApplyFilter() {
     });
     url += '&language=' + language.toString();
 
-
-    var level = [];
-    $('.level:checked').each(function (i) {
-        level[i] = $(this).val();
-    });
-    url += '&level=' + level.toString();
-
     var category = [];
     $('.category:checked').each(function (i) {
         category[i] = $(this).val();
     });
     url += '&category=' + category.toString();
+
+    var subcategory = [];
+    $('.subcategory:checked').each(function (i) {
+        subcategory[i] = $(this).val();
+    });
+    url += '&sub-category=' + subcategory.toString();
+
     url += '&order=' + order.toString();
 
     if (search != "" && search != 'undefined') {
