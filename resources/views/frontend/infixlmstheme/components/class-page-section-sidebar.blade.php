@@ -53,26 +53,6 @@
 
             <div class="single_course_categry">
                 <h4 class="font_18 f_w_700">
-                    {{__('frontend.Level')}}
-                </h4>
-                <ul class="Check_sidebar">
-
-                    @foreach($levels as $l)
-                        <li>
-                            <label class="primary_checkbox d-flex">
-                                <input name="level" type="checkbox" value="{{$l->id}}"
-                                       class="level" {{in_array($l->id,explode(',',$level))?'checked':''}}>
-                                <span class="checkmark mr_15"></span>
-                                <span class="label_name">{{$l->title}}</span>
-                            </label>
-                        </li>
-                    @endforeach
-
-
-                </ul>
-            </div>
-            <div class="single_course_categry">
-                <h4 class="font_18 f_w_700">
                     {{__('frontend.Class Price')}}
                 </h4>
                 <ul class="Check_sidebar">
