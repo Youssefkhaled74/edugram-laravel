@@ -11,13 +11,14 @@ use Modules\Localization\Entities\Language;
 
 class CoursePageSection extends Component
 {
-    public $request, $categories, $languages;
+    public $request, $categories, $languages, $subcategories;
 
     public function __construct($request, $categories, $languages)
     {
         $this->request = $request;
         $this->categories = $categories;
         $this->languages = $languages;
+        $this->subcategories = Category::where('parent_id', '!=', NULL)->where('status', 1)->get();
     }
 
     public function render()
@@ -97,8 +98,11 @@ class CoursePageSection extends Component
         }
 
         $subCategory = $this->request->get('sub-category');
-        if (!empty($subCategory)) {
-            $query->where('subcategory_id', $subCategory);
+        if (empty($subCategory)) {
+            $subCategory = '';
+        } else {
+            $subCategories = explode(',', $subCategory);
+            $query->whereIn('subcategory_id', $subCategories);
         }
 
         if (currentTheme() == 'tvt') {
@@ -148,7 +152,7 @@ class CoursePageSection extends Component
 
         $courses = $query->paginate(itemsGridSize());
         $total = $courses->total();
-        $levels = CourseLevel::getAllActiveData();
-        return view(theme('components.course-page-section'), compact('levels', 'mode', 'category', 'level', 'order', 'language', 'type', 'total', 'courses'));
+        $subCat = $this->request->get('sub-category') ?? '';
+        return view(theme('components.course-page-section'), compact('levels', 'mode', 'category', 'level', 'order', 'language', 'type', 'total', 'courses', 'subCat'));
     }
 }
