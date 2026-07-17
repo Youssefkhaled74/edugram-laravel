@@ -161,6 +161,8 @@ class RegisterController extends Controller
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'ends_with:edugram-eg.com'],
                 'password' => ['required', 'string', 'min:8', 'confirmed'],
                 'guardian_phone' => ['required', 'string', 'regex:/^([0-9\s\-\+\(\)]*)$/', 'min:8'],
+                'category_id' => ['required', 'integer', 'exists:categories,id'],
+                'subcategory_id' => ['required', 'integer'],
                 'g-recaptcha-response' => 'required|captcha'
             ];
         } else {
@@ -170,6 +172,8 @@ class RegisterController extends Controller
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'ends_with:edugram-eg.com'],
                 'password' => ['required', 'string', 'min:8', 'confirmed'],
                 'guardian_phone' => ['required', 'string', 'regex:/^([0-9\s\-\+\(\)]*)$/', 'min:8'],
+                'category_id' => ['required', 'integer', 'exists:categories,id'],
+                'subcategory_id' => ['required', 'integer'],
             ];
         }
 
@@ -284,7 +288,9 @@ class RegisterController extends Controller
             'level' => $data['level'] ?? '',
             'special_commission' => null,
             'referral_code'=>$data['referral_code']??'',
-            'guardian_phone'=>$data['guardian_phone']??''
+            'guardian_phone'=>$data['guardian_phone']??'',
+            'category_id'=>$data['category_id']??null,
+            'subcategory_id'=>$data['subcategory_id']??null,
         ]);
     }
 

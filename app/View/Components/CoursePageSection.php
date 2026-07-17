@@ -3,6 +3,7 @@
 namespace App\View\Components;
 
 use Illuminate\View\Component;
+use Illuminate\Support\Facades\Auth;
 use Modules\CourseSetting\Entities\Course;
 use Modules\CourseSetting\Entities\CourseLevel;
 use Modules\Localization\Entities\Language;
@@ -109,6 +110,13 @@ class CoursePageSection extends Component
         }
 
         $query->where('type', 1)->where('status', 1);
+
+        if (Auth::check() && Auth::user()->role_id == 3 && Auth::user()->category_id) {
+            $query->where('category_id', Auth::user()->category_id);
+            if (Auth::user()->subcategory_id) {
+                $query->where('subcategory_id', Auth::user()->subcategory_id);
+            }
+        }
 
         $order = $this->request->order;
         if (currentTheme() == 'wetech') {

@@ -93,6 +93,25 @@
                         </div>
                         <div class="col-12 mt_20">
                             <div class="input-group custom_group_field">
+                                <select class="form-control ps-0" name="category_id" id="reg_category_id" required>
+                                    <option value="">{{__('common.Category')}} *</option>
+                                    @foreach(\Modules\CourseSetting\Entities\Category::where('parent_id', NULL)->where('status', 1)->orderBy('position_order')->get() as $cat)
+                                        <option value="{{$cat->id}}" {{old('category_id') == $cat->id ? 'selected' : ''}}>{{$cat->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <span class="text-danger" role="alert">{{$errors->first('category_id')}}</span>
+                        </div>
+                        <div class="col-12 mt_20">
+                            <div class="input-group custom_group_field">
+                                <select class="form-control ps-0" name="subcategory_id" id="reg_subcategory_id" required>
+                                    <option value="">{{__('common.Sub Category')}} *</option>
+                                </select>
+                            </div>
+                            <span class="text-danger" role="alert">{{$errors->first('subcategory_id')}}</span>
+                        </div>
+                        <div class="col-12 mt_20">
+                            <div class="input-group custom_group_field">
                                 <input type="password" class="form-control ps-0" required
                                        placeholder="{{__('frontend.Enter Password')}} *"
                                        autocomplete="new-password"
@@ -311,6 +330,49 @@
         @include(theme('auth.login_wrapper_right'))
 
     </div>
+    @php
+        $subCatsFromCategories = \Modules\CourseSetting\Entities\Category::where('parent_id', '!=', NULL)->where('status', 1)->get();
+        $allSubCategories = \Modules\CourseSetting\Entities\SubCategory::where('status', 1)->get();
+        $subData = [];
+        foreach ($subCatsFromCategories as $sc) {
+            $catId = $sc->parent_id;
+            if (!isset($subData[$catId])) $subData[$catId] = [];
+            $name = is_array($sc->name) ? ($sc->getTranslation('name', app()->getLocale()) ?? reset($sc->name)) : $sc->name;
+            $subData[$catId][] = ['id' => (int)$sc->id, 'name' => $name];
+        }
+        foreach ($allSubCategories as $sc) {
+            $catId = $sc->category_id;
+            if (!isset($subData[$catId])) $subData[$catId] = [];
+            $exists = false;
+            foreach (($subData[$catId] ?? []) as $existing) {
+                if ($existing['id'] == $sc->id) { $exists = true; break; }
+            }
+            if (!$exists) {
+                $subData[$catId][] = ['id' => (int)$sc->id, 'name' => (string)$sc->name];
+            }
+        }
+    @endphp
+    <script>
+        var regSubCategories = {!! json_encode($subData) !!};
+        var currentRegSubcategory = '{{ old("subcategory_id") }}';
+        function loadRegSubcategories(categoryId, selectCurrent) {
+            var $sub = $('#reg_subcategory_id');
+            $sub.html('<option value="">{{ __("common.Sub Category") }} *</option>');
+            if (!categoryId) return;
+            var items = regSubCategories[categoryId] || [];
+            $.each(items, function (i, item) {
+                var selected = (selectCurrent && item.id == currentRegSubcategory) ? ' selected' : '';
+                $sub.append('<option value="' + item.id + '"' + selected + '>' + item.name + '</option>');
+            });
+        }
+        $(function () {
+            $('#reg_category_id').on('change', function () {
+                loadRegSubcategories($(this).val(), false);
+            });
+            var initCat = '{{ old("category_id") }}';
+            if (initCat) loadRegSubcategories(initCat, true);
+        });
+    </script>
     <script>
         function togglePassword(fieldId, icon) {
             var field = document.getElementById(fieldId);
