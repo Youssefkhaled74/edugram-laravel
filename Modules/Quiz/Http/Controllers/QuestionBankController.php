@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Modules\CourseSetting\Entities\Category;
+use Modules\CourseSetting\Entities\SubCategory;
 use Modules\Quiz\Entities\MatchingTypeQuestionAssign;
 use Modules\Quiz\Entities\OnlineExamQuestionAssign;
 use Modules\Quiz\Entities\QuestionBank;
@@ -84,7 +85,7 @@ class QuestionBankController extends Controller
         try {
 
             $groups = $this->questionGroups();
-            $categories = Category::where('status', 1)->orderBy('position_order')->get();
+            $categories = $this->getAllCategoriesWithSubs();
 
             $data['levels'] = [];
             if (isModuleActive('AdvanceQuiz')) {
@@ -533,12 +534,32 @@ class QuestionBankController extends Controller
                 Toastr::error('لا تملك صلاحية الوصول', trans('common.Failed'));
                 return redirect()->route('question-bank-list');
             }
-            $categories = Category::where('status', 1)->orderBy('position_order', 'asc')->get();
+            $categories = $this->getAllCategoriesWithSubs();
 
             return view('quiz::question_bank', compact('levels', 'groups', 'banks', 'bank', 'categories'));
         } catch (Exception $e) {
             GettingError($e->getMessage(), url()->current(), request()->ip(), request()->userAgent());
         }
+    }
+
+    private function getAllCategoriesWithSubs()
+    {
+        $categories = Category::where('status', 1)->orderBy('position_order', 'asc')->get();
+
+        $subCats = SubCategory::where('status', 1)->get();
+        foreach ($subCats as $sc) {
+            $exists = $categories->contains('id', $sc->id);
+            if (!$exists) {
+                $fakeCat = new \stdClass();
+                $fakeCat->id = $sc->id;
+                $fakeCat->parent_id = $sc->category_id;
+                $fakeCat->name = (string) $sc->name;
+                $fakeCat->status = $sc->status;
+                $categories->push($fakeCat);
+            }
+        }
+
+        return $categories;
     }
 
     public function storeCourse(Request $request)

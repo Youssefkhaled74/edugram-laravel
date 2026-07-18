@@ -1650,8 +1650,11 @@ class CourseSettingController extends Controller
         } elseif ($type == 'quiz') {
             $edit = Lesson::find($request->id);
             $course = Course::find($course_id);
-            // Maximum compatibility: list any existing quiz record to avoid empty selector due legacy filters.
-            $quizzes = OnlineQuiz::select('id', 'title', 'category_id')->latest()->get();
+            if (Auth::user()->role_id == 2) {
+                $quizzes = OnlineQuiz::select('id', 'title', 'category_id')->where('created_by', Auth::user()->id)->latest()->get();
+            } else {
+                $quizzes = OnlineQuiz::select('id', 'title', 'category_id')->latest()->get();
+            }
 
             try {
                 Log::info('courseModal.quiz.debug', [

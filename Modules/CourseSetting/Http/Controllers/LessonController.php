@@ -121,7 +121,11 @@ class LessonController extends Controller
             $categories = Category::get();
             $instructors = User::where('role_id', 2)->get();
             $languages = Language::get();
-            $quizzes = OnlineQuiz::where('category_id', $course->category_id)->get();
+            if (Auth::user()->role_id == 2) {
+                $quizzes = OnlineQuiz::where('category_id', $course->category_id)->where('created_by', Auth::user()->id)->get();
+            } else {
+                $quizzes = OnlineQuiz::where('category_id', $course->category_id)->get();
+            }
             $course_exercises = CourseExercise::where('course_id', $editLesson->course_id)->get();
             $levels = CourseLevel::where('status', 1)->get();
             if (Auth::user()->role_id == 1) {
