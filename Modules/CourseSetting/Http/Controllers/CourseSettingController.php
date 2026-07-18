@@ -50,14 +50,38 @@ class CourseSettingController extends Controller
     public function ajaxGetCourseSubCategory(Request $request)
     {
         try {
+            $results = [];
 
             $query = Category::where('status', 1)->orderBy('position_order', 'ASC');
             if (isModuleActive('OrgInstructorPolicy') && \auth()->user()->role_id != 1) {
                 $assign = OrgPolicyCategory::where('policy_id', \auth()->user()->policy_id)->pluck('category_id')->toArray();
                 $query->whereIn('id', $assign);
             }
-            $sub_categories = $query->where('parent_id', '=', $request->id)->get();
-            return response()->json([$sub_categories]);
+            $catSubs = $query->where('parent_id', '=', $request->id)->get();
+            foreach ($catSubs as $sub) {
+                $results[] = [
+                    'id' => $sub->id,
+                    'name' => $sub->name,
+                ];
+            }
+
+            $subCatModel = new \Modules\CourseSetting\Entities\SubCategory();
+            $subCategoryRows = $subCatModel->where('status', 1)->where('category_id', '=', $request->id)->get();
+            foreach ($subCategoryRows as $row) {
+                $exists = false;
+                foreach ($results as $r) {
+                    if ($r['id'] == $row->id) { $exists = true; break; }
+                }
+                if (!$exists) {
+                    $lang = app()->getLocale();
+                    $results[] = [
+                        'id' => $row->id,
+                        'name' => is_array($row->name) ? $row->name : [$lang => $row->name],
+                    ];
+                }
+            }
+
+            return response()->json([$results]);
         } catch (Exception $e) {
             return response()->json("");
         }
