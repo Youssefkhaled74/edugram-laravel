@@ -649,41 +649,8 @@
                                                                  </select>
 
                                                              </div>
-                                                             <div class="col-lg-4">
-                                                                 <label class="primary_input_label"
-                                                                        for="category_id">{{__('quiz.Category')}} <span
-                                                                         class="required_mark">*</span></label>
-                                                                 <select
-                                                                     class="primary_select{{ $errors->has('category') ? ' is-invalid' : '' }}"
-                                                                     name="category" id="category_id">
-                                                                     <option
-                                                                         data-display="{{__('common.Select')}} {{__('quiz.Category')}} "
-                                                                         value="">{{__('common.Select')}} {{__('quiz.Category')}}
-                                                                     </option>
-                                                                     @foreach($categories->where('parent_id',0) as $cat)
-                                                                         <option
-                                                                             value="{{$cat->id}}" {{old('category',isset($bank)? $bank->category_id:'') == $cat->id? 'selected': ''}}>{{$cat->name}}</option>
-                                                                     @endforeach
-                                                                 </select>
-                                                             </div>
-                                                             <div class="col-lg-4">
-                                                                 <label class="primary_input_label"
-                                                                        for="sub_category_id">{{__('quiz.Sub Category')}}</label>
-                                                                 <select
-                                                                     class="primary_select{{ $errors->has('sub_category') ? ' is-invalid' : '' }}"
-                                                                     name="sub_category" id="sub_category_id">
-                                                                     <option
-                                                                         data-display="{{__('common.Select')}} {{__('quiz.Sub Category')}} "
-                                                                         value="">{{__('common.Select')}} {{__('quiz.Sub Category')}}
-                                                                     </option>
-                                                                     @if(isset($bank) && $bank->category_id)
-                                                                         @foreach($categories->where('parent_id',$bank->category_id) as $sub)
-                                                                             <option
-                                                                                 value="{{$sub->id}}" {{$bank->sub_category_id == $sub->id? 'selected': ''}}>{{$sub->name}}</option>
-                                                                         @endforeach
-                                                                     @endif
-                                                                 </select>
-                                                             </div>
+                                                             <input type="hidden" name="category" value="{{Auth::user()->category_id}}">
+                                                             <input type="hidden" name="sub_category" value="{{Auth::user()->subcategory_id}}">
                                                              @if(isModuleActive('AdvanceQuiz'))
                                                                 <div class="col-lg-4">
                                                                     <label class="primary_input_label"
