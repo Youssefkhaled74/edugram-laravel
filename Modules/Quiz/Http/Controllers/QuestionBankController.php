@@ -118,16 +118,6 @@ class QuestionBankController extends Controller
         }
         return $groups;
     }
-            if (isModuleActive('Organization') && $user->isOrganization()) {
-                $query->whereHas('user', function ($q) {
-                    $q->where('organization_id', Auth::id());
-                    $q->orWhere('id', Auth::id());
-                });
-            }
-            $groups = $query->orderBy('id', 'DESC')->get();
-        }
-        return $groups;
-    }
 
     public function index(Request $request)
     {
