@@ -92,6 +92,10 @@ class CoursePageSection extends Component
         $category = $this->request->category;
         if (empty($category)) {
             $category = '';
+            if (Auth::check() && Auth::user()->role_id == 3 && Auth::user()->category_id) {
+                $category = (string) Auth::user()->category_id;
+                $query->whereIn('category_id', [$category]);
+            }
         } else {
             $categories = explode(',', $category);
             $query->whereIn('category_id', $categories);
@@ -100,6 +104,10 @@ class CoursePageSection extends Component
         $subCategory = $this->request->get('sub-category');
         if (empty($subCategory)) {
             $subCategory = '';
+            if (Auth::check() && Auth::user()->role_id == 3 && Auth::user()->subcategory_id) {
+                $subCategory = (string) Auth::user()->subcategory_id;
+                $query->whereIn('subcategory_id', [$subCategory]);
+            }
         } else {
             $subCategories = explode(',', $subCategory);
             $query->whereIn('subcategory_id', $subCategories);
@@ -115,13 +123,6 @@ class CoursePageSection extends Component
         }
 
         $query->where('type', 1)->where('status', 1);
-
-        if (Auth::check() && Auth::user()->role_id == 3 && Auth::user()->category_id) {
-            $query->where('category_id', Auth::user()->category_id);
-            if (Auth::user()->subcategory_id) {
-                $query->where('subcategory_id', Auth::user()->subcategory_id);
-            }
-        }
 
         $order = $this->request->order;
         if (currentTheme() == 'wetech') {

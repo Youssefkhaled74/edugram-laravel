@@ -1883,23 +1883,6 @@
         });
         $('#question-type').trigger('change')
 
-        // ── Category → Subcategory loading ──
-        $('#category_id').on('change', function () {
-            var catId = $(this).val();
-            var $sub = $('#sub_category_id');
-            var selectedSub = '{{old('sub_category',isset($bank)? $bank->sub_category_id:'')}}';
-            $sub.empty().append('<option data-display="'+'{{__('common.Select')}}'+' {{__('quiz.Sub Category')}}'+'" value="">'+'{{__('common.Select')}}'+' {{__('quiz.Sub Category')}}'+'</option>');
-            @foreach($categories as $cat)
-                @if($cat->parent_id)
-                if (catId == '{{$cat->parent_id}}') {
-                    $sub.append('<option value="{{$cat->id}}" ' + (selectedSub == '{{$cat->id}}' ? 'selected' : '') + '>{{$cat->name}}</option>');
-                }
-                @endif
-            @endforeach
-        });
-        // trigger on load so subcategories populate in edit mode
-        $('#category_id').trigger('change');
-
         $(document).on("click", ".removeImage1", function (e) {
             e.preventDefault();
             let target = $(this).data('target')
