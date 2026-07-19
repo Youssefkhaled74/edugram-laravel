@@ -31,6 +31,14 @@ class CourseController extends Controller
                 $details = dynamicContentAppend($row->details);
                 return view('aorapagebuilder::pages.show', compact('row', 'details'));
             } else {
+                if (Auth::check() && Auth::user()->role_id == 3 && Auth::user()->category_id && empty($request->category)) {
+                    $params = $request->query();
+                    $params['category'] = Auth::user()->category_id;
+                    if (Auth::user()->subcategory_id && empty($request->get('sub-category'))) {
+                        $params['sub-category'] = Auth::user()->subcategory_id;
+                    }
+                    return redirect()->route('courses', $params);
+                }
                 return view(theme('pages.courses'), compact('request'));
             }
         } catch (\Exception $e) {

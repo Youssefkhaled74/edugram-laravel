@@ -92,10 +92,6 @@ class CoursePageSection extends Component
         $category = $this->request->category;
         if (empty($category)) {
             $category = '';
-            if (Auth::check() && Auth::user()->role_id == 3 && Auth::user()->category_id) {
-                $category = (string) Auth::user()->category_id;
-                $query->whereIn('category_id', [$category]);
-            }
         } else {
             $categories = explode(',', $category);
             $query->whereIn('category_id', $categories);
@@ -104,10 +100,6 @@ class CoursePageSection extends Component
         $subCategory = $this->request->get('sub-category');
         if (empty($subCategory)) {
             $subCategory = '';
-            if (Auth::check() && Auth::user()->role_id == 3 && Auth::user()->subcategory_id) {
-                $subCategory = (string) Auth::user()->subcategory_id;
-                $query->whereIn('subcategory_id', [$subCategory]);
-            }
         } else {
             $subCategories = explode(',', $subCategory);
             $query->whereIn('subcategory_id', $subCategories);
