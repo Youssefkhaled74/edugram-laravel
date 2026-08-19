@@ -163,11 +163,6 @@ class QuizController extends Controller
     {
         $group = $this->getPrintableGroup((int)$group->id);
         $fileName = Str::slug($group->title ?: 'question-group') . '.pdf';
-        $html = view('quiz::print_group', [
-            'group' => $group,
-            'pdfEngine' => 'tcpdf',
-        ])->render();
-
         $this->bootstrapTcpdfFonts();
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
         $pdf->SetCreator(config('app.name'));
@@ -188,7 +183,7 @@ class QuizController extends Controller
         $pdf->setRTL(true);
         $pdf->setFont('dejavusans', '', 11, '', true);
         $pdf->AddPage();
-        $pdf->writeHTML($html, true, false, true, false, '');
+        $this->renderPrintableGroupPdf($pdf, $group);
         $pdf->lastPage();
 
         return response($pdf->Output($fileName, 'S'), Response::HTTP_OK, [
@@ -197,6 +192,276 @@ class QuizController extends Controller
             'Cache-Control' => 'private, max-age=0, must-revalidate',
             'Pragma' => 'public',
         ]);
+    }
+
+    private function renderPrintableGroupPdf(TCPDF $pdf, QuestionGroup $group): void
+    {
+        $pdf->SetTextColor(15, 23, 42);
+        $pdf->SetFont('dejavusans', 'B', 22, '', true);
+        $pdf->MultiCell(0, 0, $this->pdfText($group->title), 0, 'R', false, 1);
+        $pdf->Ln(3);
+
+        $this->renderPdfMetaRow($pdf, trans('quiz.Question Group'), $group->title);
+        $this->renderPdfMetaRow($pdf, trans('quiz.Total Questions'), (string)($group->questions_count ?? $group->questions->count()));
+        $this->renderPdfMetaRow($pdf, trans('common.Date'), showDate($group->created_at));
+        $pdf->Ln(2);
+        $pdf->SetDrawColor(219, 228, 240);
+        $pdf->Line(10, $pdf->GetY(), 200, $pdf->GetY());
+        $pdf->Ln(5);
+
+        foreach ($group->questions as $index => $question) {
+            $this->renderPdfQuestion($pdf, $question, $index + 1);
+        }
+    }
+
+    private function renderPdfMetaRow(TCPDF $pdf, string $label, string $value): void
+    {
+        $labelWidth = 45;
+        $valueWidth = 145;
+        $startX = $pdf->GetX();
+        $startY = $pdf->GetY();
+
+        $pdf->SetFont('dejavusans', 'B', 11, '', true);
+        $pdf->MultiCell($labelWidth, 8, $this->pdfText($label), 0, 'R', false, 0);
+        $pdf->SetFont('dejavusans', '', 11, '', true);
+        $pdf->MultiCell($valueWidth, 8, $this->pdfText($value), 0, 'R', false, 1);
+
+        $pdf->SetXY($startX, max($startY + 8, $pdf->GetY()));
+    }
+
+    private function renderPdfQuestion(TCPDF $pdf, $question, int $number): void
+    {
+        $title = trans('quiz.Question') . ' ' . $number;
+        $typeLabel = getQuestionType($question->type);
+        if (!empty($question->marks)) {
+            $typeLabel .= ' | ' . trans('quiz.Marks') . ': ' . $question->marks;
+        }
+
+        $pdf->SetFillColor(248, 250, 252);
+        $pdf->SetDrawColor(219, 228, 240);
+        $pdf->SetLineWidth(0.2);
+        $pdf->SetFont('dejavusans', 'B', 13, '', true);
+        $pdf->Cell(95, 10, $this->pdfText($title), 1, 0, 'R', true);
+        $pdf->SetFont('dejavusans', '', 11, '', true);
+        $pdf->Cell(95, 10, $this->pdfText($typeLabel), 1, 1, 'L', true);
+
+        $pdf->SetFont('dejavusans', 'B', 11, '', true);
+        $pdf->Ln(2);
+        $pdf->MultiCell(0, 0, $this->pdfText(trans('quiz.Question')), 0, 'R', false, 1);
+        $pdf->SetFont('dejavusans', '', 11, '', true);
+        $pdf->MultiCell(0, 0, $this->pdfText($this->extractPdfPlainText($question->question)), 0, $this->pdfAlignment($question->question), false, 1);
+
+        $questionImage = $this->resolvePdfImagePath($question->image);
+        if ($questionImage) {
+            $this->renderPdfImage($pdf, $questionImage);
+        }
+
+        $this->renderPdfQuestionDetails($pdf, $question);
+
+        $explanation = $this->extractPdfPlainText($question->explanation);
+        if ($explanation !== '') {
+            $pdf->Ln(1);
+            $pdf->SetFont('dejavusans', 'B', 10, '', true);
+            $pdf->MultiCell(0, 0, $this->pdfText(trans('quiz.Explanation')), 0, 'R', false, 1);
+            $pdf->SetFont('dejavusans', '', 10, '', true);
+            $pdf->MultiCell(0, 0, $this->pdfText($explanation), 0, $this->pdfAlignment($question->explanation), false, 1);
+        }
+
+        $pdf->Ln(5);
+    }
+
+    private function renderPdfQuestionDetails(TCPDF $pdf, $question): void
+    {
+        if ($question->type === 'M') {
+            $this->renderPdfListSection($pdf, trans('quiz.Options'), ($question->questionMuInSerial ?? collect())->map(function ($option) {
+                $text = $option->title;
+                if ((int)$option->status === 1) {
+                    $text .= ' [' . trans('quiz.Correct Answer') . ']';
+                }
+                return $text;
+            })->all());
+            return;
+        }
+
+        if ($question->type === 'O') {
+            $this->renderPdfListSection($pdf, trans('quiz.Sorting'), ($question->questionSortingOptionsSerial ?? collect())->pluck('title')->all());
+            return;
+        }
+
+        if ($question->type === 'X' || $question->type === 'P') {
+            $items = [];
+            $prompts = ($question->questionMuInSerial ?? collect())->where('type', 1)->values();
+            $answers = ($question->questionMuInSerial ?? collect())->where('type', 0)->keyBy('id');
+            $pairs = ($question->matchingOptions ?? collect())->groupBy('option_id');
+            foreach ($prompts as $prompt) {
+                $answerText = ($pairs->get($prompt->id) ?? collect())
+                    ->map(fn ($pair) => optional($answers->get($pair->answer_id))->title)
+                    ->filter()
+                    ->implode(' | ');
+                $items[] = trim($prompt->title . ' => ' . ($answerText !== '' ? $answerText : '-'));
+            }
+            $this->renderPdfListSection($pdf, $question->type === 'X' ? trans('quiz.Matching') : trans('quiz.Puzzle'), $items);
+            return;
+        }
+
+        if ($question->type === 'C') {
+            $items = [];
+            foreach (($question->questionMuInSerial ?? collect())->groupBy('group')->sortKeys() as $options) {
+                $choices = $options->pluck('title')->filter()->implode(' | ');
+                $correct = optional($options->firstWhere('status', 1))->title ?: '-';
+                $items[] = trans('quiz.Options') . ': ' . $choices . ' | ' . trans('quiz.Correct Answer') . ': ' . $correct;
+            }
+            $this->renderPdfListSection($pdf, trans('quiz.Cloze question'), $items);
+            return;
+        }
+
+        if ($question->type === 'T') {
+            $answer = (string)$question->trueFalse === '1' ? trans('quiz.True') : trans('quiz.False');
+            $this->renderPdfListSection($pdf, trans('quiz.Correct Answer'), [$answer]);
+            return;
+        }
+
+        if ($question->type === 'F') {
+            $items = collect(preg_split('/[\r\n,]+/', (string)$question->suitable_words))
+                ->map(fn ($word) => trim((string)$word))
+                ->filter()
+                ->values()
+                ->all();
+            $this->renderPdfListSection($pdf, trans('quiz.Fill In The Blanks'), $items ?: [trans('quiz.Fill In The Blanks')]);
+            return;
+        }
+
+        if ($question->type === 'S' || $question->type === 'L') {
+            $this->renderPdfListSection($pdf, trans('quiz.answer'), [$question->type === 'S' ? trans('quiz.Short Answer') : trans('quiz.Long Answer')]);
+        }
+    }
+
+    private function renderPdfListSection(TCPDF $pdf, string $label, array $items): void
+    {
+        if (empty($items)) {
+            return;
+        }
+
+        $pdf->Ln(2);
+        $pdf->SetFont('dejavusans', 'B', 10, '', true);
+        $pdf->MultiCell(0, 0, $this->pdfText($label), 0, 'R', false, 1);
+        $pdf->SetFont('dejavusans', '', 10, '', true);
+
+        foreach ($items as $item) {
+            $pdf->MultiCell(0, 0, $this->pdfText('- ' . $item), 0, $this->pdfAlignment((string)$item), false, 1);
+        }
+    }
+
+    private function renderPdfImage(TCPDF $pdf, string $path): void
+    {
+        $startX = $pdf->GetX();
+        $startY = $pdf->GetY();
+        $pdf->Ln(2);
+        $pdf->Image($path, '', '', 55, 0, '', '', '', true, 150, '', false, false, 1, false, false, false);
+        $pdf->Ln(35);
+        $pdf->SetXY($startX, max($startY + 35, $pdf->GetY()));
+    }
+
+    private function extractPdfPlainText(?string $html): string
+    {
+        if (blank($html)) {
+            return '';
+        }
+
+        $html = preg_replace('#<script\b[^>]*>.*?</script>#is', '', (string)$html);
+        $html = preg_replace('#<style\b[^>]*>.*?</style>#is', '', (string)$html);
+        $previousState = libxml_use_internal_errors(true);
+        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $dom->loadHTML('<?xml encoding="utf-8" ?><div id="pdf-root">' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $xpath = new \DOMXPath($dom);
+
+        foreach (['//br', '//p', '//div', '//li', '//tr', '//table', '//ul', '//ol'] as $query) {
+            foreach (iterator_to_array($xpath->query($query) ?: []) as $node) {
+                if ($node->parentNode) {
+                    $node->parentNode->insertBefore($dom->createTextNode("\n"), $node->nextSibling);
+                }
+            }
+        }
+
+        foreach (iterator_to_array($xpath->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' note-equation ')]") ?: []) as $equationNode) {
+            $latexSource = '';
+            $nextSibling = $equationNode->nextSibling;
+            while ($nextSibling) {
+                if ($nextSibling instanceof \DOMElement) {
+                    $classes = ' ' . preg_replace('/\s+/', ' ', trim((string)$nextSibling->getAttribute('class'))) . ' ';
+                    if (str_contains($classes, ' note-equation-latex-src ')) {
+                        $latexSource = trim(html_entity_decode($nextSibling->textContent ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                        break;
+                    }
+                }
+                $nextSibling = $nextSibling->nextSibling;
+            }
+
+            if ($latexSource === '') {
+                $latexSource = trim(html_entity_decode($equationNode->textContent ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            }
+
+            $equationNode->parentNode?->replaceChild($dom->createTextNode(' ' . $latexSource . ' '), $equationNode);
+        }
+
+        foreach ([
+            "//*[contains(concat(' ', normalize-space(@class), ' '), ' note-equation-latex-src ')]",
+            "//*[contains(concat(' ', normalize-space(@class), ' '), ' katex ')]",
+            "//*[contains(concat(' ', normalize-space(@class), ' '), ' katex-mathml ')]",
+            '//img',
+        ] as $query) {
+            foreach (iterator_to_array($xpath->query($query) ?: []) as $node) {
+                $node->parentNode?->removeChild($node);
+            }
+        }
+
+        $root = $dom->getElementById('pdf-root');
+        $text = $root ? html_entity_decode(strip_tags($dom->saveHTML($root) ?: ''), ENT_QUOTES | ENT_HTML5, 'UTF-8') : '';
+        $text = preg_replace("/(\r\n|\r)/", "\n", $text) ?? $text;
+        $text = preg_replace("/[ \t]+/", ' ', $text) ?? $text;
+        $text = preg_replace("/\n{3,}/", "\n\n", $text) ?? $text;
+        $text = trim($text);
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousState);
+
+        return $text;
+    }
+
+    private function pdfText(?string $value): string
+    {
+        return trim((string)$value);
+    }
+
+    private function pdfAlignment(?string $value): string
+    {
+        return preg_match('/[\x{0600}-\x{06FF}\x{0750}-\x{077F}\x{08A0}-\x{08FF}]/u', strip_tags((string)$value)) === 1 ? 'R' : 'L';
+    }
+
+    private function resolvePdfImagePath(?string $path): ?string
+    {
+        if (blank($path) || Str::startsWith((string)$path, ['http://', 'https://', 'data:image'])) {
+            return null;
+        }
+
+        $normalizedPath = str_replace('\\', '/', (string)$path);
+        $candidates = [];
+
+        if (Str::startsWith($normalizedPath, 'public/')) {
+            $candidates[] = base_path($normalizedPath);
+        }
+
+        $candidates[] = public_path(ltrim($normalizedPath, '/'));
+        $candidates[] = base_path(ltrim($normalizedPath, '/'));
+
+        foreach ($candidates as $candidate) {
+            $realPath = realpath($candidate);
+            if ($realPath && is_file($realPath)) {
+                return str_replace('\\', '/', $realPath);
+            }
+        }
+
+        return null;
     }
 
     private function bootstrapTcpdfFonts(): void
