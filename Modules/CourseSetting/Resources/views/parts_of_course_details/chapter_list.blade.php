@@ -333,8 +333,14 @@
                                                                     class="dropdown-menu dropdown-menu-right">
 
 
+                                                                    @php
+                                                                        $quizSlug = $lesson->lessonQuiz ? Str::slug((string) $lesson->lessonQuiz->title) : '';
+                                                                        if ($quizSlug === '') {
+                                                                            $quizSlug = 'quiz-' . $lesson->quiz_id;
+                                                                        }
+                                                                    @endphp
                                                                      <a target="_blank"
-                                                                       href="{{$lesson->is_quiz==0 || !$lesson->quiz_id ? route('fullScreenView',[$course->id,$lesson->id]) : route('quizStart',[$course->id,$lesson->quiz_id, $lesson->lessonQuiz ? Str::slug($lesson->lessonQuiz->title) : 'quiz'])}}"
+                                                                       href="{{$lesson->is_quiz==0 || !$lesson->quiz_id ? route('fullScreenView',[$course->id,$lesson->id]) : route('quizStart',[$course->id,$lesson->quiz_id, $quizSlug])}}"
                                                                        class="dropdown-item">{{__('common.View')}}</a>
 
                                                                     @if($lesson->is_quiz==1 && $lesson->quiz_id)
