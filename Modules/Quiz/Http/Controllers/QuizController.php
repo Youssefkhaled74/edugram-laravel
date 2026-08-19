@@ -164,16 +164,21 @@ class QuizController extends Controller
         $group = $this->getPrintableGroup((int)$group->id);
         $fileName = Str::slug($group->title ?: 'question-group') . '.pdf';
         $this->bootstrapTcpdfFonts();
+        $html = view('quiz::print_group', [
+            'group' => $group,
+            'pdfEngine' => 'tcpdf',
+        ])->render();
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
         $pdf->SetCreator(config('app.name'));
         $pdf->SetAuthor(config('app.name'));
         $pdf->SetTitle($group->title ?: 'Question Group');
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
-        $pdf->SetMargins(10, 10, 10);
-        $pdf->SetAutoPageBreak(true, 10);
+        $pdf->SetMargins(12, 12, 12);
+        $pdf->SetAutoPageBreak(true, 12);
         $pdf->setImageScale(1.25);
         $pdf->setFontSubsetting(true);
+        $pdf->setCellHeightRatio(1.35);
         $pdf->setLanguageArray([
             'a_meta_charset' => 'UTF-8',
             'a_meta_dir' => 'rtl',
@@ -183,7 +188,7 @@ class QuizController extends Controller
         $pdf->setRTL(true);
         $pdf->setFont('dejavusans', '', 11, '', true);
         $pdf->AddPage();
-        $this->renderPrintableGroupPdf($pdf, $group);
+        $pdf->writeHTML($html, true, false, true, false, '');
         $pdf->lastPage();
 
         return response($pdf->Output($fileName, 'S'), Response::HTTP_OK, [
@@ -486,7 +491,7 @@ class QuizController extends Controller
 
     private function tcpdfFontImports(): array
     {
-        $fonts = [
+        return [
             'dejavusans.json' => $this->resolveFirstExistingPath([
                 public_path('fonts/DejaVuSans.ttf'),
                 resource_path('fonts/DejaVuSans.ttf'),
@@ -502,15 +507,6 @@ class QuizController extends Controller
                 base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans-BoldOblique.ttf'),
             ]),
         ];
-
-        foreach (glob(public_path('backend/css/fonts/*.ttf')) ?: [] as $katexFontPath) {
-            $artifact = $this->tcpdfFontArtifactName($katexFontPath);
-            if ($artifact) {
-                $fonts[$artifact] = $katexFontPath;
-            }
-        }
-
-        return $fonts;
     }
 
     private function resolveFirstExistingPath(array $paths): ?string
