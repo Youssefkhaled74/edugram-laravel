@@ -289,7 +289,7 @@
                             </li>
                         @endif
 
-                        @if(isModuleActive('Chat'))
+                        <!-- @if(isModuleActive('Chat'))
                             <li class="scroll_notification_list">
                                 @if(env('BROADCAST_DRIVER') == null)
                                     <jquery-notification-component
@@ -310,7 +310,7 @@
                                     ></notification-component>
                                 @endif
                             </li>
-                        @endif
+                        @endif -->
 
                     </ul>
                     <div class="profile_info">
