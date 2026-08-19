@@ -58,7 +58,7 @@
             return $resolvePdfAssetPath($path);
         };
 
-        if (file_exists(public_path('backend/css/katex.min.css'))) {
+        if (!$isTcpdf && file_exists(public_path('backend/css/katex.min.css'))) {
             $katexCss = file_get_contents(public_path('backend/css/katex.min.css')) ?: '';
             $katexCss = preg_replace_callback('/url\(([^)]+)\)/', static function ($matches) {
                 $relativePath = trim($matches[1], '\'" ');
@@ -70,11 +70,6 @@
 
                 return "url('" . str_replace('\\', '/', $absolutePath) . "')";
             }, $katexCss);
-
-            if ($isTcpdf) {
-                $katexCss = preg_replace('/\b[a-z-]+\s*:\s*auto\s*;?/i', '', $katexCss) ?? $katexCss;
-                $katexCss = preg_replace('/text-rendering\s*:\s*[^;]+;?/i', '', $katexCss) ?? $katexCss;
-            }
         }
 
         $optionSortKey = static function ($option): string {
@@ -101,9 +96,38 @@
             $dom->loadHTML('<?xml encoding="utf-8" ?><div id="printable-root">' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
             $xpath = new \DOMXPath($dom);
 
+            if ($isTcpdf) {
+                $equationNodes = iterator_to_array($xpath->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' note-equation ')]") ?: []);
+                foreach ($equationNodes as $equationNode) {
+                    $latexSource = '';
+                    $nextSibling = $equationNode->nextSibling;
+                    while ($nextSibling) {
+                        if ($nextSibling instanceof \DOMElement) {
+                            $classes = ' ' . preg_replace('/\s+/', ' ', trim((string)$nextSibling->getAttribute('class'))) . ' ';
+                            if (str_contains($classes, ' note-equation-latex-src ')) {
+                                $latexSource = trim(html_entity_decode($nextSibling->textContent ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                                break;
+                            }
+                        }
+                        $nextSibling = $nextSibling->nextSibling;
+                    }
+
+                    if ($latexSource === '') {
+                        $latexSource = trim(html_entity_decode($equationNode->textContent ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                    }
+
+                    $fallbackTag = str_contains($equationNode->textContent ?? '', "\n") ? 'div' : 'span';
+                    $fallbackNode = $dom->createElement($fallbackTag);
+                    $fallbackNode->setAttribute('class', 'math-fallback');
+                    $fallbackNode->appendChild($dom->createTextNode($latexSource));
+                    $equationNode->parentNode?->replaceChild($fallbackNode, $equationNode);
+                }
+            }
+
             foreach ([
                 "//*[contains(concat(' ', normalize-space(@class), ' '), ' note-equation-latex-src ')]",
                 "//*[contains(concat(' ', normalize-space(@class), ' '), ' katex-mathml ')]",
+                "//*[contains(concat(' ', normalize-space(@class), ' '), ' katex ')]",
             ] as $query) {
                 $nodes = iterator_to_array($xpath->query($query) ?: []);
                 foreach ($nodes as $node) {
@@ -131,9 +155,11 @@
             libxml_use_internal_errors($previousState);
 
             if ($isTcpdf) {
+                $output = preg_replace('/<style\b[^>]*>.*?<\/style>/is', '', $output) ?? $output;
                 $output = preg_replace('/\b[a-z-]+\s*:\s*auto\s*;?/i', '', $output) ?? $output;
                 $output = preg_replace('/text-rendering\s*:\s*[^;]+;?/i', '', $output) ?? $output;
                 $output = preg_replace('/object-fit\s*:\s*[^;]+;?/i', '', $output) ?? $output;
+                $output = preg_replace('/<(span|div)([^>]*)>\s*<\/\1>/i', '', $output) ?? $output;
             }
 
             return $output;
@@ -353,6 +379,13 @@
             border-radius: 6px;
             color: #334155;
             padding: 10px 12px;
+        }
+
+        .math-fallback {
+            direction: ltr;
+            text-align: left;
+            font-family: dejavusans;
+            white-space: pre-wrap;
         }
 
         .empty-state {
