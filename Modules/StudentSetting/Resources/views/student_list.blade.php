@@ -51,10 +51,15 @@
                                             <th scope="col">{{__('common.Name')}}</th>
                                             <th scope="col">{{__('common.Email')}}</th>
                                             <th scope="col">{{__('student.Phone')}}</th>
+                                            <th scope="col">رقم ولي الأمر</th>
+                                            <th scope="col">المرحلة الدراسية</th>
+                                            <th scope="col">الصف الدراسي</th>
                                             <th scope="col">{{__('courses.Courses')}}</th>
                                             <th scope="col">{{__('common.gender')}}</th>
                                             <th scope="col">{{__('common.Date of Birth')}}</th>
                                             <th scope="col">{{__('common.Country')}}</th>
+                                            <th scope="col">{{__('common.State')}}</th>
+                                            <th scope="col">{{__('common.City')}}</th>
                                             <th scope="col">{{__('common.Status')}}</th>
                                             <th scope="col">{{__('common.Action')}}</th>
                                         </tr>
@@ -137,15 +142,20 @@
             {data: 'name', name: 'name'},
             {data: 'email', name: 'email'},
             {data: 'phone', name: 'phone'},
+            {data: 'guardian_phone', name: 'guardian_phone'},
+            {data: 'category_name', name: 'category_name', orderable: false},
+            {data: 'subcategory_name', name: 'subcategory_name', orderable: false},
             {data: 'course_count', name: 'course_count'},
             {data: 'gender', name: 'gender'},
             {data: 'dob', name: 'dob'},
             {data: 'country', name: 'country'},
+            {data: 'state', name: 'state', orderable: false},
+            {data: 'city', name: 'city', orderable: false},
             {data: 'status', name: 'status', orderable: false},
             {data: 'action', name: 'action', orderable: false},
         ];
 
-        dataTableOptions = updateColumnExportOption(dataTableOptions, [0, 2, 3, 4, 5, 6, 7, 8]);
+        dataTableOptions = updateColumnExportOption(dataTableOptions, [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
         // dataTableOptions = updateColumnExportOption(dataTableOptions, ':visible');
         let table = $('#lms_table').DataTable(dataTableOptions);
 

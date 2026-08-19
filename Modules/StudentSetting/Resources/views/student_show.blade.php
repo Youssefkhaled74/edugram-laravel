@@ -46,6 +46,10 @@
                                                         <td class="text-start">{{$user->phone}}</td>
                                                     </tr>
                                                     <tr>
+                                                        <th class="text-start">رقم ولي الأمر</th>
+                                                        <td class="text-start">{{$user->guardian_phone}}</td>
+                                                    </tr>
+                                                    <tr>
                                                         <th class="text-start">{{__('common.Currency')}}</th>
                                                         <td class="text-start">{{$user->currency->name}}</td>
                                                     </tr>
@@ -122,6 +126,18 @@
                                                         <th class="text-start">{{__('common.gender')}}</th>
                                                         <td class="text-start">
                                                             {{$user?->gender}}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="text-start">المرحلة الدراسية</th>
+                                                        <td class="text-start">
+                                                            {{$user->registration_category_name}}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="text-start">الصف الدراسي</th>
+                                                        <td class="text-start">
+                                                            {{$user->registration_subcategory_name}}
                                                         </td>
                                                     </tr>
                                                     <tr>

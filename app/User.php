@@ -32,6 +32,8 @@ use Modules\Certificate\Entities\CertificateRecord;
 use Modules\CourseSetting\Entities\Course;
 use Modules\CourseSetting\Entities\CourseEnrolled;
 use Modules\CourseSetting\Entities\CourseReveiw;
+use Modules\CourseSetting\Entities\Category as CourseCategory;
+use Modules\CourseSetting\Entities\SubCategory as CourseSubCategory;
 use Modules\Forum\Entities\Forum;
 use Modules\Forum\Entities\ForumReply;
 use Modules\GoogleCalendar\Entities\GoogleCalendarAccount;
@@ -420,6 +422,39 @@ class User extends Authenticatable implements MustVerifyEmail
     public function cityName()
     {
         return $this->cityDetails->name;
+    }
+
+    public function studentRegistrationCategory()
+    {
+        return $this->belongsTo(CourseCategory::class, 'category_id')->withDefault();
+    }
+
+    public function studentRegistrationSubCategory()
+    {
+        return $this->belongsTo(CourseSubCategory::class, 'subcategory_id')->withDefault();
+    }
+
+    public function studentRegistrationSubCategoryAsCategory()
+    {
+        return $this->belongsTo(CourseCategory::class, 'subcategory_id')->withDefault();
+    }
+
+    public function getRegistrationCategoryNameAttribute()
+    {
+        return $this->studentRegistrationCategory?->name;
+    }
+
+    public function getRegistrationSubcategoryNameAttribute()
+    {
+        if (!empty($this->studentRegistrationSubCategoryAsCategory?->id)) {
+            return $this->studentRegistrationSubCategoryAsCategory->name;
+        }
+
+        if (!empty($this->studentRegistrationSubCategory?->id)) {
+            return $this->studentRegistrationSubCategory->name;
+        }
+
+        return null;
     }
 
     public function totalSellCourse()

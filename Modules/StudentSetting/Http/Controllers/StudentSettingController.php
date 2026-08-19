@@ -342,7 +342,20 @@ class StudentSettingController extends Controller
         $data['passport_document'] = UserDocument::where('user_id', $id)->where('name', 'passport')->first();
         $data['nid_document'] = UserDocument::where('user_id', $id)->where('name', 'nid')->first();
         $data['others_documents'] = UserDocument::where('user_id', $id)->whereNotIn('name', ['nid', 'passport'])->get();
-        $data['user'] = User::with('currency', 'userInfo', 'userInfo.timezone', 'userEducations', 'userSkill', 'userPayoutAccount')->findOrFail($id);
+        $data['user'] = User::with(
+            'currency',
+            'userInfo',
+            'userInfo.timezone',
+            'userEducations',
+            'userSkill',
+            'userPayoutAccount',
+            'userCountry',
+            'stateDetails',
+            'cityDetails',
+            'studentRegistrationCategory',
+            'studentRegistrationSubCategory',
+            'studentRegistrationSubCategoryAsCategory'
+        )->findOrFail($id);
 
         return view('studentsetting::student_show', $data);
     }
@@ -389,7 +402,14 @@ class StudentSettingController extends Controller
     public function getAllStudentData(Request $request)
     {
         $user = Auth::user();
-        $query = User::query();
+        $query = User::with([
+            'userCountry',
+            'stateDetails',
+            'cityDetails',
+            'studentRegistrationCategory',
+            'studentRegistrationSubCategory',
+            'studentRegistrationSubCategoryAsCategory',
+        ]);
         if (isModuleActive('LmsSaas')) {
             $query->where('lms_id', app('institute')->id);
         } else {
@@ -415,48 +435,39 @@ class StudentSettingController extends Controller
                 $title = $query->name;
                 $link = $query->username ? route('profileUniqueUrl', $query->username) : '';
                 return view('studentsetting::partials._td_link', compact('query', 'link', 'title'));
-//                return $query->name;
-
             })->editColumn('email', function ($query) {
                 return $query->email;
-
-            })
-            ->editColumn('phone', function ($query) {
+            })->editColumn('phone', function ($query) {
                 return translatedNumber($query->phone);
-
-            })
-            ->editColumn('gender', function ($query) {
+            })->editColumn('guardian_phone', function ($query) {
+                return translatedNumber($query->guardian_phone);
+            })->addColumn('category_name', function ($query) {
+                return $query->registration_category_name ?: '';
+            })->addColumn('subcategory_name', function ($query) {
+                return $query->registration_subcategory_name ?: '';
+            })->editColumn('gender', function ($query) {
                 return ucfirst($query->gender);
-
-            })
-            ->editColumn('dob', function ($query) {
+            })->editColumn('dob', function ($query) {
                 return showDate($query->dob);
-
-            })
-            ->addColumn('start_working_date', function ($query) {
+            })->addColumn('start_working_date', function ($query) {
                 if (isModuleActive('Org')) {
                     return showDate($query->start_working_date);
                 } else {
                     return '';
                 }
-
-            })
-            ->editColumn('country', function ($query) {
+            })->editColumn('country', function ($query) {
                 return $query->userCountry->name;
-
-            })
-            ->addColumn('status', function ($query) {
+            })->addColumn('state', function ($query) {
+                return $query->stateDetails->name;
+            })->addColumn('city', function ($query) {
+                return $query->cityDetails->name;
+            })->addColumn('status', function ($query) {
                 $route = 'student.change_status';
                 return view('backend.partials._td_status', compact('query', 'route'));
-
-
             })->addColumn('course_count', function ($query) {
                 return view('studentsetting::partials._td_course_count', compact('query'));
-
-
             })->addColumn('action', function ($query) {
                 return view('studentsetting::partials._td_action', compact('query'));
-
             })->rawColumns(['status', 'image', 'course_count', 'action', 'name'])
             ->make(true);
     }
