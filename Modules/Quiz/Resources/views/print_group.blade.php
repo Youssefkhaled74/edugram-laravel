@@ -164,6 +164,84 @@
 
             return $output;
         };
+
+        $extractPrintableText = static function (?string $html) use ($isTcpdf): string {
+            if (blank($html)) {
+                return '';
+            }
+
+            $previousState = libxml_use_internal_errors(true);
+            $dom = new \DOMDocument('1.0', 'UTF-8');
+            $dom->loadHTML('<?xml encoding="utf-8" ?><div id="text-root">' . (string)$html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $xpath = new \DOMXPath($dom);
+
+            $breakQueries = [
+                '//br',
+                '//p',
+                '//div',
+                '//li',
+                '//tr',
+                '//table',
+                '//ul',
+                '//ol',
+            ];
+
+            foreach ($breakQueries as $query) {
+                $nodes = iterator_to_array($xpath->query($query) ?: []);
+                foreach ($nodes as $node) {
+                    if ($node->parentNode) {
+                        $node->parentNode->insertBefore($dom->createTextNode("\n"), $node->nextSibling);
+                    }
+                }
+            }
+
+            $equationNodes = iterator_to_array($xpath->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' note-equation ')]") ?: []);
+            foreach ($equationNodes as $equationNode) {
+                $latexSource = '';
+                $nextSibling = $equationNode->nextSibling;
+                while ($nextSibling) {
+                    if ($nextSibling instanceof \DOMElement) {
+                        $classes = ' ' . preg_replace('/\s+/', ' ', trim((string)$nextSibling->getAttribute('class'))) . ' ';
+                        if (str_contains($classes, ' note-equation-latex-src ')) {
+                            $latexSource = trim(html_entity_decode($nextSibling->textContent ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                            break;
+                        }
+                    }
+                    $nextSibling = $nextSibling->nextSibling;
+                }
+
+                if ($latexSource === '') {
+                    $latexSource = trim(html_entity_decode($equationNode->textContent ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                }
+
+                $replacement = $dom->createTextNode(' ' . $latexSource . ' ');
+                $equationNode->parentNode?->replaceChild($replacement, $equationNode);
+            }
+
+            foreach ([
+                "//*[contains(concat(' ', normalize-space(@class), ' '), ' note-equation-latex-src ')]",
+                "//*[contains(concat(' ', normalize-space(@class), ' '), ' katex ')]",
+                "//*[contains(concat(' ', normalize-space(@class), ' '), ' katex-mathml ')]",
+                '//script',
+                '//style',
+            ] as $query) {
+                $nodes = iterator_to_array($xpath->query($query) ?: []);
+                foreach ($nodes as $node) {
+                    $node->parentNode?->removeChild($node);
+                }
+            }
+
+            $text = html_entity_decode(strip_tags($dom->saveHTML($dom->getElementById('text-root')) ?: ''), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $text = preg_replace("/(\r\n|\r)/", "\n", $text) ?? $text;
+            $text = preg_replace("/[ \t]+/", ' ', $text) ?? $text;
+            $text = preg_replace("/\n{3,}/", "\n\n", $text) ?? $text;
+            $text = trim($text);
+
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousState);
+
+            return $text;
+        };
     @endphp
     <style>
         @if(!$isTcpdf)
@@ -388,6 +466,11 @@
             white-space: pre-wrap;
         }
 
+        .plain-rich-text {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
         .empty-state {
             border: 1px dashed #cbd5e1;
             border-radius: 8px;
@@ -440,16 +523,18 @@
         </table>
     </div>
 
-	    @forelse($group->questions as $questionIndex => $question)
-	        @php
-	            $questionHtml = $sanitizePrintableHtml($question->question);
-	            $explanationHtml = $sanitizePrintableHtml($question->explanation);
-	            $questionImage = $printImage($question->image);
-	            $questionDirection = $direction(strip_tags($questionHtml));
-	            $questionAlignment = $alignment(strip_tags($questionHtml));
-	            $multipleChoiceOptions = $question->questionMuInSerial ?? collect();
-	            $sortingOptions = $question->questionSortingOptionsSerial ?? collect();
-	            $clozeGroups = ($question->questionMuInSerial ?? collect())->groupBy('group')->sortKeys();
+		    @forelse($group->questions as $questionIndex => $question)
+		        @php
+		            $questionHtml = $sanitizePrintableHtml($question->question);
+		            $explanationHtml = $sanitizePrintableHtml($question->explanation);
+                    $questionText = $extractPrintableText($question->question);
+                    $explanationText = $extractPrintableText($question->explanation);
+		            $questionImage = $printImage($question->image);
+		            $questionDirection = $direction($isTcpdf ? $questionText : strip_tags($questionHtml));
+		            $questionAlignment = $alignment($isTcpdf ? $questionText : strip_tags($questionHtml));
+		            $multipleChoiceOptions = $question->questionMuInSerial ?? collect();
+		            $sortingOptions = $question->questionSortingOptionsSerial ?? collect();
+		            $clozeGroups = ($question->questionMuInSerial ?? collect())->groupBy('group')->sortKeys();
             $matchingPrompts = ($question->questionMuInSerial ?? collect())
                 ->where('type', 1)
                 ->sortBy($optionSortKey)
@@ -476,14 +561,18 @@
                     </tr>
                 </table>
             </div>
-            <div class="question-body">
-	                <div class="question-content rendered-html" dir="{{ $questionDirection }}" style="text-align: {{ $questionAlignment }};">
-	                    <span class="section-label">{{ __('quiz.Question') }}</span>
-	                    {!! $questionHtml !!}
-	                    @if($questionImage)
-	                        <img class="question-image" src="{{ $questionImage }}" alt="Question image">
-	                    @endif
-	                </div>
+	            <div class="question-body">
+		                <div class="question-content rendered-html" dir="{{ $questionDirection }}" style="text-align: {{ $questionAlignment }};">
+		                    <span class="section-label">{{ __('quiz.Question') }}</span>
+                            @if($isTcpdf)
+                                <div class="plain-rich-text">{{ $questionText !== '' ? $questionText : strip_tags((string)$question->question) }}</div>
+                            @else
+		                        {!! $questionHtml !!}
+                            @endif
+		                    @if($questionImage)
+		                        <img class="question-image" src="{{ $questionImage }}" alt="Question image">
+		                    @endif
+		                </div>
 
                 @if($question->type === 'M')
                     <div class="text-block">
@@ -629,13 +718,17 @@
                     </div>
                 @endif
 
-	                @if(!blank(strip_tags($explanationHtml)))
-	                    <div class="explanation rendered-html" dir="{{ $direction(strip_tags($explanationHtml)) }}" style="text-align: {{ $alignment(strip_tags($explanationHtml)) }};">
-	                        <span class="section-label">{{ __('quiz.Explanation') }}</span>
-	                        {!! $explanationHtml !!}
-	                    </div>
-	                @endif
-            </div>
+		                @if($isTcpdf ? !blank($explanationText) : !blank(strip_tags($explanationHtml)))
+		                    <div class="explanation rendered-html" dir="{{ $direction($isTcpdf ? $explanationText : strip_tags($explanationHtml)) }}" style="text-align: {{ $alignment($isTcpdf ? $explanationText : strip_tags($explanationHtml)) }};">
+		                        <span class="section-label">{{ __('quiz.Explanation') }}</span>
+                                @if($isTcpdf)
+                                    <div class="plain-rich-text">{{ $explanationText }}</div>
+                                @else
+		                            {!! $explanationHtml !!}
+                                @endif
+		                    </div>
+		                @endif
+	            </div>
         </div>
     @empty
         <div class="empty-state">{{ __('quiz.Question Bank List') }}: 0</div>
