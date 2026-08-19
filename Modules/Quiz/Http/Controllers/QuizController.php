@@ -221,7 +221,7 @@ class QuizController extends Controller
 
     private function tcpdfFontImports(): array
     {
-        return [
+        $fonts = [
             'dejavusans.json' => $this->resolveFirstExistingPath([
                 public_path('fonts/DejaVuSans.ttf'),
                 resource_path('fonts/DejaVuSans.ttf'),
@@ -237,6 +237,15 @@ class QuizController extends Controller
                 base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans-BoldOblique.ttf'),
             ]),
         ];
+
+        foreach (glob(public_path('backend/css/fonts/*.ttf')) ?: [] as $katexFontPath) {
+            $artifact = $this->tcpdfFontArtifactName($katexFontPath);
+            if ($artifact) {
+                $fonts[$artifact] = $katexFontPath;
+            }
+        }
+
+        return $fonts;
     }
 
     private function resolveFirstExistingPath(array $paths): ?string
@@ -253,6 +262,23 @@ class QuizController extends Controller
     private function tcpdfFontDirectory(): string
     {
         return storage_path('app/tcpdf-fonts');
+    }
+
+    private function tcpdfFontArtifactName(string $fontPath): ?string
+    {
+        $fileName = pathinfo($fontPath, PATHINFO_FILENAME);
+        if ($fileName === '') {
+            return null;
+        }
+
+        $normalized = preg_replace('/[^a-z0-9_]/', '', strtolower($fileName));
+        if (!is_string($normalized) || $normalized === '') {
+            return null;
+        }
+
+        $normalized = str_replace(['bold', 'oblique', 'italic', 'regular'], ['b', 'i', 'i', ''], $normalized);
+
+        return $normalized . '.json';
     }
 
     private function defineTcpdfConstant(string $name, string $value): void
