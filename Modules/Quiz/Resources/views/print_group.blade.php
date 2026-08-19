@@ -70,6 +70,11 @@
 
                 return "url('" . str_replace('\\', '/', $absolutePath) . "')";
             }, $katexCss);
+
+            if ($isTcpdf) {
+                $katexCss = preg_replace('/\b[a-z-]+\s*:\s*auto\s*;?/i', '', $katexCss) ?? $katexCss;
+                $katexCss = preg_replace('/text-rendering\s*:\s*[^;]+;?/i', '', $katexCss) ?? $katexCss;
+            }
         }
 
         $optionSortKey = static function ($option): string {
@@ -84,7 +89,7 @@
                 ->all();
         };
 
-        $sanitizePrintableHtml = static function (?string $html) use ($resolvePdfAssetPath): string {
+        $sanitizePrintableHtml = static function (?string $html) use ($resolvePdfAssetPath, $isTcpdf): string {
             if (blank($html)) {
                 return '';
             }
@@ -124,6 +129,12 @@
 
             libxml_clear_errors();
             libxml_use_internal_errors($previousState);
+
+            if ($isTcpdf) {
+                $output = preg_replace('/\b[a-z-]+\s*:\s*auto\s*;?/i', '', $output) ?? $output;
+                $output = preg_replace('/text-rendering\s*:\s*[^;]+;?/i', '', $output) ?? $output;
+                $output = preg_replace('/object-fit\s*:\s*[^;]+;?/i', '', $output) ?? $output;
+            }
 
             return $output;
         };
@@ -252,7 +263,9 @@
 
         .rendered-html img {
             max-width: 100%;
-            height: auto;
+            @if(!$isTcpdf)
+                height: auto;
+            @endif
         }
 
         .question-content:last-child,
@@ -278,7 +291,9 @@
             margin-top: 8px;
             max-height: 220px;
             max-width: 100%;
-            object-fit: contain;
+            @if(!$isTcpdf)
+                object-fit: contain;
+            @endif
             padding: 4px;
         }
 
