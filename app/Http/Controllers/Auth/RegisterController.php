@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use App\Country;
 use Modules\CourseSetting\Entities\Course;
 use Modules\CourseSetting\Entities\CourseEnrolled;
 use Modules\FrontendManage\Entities\LoginPage;
@@ -154,6 +156,16 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
+        $egyptCountryId = $this->egyptCountryId();
+        $locationRules = [
+            'country' => ['required', 'integer', Rule::in([$egyptCountryId]), Rule::exists('countries', 'id')],
+            'state' => ['required', 'integer', Rule::exists('states', 'id')->where(function ($query) use ($egyptCountryId) {
+                $query->where('country_id', $egyptCountryId);
+            })],
+            'city' => ['required', 'integer', Rule::exists('spn_cities', 'id')->where(function ($query) use ($data) {
+                $query->where('state_id', $data['state'] ?? 0);
+            })],
+        ];
         if (saasEnv('NOCAPTCHA_FOR_REG') == 'true' && !($data['type'] ?? '' == "Instructor")) {
             $rules = [
                 'name' => ['required', 'string', 'max:255'],
@@ -186,6 +198,9 @@ class RegisterController extends Controller
                 'institute_name' => ['required', 'string', 'max:255'],
                 'domain' => ['required', 'string', 'max:20', 'unique:lms_institutes'],
             ];
+        }
+        if (!isset($data['is_lms_signup'])) {
+            $rules = array_merge($rules, $locationRules);
         }
         if (currentTheme() == 'tvt') {
             $rules['level'] = ['required'];
@@ -241,6 +256,7 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        $egyptCountryId = $this->egyptCountryId();
         if (isset($data['type']) && $data['type'] == "Instructor") {
             $role = 2;
         } else {
@@ -279,7 +295,9 @@ class RegisterController extends Controller
             'language_name' => Settings('language_name') ?? 'English',
             'language_code' => Settings('language_code') ?? 'en',
             'language_rtl' => Settings('language_rtl') ?? '0',
-            'country' => Settings('country_id'),
+            'country' => $data['country'] ?? $egyptCountryId,
+            'state' => $data['state'] ?? null,
+            'city' => $data['city'] ?? null,
             'username' => null,
             'is_lms_signup' => $data['is_lms_signup'] ?? null,
             'institute_name' => $data['institute_name'] ?? null,
@@ -292,6 +310,11 @@ class RegisterController extends Controller
             'category_id'=>$data['category_id']??null,
             'subcategory_id'=>$data['subcategory_id']??null,
         ]);
+    }
+
+    protected function egyptCountryId(): int
+    {
+        return (int) (Country::where('name', 'Egypt')->value('id') ?: 65);
     }
 
     public function goToCheckout(): bool

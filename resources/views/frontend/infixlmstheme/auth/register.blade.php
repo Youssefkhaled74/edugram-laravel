@@ -2,6 +2,13 @@
 @extends(theme('auth.layouts.app'))
 @section('content')
 
+    @php
+        $egyptCountry = \App\Country::select('id', 'name')->where('name', 'Egypt')->first();
+        $egyptCountryId = $egyptCountry->id ?? 65;
+        $egyptStates = \App\State::where('country_id', $egyptCountryId)->orderBy('name')->get(['id', 'name']);
+        $egyptCities = \App\City::whereIn('state_id', $egyptStates->pluck('id'))->orderBy('name')->get(['id', 'name', 'state_id']);
+    @endphp
+
     <div class="login_wrapper">
         <div class="login_wrapper_left">
             <div class="logo">
@@ -66,7 +73,7 @@
                         <div class="col-12 mt_20">
                             <div class="input-group custom_group_field">
                                 <input type="email" class="form-control ps-0" required
-                                       placeholder="5.name@edugram-eg.com *" aria-label="email" name="email"
+                                       placeholder="name@edugram-eg.com *" aria-label="email" name="email"
                                        value="{{old('email')}}">
                             </div>
                             <span class="text-danger" role="alert">{{$errors->first('email')}}</span>
@@ -94,7 +101,7 @@
                         <div class="col-12 mt_20">
                             <div class="input-group custom_group_field">
                                 <select class="form-control ps-0" name="category_id" id="reg_category_id" required>
-                                    <option value="">{{__('common.Category')}} *</option>
+                                    <option value="">المرحلة الدراسية *</option>
                                     @foreach(\Modules\CourseSetting\Entities\Category::where('parent_id', NULL)->where('status', 1)->orderBy('position_order')->get() as $cat)
                                         <option value="{{$cat->id}}" {{old('category_id') == $cat->id ? 'selected' : ''}}>{{$cat->name}}</option>
                                     @endforeach
@@ -105,10 +112,38 @@
                         <div class="col-12 mt_20">
                             <div class="input-group custom_group_field">
                                 <select class="form-control ps-0" name="subcategory_id" id="reg_subcategory_id" required>
-                                    <option value="">{{__('common.Sub Category')}} *</option>
+                                    <option value="">الصف الدراسي *</option>
                                 </select>
                             </div>
                             <span class="text-danger" role="alert">{{$errors->first('subcategory_id')}}</span>
+                        </div>
+                        <div class="col-12 mt_20">
+                            <div class="input-group custom_group_field">
+                                <select class="form-control ps-0" disabled>
+                                    <option value="{{$egyptCountryId}}">مصر</option>
+                                </select>
+                                <input type="hidden" name="country" value="{{$egyptCountryId}}">
+                            </div>
+                            <span class="text-danger" role="alert">{{$errors->first('country')}}</span>
+                        </div>
+                        <div class="col-12 mt_20">
+                            <div class="input-group custom_group_field">
+                                <select class="form-control ps-0" name="state" id="reg_state" required>
+                                    <option value="">المحافظة *</option>
+                                    @foreach($egyptStates as $state)
+                                        <option value="{{$state->id}}" {{ (string) old('state') === (string) $state->id ? 'selected' : '' }}>{{$state->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <span class="text-danger" role="alert">{{$errors->first('state')}}</span>
+                        </div>
+                        <div class="col-12 mt_20">
+                            <div class="input-group custom_group_field">
+                                <select class="form-control ps-0" name="city" id="reg_city" required>
+                                    <option value="">المدينة *</option>
+                                </select>
+                            </div>
+                            <span class="text-danger" role="alert">{{$errors->first('city')}}</span>
                         </div>
                         <div class="col-12 mt_20">
                             <div class="input-group custom_group_field">
@@ -351,13 +386,20 @@
                 $subData[$catId][] = ['id' => (int)$sc->id, 'name' => (string)$sc->name];
             }
         }
+        $cityData = [];
+        foreach ($egyptCities as $city) {
+            if (!isset($cityData[$city->state_id])) $cityData[$city->state_id] = [];
+            $cityData[$city->state_id][] = ['id' => (int)$city->id, 'name' => (string)$city->name];
+        }
     @endphp
     <script>
         var regSubCategories = {!! json_encode($subData) !!};
         var currentRegSubcategory = '{{ old("subcategory_id") }}';
+        var regCities = {!! json_encode($cityData) !!};
+        var currentRegCity = '{{ old("city") }}';
         function loadRegSubcategories(categoryId, selectCurrent) {
             var $sub = $('#reg_subcategory_id');
-            $sub.html('<option value="">{{ __("common.Sub Category") }} *</option>');
+            $sub.html('<option value="">الصف الدراسي *</option>');
             if (!categoryId) return;
             var items = regSubCategories[categoryId] || [];
             $.each(items, function (i, item) {
@@ -365,12 +407,27 @@
                 $sub.append('<option value="' + item.id + '"' + selected + '>' + item.name + '</option>');
             });
         }
+        function loadRegCities(stateId, selectCurrent) {
+            var $city = $('#reg_city');
+            $city.html('<option value="">المدينة *</option>');
+            if (!stateId) return;
+            var items = regCities[stateId] || [];
+            $.each(items, function (i, item) {
+                var selected = (selectCurrent && item.id == currentRegCity) ? ' selected' : '';
+                $city.append('<option value="' + item.id + '"' + selected + '>' + item.name + '</option>');
+            });
+        }
         $(function () {
             $('#reg_category_id').on('change', function () {
                 loadRegSubcategories($(this).val(), false);
             });
+            $('#reg_state').on('change', function () {
+                loadRegCities($(this).val(), false);
+            });
             var initCat = '{{ old("category_id") }}';
             if (initCat) loadRegSubcategories(initCat, true);
+            var initState = '{{ old("state") }}';
+            if (initState) loadRegCities(initState, true);
         });
     </script>
     <script>
