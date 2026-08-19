@@ -4,7 +4,14 @@
     <meta charset="utf-8">
     <title>{{ $group->title }} - {{ __('common.Print') }}</title>
     @php
-        $fontPath = str_replace('\\', '/', public_path('fonts/DejaVuSans.ttf'));
+        $isTcpdf = ($pdfEngine ?? '') === 'tcpdf';
+        $bodyFontFamily = $isTcpdf ? 'dejavusans' : "'QuizPdfArabic', DejaVu Sans, sans-serif";
+        $bodyFontPath = str_replace('\\', '/', public_path('fonts/vazir.ttf'));
+        if (!file_exists(public_path('fonts/vazir.ttf'))) {
+            $bodyFontPath = str_replace('\\', '/', public_path('fonts/DejaVuSans.ttf'));
+        }
+
+        $katexCss = '';
 
         $resolvePdfAssetPath = static function (?string $path): ?string {
             if (blank($path)) {
@@ -51,6 +58,20 @@
             return $resolvePdfAssetPath($path);
         };
 
+        if (file_exists(public_path('backend/css/katex.min.css'))) {
+            $katexCss = file_get_contents(public_path('backend/css/katex.min.css')) ?: '';
+            $katexCss = preg_replace_callback('/url\(([^)]+)\)/', static function ($matches) {
+                $relativePath = trim($matches[1], '\'" ');
+                $absolutePath = realpath(public_path('backend/css/' . $relativePath));
+
+                if (!$absolutePath) {
+                    return $matches[0];
+                }
+
+                return "url('" . str_replace('\\', '/', $absolutePath) . "')";
+            }, $katexCss);
+        }
+
         $optionSortKey = static function ($option): string {
             return sprintf('%08d-%08d', (int)($option->option_index ?? 0), (int)$option->id);
         };
@@ -62,14 +83,62 @@
                 ->values()
                 ->all();
         };
+
+        $sanitizePrintableHtml = static function (?string $html) use ($resolvePdfAssetPath): string {
+            if (blank($html)) {
+                return '';
+            }
+
+            $html = preg_replace('#<script\b[^>]*>.*?</script>#is', '', (string)$html);
+
+            $previousState = libxml_use_internal_errors(true);
+            $dom = new \DOMDocument('1.0', 'UTF-8');
+            $dom->loadHTML('<?xml encoding="utf-8" ?><div id="printable-root">' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $xpath = new \DOMXPath($dom);
+
+            foreach ([
+                "//*[contains(concat(' ', normalize-space(@class), ' '), ' note-equation-latex-src ')]",
+                "//*[contains(concat(' ', normalize-space(@class), ' '), ' katex-mathml ')]",
+            ] as $query) {
+                $nodes = iterator_to_array($xpath->query($query) ?: []);
+                foreach ($nodes as $node) {
+                    $node->parentNode?->removeChild($node);
+                }
+            }
+
+            foreach (iterator_to_array($xpath->query('//img[@src]') ?: []) as $imageNode) {
+                $resolvedSource = $resolvePdfAssetPath($imageNode->getAttribute('src'));
+                if ($resolvedSource) {
+                    $imageNode->setAttribute('src', $resolvedSource);
+                }
+            }
+
+            $root = $dom->getElementById('printable-root');
+            $output = '';
+
+            if ($root) {
+                foreach ($root->childNodes as $childNode) {
+                    $output .= $dom->saveHTML($childNode);
+                }
+            }
+
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousState);
+
+            return $output;
+        };
     @endphp
     <style>
-        @font-face {
-            font-family: 'QuizPdfArabic';
-            src: url('{{ $fontPath }}') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
+        @if(!$isTcpdf)
+            @font-face {
+                font-family: 'QuizPdfArabic';
+                src: url('{{ $bodyFontPath }}') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+            }
+        @endif
+
+        {!! $katexCss !!}
 
         @page {
             margin: 28px 24px;
@@ -82,7 +151,7 @@
         body {
             margin: 0;
             color: #1f2937;
-            font-family: 'QuizPdfArabic', DejaVu Sans, sans-serif;
+            font-family: {!! $bodyFontFamily !!};
             font-size: 12px;
             line-height: 1.6;
             direction: rtl;
@@ -166,6 +235,24 @@
         .text-block {
             margin-bottom: 12px;
             word-break: break-word;
+        }
+
+        .rendered-html {
+            line-height: 1.8;
+        }
+
+        .rendered-html p,
+        .rendered-html ul,
+        .rendered-html ol,
+        .rendered-html table,
+        .rendered-html blockquote {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .rendered-html img {
+            max-width: 100%;
+            height: auto;
         }
 
         .question-content:last-child,
@@ -259,6 +346,31 @@
             color: #64748b;
             padding: 20px;
         }
+
+        .note-equation-latex-src,
+        .katex-mathml {
+            display: none !important;
+        }
+
+        .note-equation,
+        .katex-display,
+        .katex {
+            direction: ltr !important;
+            text-align: left !important;
+        }
+
+        .katex-display {
+            margin: 0.75em 0 !important;
+            white-space: normal !important;
+        }
+
+        .katex {
+            font-size: 1.08em !important;
+        }
+
+        .katex .base {
+            white-space: nowrap !important;
+        }
     </style>
 </head>
 <body>
@@ -280,14 +392,16 @@
         </table>
     </div>
 
-    @forelse($group->questions as $questionIndex => $question)
-        @php
-            $questionImage = $printImage($question->image);
-            $questionDirection = $direction($question->question);
-            $questionAlignment = $alignment($question->question);
-            $multipleChoiceOptions = $question->questionMuInSerial ?? collect();
-            $sortingOptions = $question->questionSortingOptionsSerial ?? collect();
-            $clozeGroups = ($question->questionMuInSerial ?? collect())->groupBy('group')->sortKeys();
+	    @forelse($group->questions as $questionIndex => $question)
+	        @php
+	            $questionHtml = $sanitizePrintableHtml($question->question);
+	            $explanationHtml = $sanitizePrintableHtml($question->explanation);
+	            $questionImage = $printImage($question->image);
+	            $questionDirection = $direction(strip_tags($questionHtml));
+	            $questionAlignment = $alignment(strip_tags($questionHtml));
+	            $multipleChoiceOptions = $question->questionMuInSerial ?? collect();
+	            $sortingOptions = $question->questionSortingOptionsSerial ?? collect();
+	            $clozeGroups = ($question->questionMuInSerial ?? collect())->groupBy('group')->sortKeys();
             $matchingPrompts = ($question->questionMuInSerial ?? collect())
                 ->where('type', 1)
                 ->sortBy($optionSortKey)
@@ -315,13 +429,13 @@
                 </table>
             </div>
             <div class="question-body">
-                <div class="question-content" dir="{{ $questionDirection }}" style="text-align: {{ $questionAlignment }};">
-                    <span class="section-label">{{ __('quiz.Question') }}</span>
-                    {!! $question->question !!}
-                    @if($questionImage)
-                        <img class="question-image" src="{{ $questionImage }}" alt="Question image">
-                    @endif
-                </div>
+	                <div class="question-content rendered-html" dir="{{ $questionDirection }}" style="text-align: {{ $questionAlignment }};">
+	                    <span class="section-label">{{ __('quiz.Question') }}</span>
+	                    {!! $questionHtml !!}
+	                    @if($questionImage)
+	                        <img class="question-image" src="{{ $questionImage }}" alt="Question image">
+	                    @endif
+	                </div>
 
                 @if($question->type === 'M')
                     <div class="text-block">
@@ -467,12 +581,12 @@
                     </div>
                 @endif
 
-                @if(!blank(strip_tags((string)$question->explanation)))
-                    <div class="explanation" dir="{{ $direction($question->explanation) }}" style="text-align: {{ $alignment($question->explanation) }};">
-                        <span class="section-label">{{ __('quiz.Explanation') }}</span>
-                        {!! $question->explanation !!}
-                    </div>
-                @endif
+	                @if(!blank(strip_tags($explanationHtml)))
+	                    <div class="explanation rendered-html" dir="{{ $direction(strip_tags($explanationHtml)) }}" style="text-align: {{ $alignment(strip_tags($explanationHtml)) }};">
+	                        <span class="section-label">{{ __('quiz.Explanation') }}</span>
+	                        {!! $explanationHtml !!}
+	                    </div>
+	                @endif
             </div>
         </div>
     @empty

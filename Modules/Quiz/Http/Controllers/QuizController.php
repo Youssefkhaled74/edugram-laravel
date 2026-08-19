@@ -4,13 +4,15 @@ namespace Modules\Quiz\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
+use Com\Tecnick\Pdf\Font\Import as TcpdfFontImport;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Modules\AdvanceQuiz\Http\Controllers\AdvanceQuizGroupController;
 use Modules\Quiz\Entities\QuestionGroup;
-use PDF;
+use TCPDF;
 
 class QuizController extends Controller
 {
@@ -160,15 +162,104 @@ class QuizController extends Controller
     private function streamPrintableGroup(QuestionGroup $group)
     {
         $group = $this->getPrintableGroup((int)$group->id);
-
-        $pdf = PDF::loadView('quiz::print_group', compact('group'))
-            ->setOption('fontDir', public_path('fonts'))
-            ->setOption('defaultFont', 'DejaVu Sans')
-            ->setPaper('a4', 'portrait');
-
         $fileName = Str::slug($group->title ?: 'question-group') . '.pdf';
+        $html = view('quiz::print_group', [
+            'group' => $group,
+            'pdfEngine' => 'tcpdf',
+        ])->render();
 
-        return $pdf->stream($fileName);
+        $this->bootstrapTcpdfFonts();
+        $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator(config('app.name'));
+        $pdf->SetAuthor(config('app.name'));
+        $pdf->SetTitle($group->title ?: 'Question Group');
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->SetMargins(10, 10, 10);
+        $pdf->SetAutoPageBreak(true, 10);
+        $pdf->setImageScale(1.25);
+        $pdf->setFontSubsetting(true);
+        $pdf->setLanguageArray([
+            'a_meta_charset' => 'UTF-8',
+            'a_meta_dir' => 'rtl',
+            'a_meta_language' => 'ar',
+            'w_page' => 'page',
+        ]);
+        $pdf->setRTL(true);
+        $pdf->setFont('dejavusans', '', 11, '', true);
+        $pdf->AddPage();
+        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->lastPage();
+
+        return response($pdf->Output($fileName, 'S'), Response::HTTP_OK, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+            'Cache-Control' => 'private, max-age=0, must-revalidate',
+            'Pragma' => 'public',
+        ]);
+    }
+
+    private function bootstrapTcpdfFonts(): void
+    {
+        $fontDirectory = $this->tcpdfFontDirectory();
+
+        if (!is_dir($fontDirectory) && !mkdir($fontDirectory, 0755, true) && !is_dir($fontDirectory)) {
+            throw new \RuntimeException('Unable to create the TCPDF font directory.');
+        }
+
+        $this->defineTcpdfConstant('K_TCPDF_EXTERNAL_CONFIG', true);
+        $this->defineTcpdfConstant('K_PATH_FONTS', str_replace('\\', '/', $fontDirectory) . '/');
+        $this->defineTcpdfConstant('PDF_FONT_NAME_MAIN', 'dejavusans');
+        $this->defineTcpdfConstant('PDF_FONT_NAME_DATA', 'dejavusans');
+
+        foreach ($this->tcpdfFontImports() as $artifact => $sourcePath) {
+            if (!file_exists($fontDirectory . DIRECTORY_SEPARATOR . $artifact) && $sourcePath) {
+                new TcpdfFontImport($sourcePath, $fontDirectory, 'TrueTypeUnicode', '', 32, 3, 1, false);
+            }
+        }
+    }
+
+    private function tcpdfFontImports(): array
+    {
+        return [
+            'dejavusans.json' => $this->resolveFirstExistingPath([
+                public_path('fonts/DejaVuSans.ttf'),
+                resource_path('fonts/DejaVuSans.ttf'),
+                base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans.ttf'),
+            ]),
+            'dejavusansb.json' => $this->resolveFirstExistingPath([
+                base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans-Bold.ttf'),
+            ]),
+            'dejavusansi.json' => $this->resolveFirstExistingPath([
+                base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans-Oblique.ttf'),
+            ]),
+            'dejavusansbi.json' => $this->resolveFirstExistingPath([
+                base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans-BoldOblique.ttf'),
+            ]),
+        ];
+    }
+
+    private function resolveFirstExistingPath(array $paths): ?string
+    {
+        foreach ($paths as $path) {
+            if (is_string($path) && $path !== '' && file_exists($path)) {
+                return $path;
+            }
+        }
+
+        return null;
+    }
+
+    private function tcpdfFontDirectory(): string
+    {
+        return storage_path('app/tcpdf-fonts');
+    }
+
+    private function defineTcpdfConstant(string $name, string $value): void
+    {
+        if (!defined($name)) {
+            define($name, $value);
+        }
     }
 
     public function index()

@@ -77,6 +77,7 @@
         "spondonit/lms-service": "^2.2",
         "spondonit/mobilpay": "^1.1",
         "stevebauman/location": "^7.4",
+        "tecnickcom/tcpdf": "^7.0",
         "toshy/bunnynet-php": "^3.3",
         "unicodeveloper/laravel-paystack": "dev-master",
         "yajra/laravel-datatables": "^12.0"
