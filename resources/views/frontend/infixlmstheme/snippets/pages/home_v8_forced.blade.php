@@ -9,6 +9,9 @@
 
 @section('content')
     @include(theme('snippets.components._home_page_banner_v8'))
+
+    @include(theme('snippets.components._home_page_intro_video_v8'))
+
     @include(theme('snippets.components._home_page_stats_v8'))
     @include(theme('snippets.components._home_page_teachers_v8'))
     @include(theme('snippets.components._home_page_features_v8'))
