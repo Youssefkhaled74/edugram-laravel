@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Modules\AdvanceQuiz\Http\Controllers\AdvanceQuizGroupController;
 use Modules\Quiz\Entities\QuestionGroup;
+use PDF;
 
 class QuizController extends Controller
 {
@@ -95,6 +97,14 @@ class QuizController extends Controller
         return redirect()->route('teacher.question-banks.index');
     }
 
+    public function teacherPrint($bank)
+    {
+        $this->ensureTeacher();
+        $group = $this->teacherOwnPrintableGroup($bank);
+
+        return $this->streamPrintableGroup($group);
+    }
+
     public function teacherDestroy($bank)
     {
         $this->ensureTeacher();
@@ -118,6 +128,47 @@ class QuizController extends Controller
         $group->delete();
         Toastr::success(trans('common.Operation successful'), trans('common.Success'));
         return redirect()->route('teacher.question-banks.index');
+    }
+
+    private function teacherOwnPrintableGroup($groupId): QuestionGroup
+    {
+        $group = QuestionGroup::findOrFail($groupId);
+        if (!$this->canManageOwnGroup($group)) {
+            abort(403);
+        }
+
+        return $group;
+    }
+
+    private function getPrintableGroup(int $groupId): QuestionGroup
+    {
+        return QuestionGroup::withCount('questions')
+            ->with([
+                'questions' => function ($query) {
+                    $query->orderBy('id')
+                        ->with([
+                            'image_media',
+                            'questionMuInSerial.image_media',
+                            'questionSortingOptionsSerial.image_media',
+                            'matchingOptions',
+                        ]);
+                },
+            ])
+            ->findOrFail($groupId);
+    }
+
+    private function streamPrintableGroup(QuestionGroup $group)
+    {
+        $group = $this->getPrintableGroup((int)$group->id);
+
+        $pdf = PDF::loadView('quiz::print_group', compact('group'))
+            ->setOption('fontDir', public_path('fonts'))
+            ->setOption('defaultFont', 'DejaVu Sans')
+            ->setPaper('a4', 'portrait');
+
+        $fileName = Str::slug($group->title ?: 'question-group') . '.pdf';
+
+        return $pdf->stream($fileName);
     }
 
     public function index()
@@ -215,6 +266,20 @@ class QuizController extends Controller
         } catch (\Exception $e) {
             GettingError($e->getMessage(), url()->current(), request()->ip(), request()->userAgent());
         }
+    }
+
+    public function print($id)
+    {
+        if (isModuleActive('AdvanceQuiz')) {
+            return redirect('quiz/question-group');
+        }
+
+        $group = QuestionGroup::findOrFail($id);
+        if (!$this->canAccessGroup($group)) {
+            abort(403);
+        }
+
+        return $this->streamPrintableGroup($group);
     }
 
     public function update(Request $request, $id)

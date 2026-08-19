@@ -12,6 +12,7 @@ Route::prefix('quiz')->middleware(['auth', 'admin'])->group(function () {
     Route::get('question-group/{id}', 'QuizController@show')->name('question-group.edit')->middleware('RoutePermissionCheck:question-group.edit');
     Route::put('question-group/{id}', 'QuizController@update')->name('question-group-update')->middleware('RoutePermissionCheck:question-group.edit');
     Route::delete('question-group/{id}', 'QuizController@destroy')->name('question-group-delete')->middleware('RoutePermissionCheck:question-group.delete');
+    Route::get('question-group/{id}/print', 'QuizController@print')->name('question-group.print')->middleware('RoutePermissionCheck:question-bank-list');
 
     Route::get('question-bank', 'QuestionBankController@form')->name('question-bank')->middleware('RoutePermissionCheck:question-bank');
     Route::get('question-bank-list', 'QuestionBankController@index')->name('question-bank-list')->middleware('RoutePermissionCheck:question-bank-list');
@@ -101,6 +102,7 @@ Route::prefix('teacher')->middleware(['auth'])->group(function () {
     Route::get('question-banks/{bank}', 'QuestionBankController@teacherBankQuestions')->name('teacher.question-banks.show');
     Route::get('question-banks/{bank}/data', 'QuestionBankController@teacherBankData')->name('teacher.question-banks.data');
     Route::get('question-banks/{bank}/edit', 'QuizController@teacherEdit')->name('teacher.question-banks.edit');
+    Route::get('question-banks/{bank}/print', 'QuizController@teacherPrint')->name('teacher.question-banks.print');
     Route::put('question-banks/{bank}', 'QuizController@teacherUpdate')->name('teacher.question-banks.update');
     Route::delete('question-banks/{bank}', 'QuizController@teacherDestroy')->name('teacher.question-banks.destroy');
 

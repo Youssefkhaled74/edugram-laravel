@@ -140,6 +140,8 @@
                                                             @if ($isTeacherBankPage || permissionCheck('question-bank-list'))
                                                                 <a class="dropdown-item"
                                                                    href="{{ $isTeacherBankPage ? route('teacher.question-banks.show', ['bank' => $group->id]) : route('question-bank-list', ['group' => $group->id]) }}">{{ __('common.View') }}</a>
+                                                                <a class="dropdown-item" target="_blank"
+                                                                   href="{{ $isTeacherBankPage ? route('teacher.question-banks.print', ['bank' => $group->id]) : route('question-group.print', ['id' => $group->id]) }}">{{ __('common.Print') }}</a>
                                                             @endif
                                                             @if ($isTeacherBankPage || permissionCheck('question-group.delete'))
                                                                 <a class="dropdown-item" data-bs-toggle="modal"
