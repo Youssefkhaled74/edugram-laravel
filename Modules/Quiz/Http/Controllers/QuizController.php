@@ -170,21 +170,23 @@ class QuizController extends Controller
         $pdf->SetTitle($group->title ?: 'Question Group');
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
-        $pdf->SetMargins(10, 10, 10);
-        $pdf->SetAutoPageBreak(true, 10);
+        $pdf->SetMargins(14, 14, 14);
+        $pdf->SetAutoPageBreak(true, 15);
         $pdf->setImageScale(1.25);
         $pdf->setFontSubsetting(true);
         $pdf->setCellHeightRatio(1.35);
         $pdf->setLanguageArray([
             'a_meta_charset' => 'UTF-8',
-            'a_meta_dir' => 'rtl',
+            'a_meta_dir' => 'ltr',
             'a_meta_language' => 'ar',
             'w_page' => 'page',
         ]);
-        $pdf->setRTL(true);
+        // Keep page coordinates LTR and apply RTL only to individual Arabic cells.
+        $pdf->setRTL(false);
         $pdf->setFont('dejavusans', '', 11, '', true);
         $pdf->AddPage();
         $this->renderPrintableGroupPdf($pdf, $group);
+        $this->renderPdfPageNumbers($pdf);
         $pdf->lastPage();
 
         return response($pdf->Output($fileName, 'S'), Response::HTTP_OK, [
@@ -201,41 +203,41 @@ class QuizController extends Controller
         $rightMargin = $pdf->getMargins()['right'];
         $usableWidth = $pdf->getPageWidth() - $leftMargin - $rightMargin;
 
-        $pdf->SetTextColor(15, 23, 42);
-        $pdf->SetFont('dejavusans', 'B', 22, '', true);
-        $pdf->SetX($leftMargin);
-        $pdf->MultiCell($usableWidth, 0, $this->pdfText($group->title), 0, 'C', false, 1);
-        $pdf->Ln(3);
+        $pdf->SetFillColor(15, 118, 110);
+        $pdf->Rect($leftMargin, $pdf->GetY(), $usableWidth, 24, 'F');
+        $pdf->SetTextColor(255, 255, 255);
+        $pdf->SetFont('dejavusans', 'B', 20, '', true);
+        $this->renderPdfCell($pdf, $group->title, $usableWidth - 12, 14, 'C', 0, false, 1, $leftMargin + 6, $pdf->GetY() + 5);
+        $pdf->SetY($pdf->GetY() + 7);
 
-        $this->renderPdfMetaRow($pdf, trans('quiz.Question Group'), $group->title);
-        $this->renderPdfMetaRow($pdf, trans('quiz.Total Questions'), (string)($group->questions_count ?? $group->questions->count()));
-        $this->renderPdfMetaRow($pdf, trans('common.Date'), showDate($group->created_at));
-        $pdf->Ln(2);
-        $pdf->SetDrawColor(219, 228, 240);
-        $pdf->Line($leftMargin, $pdf->GetY(), $pdf->getPageWidth() - $rightMargin, $pdf->GetY());
-        $pdf->Ln(5);
+        $questionCount = (string)($group->questions_count ?? $group->questions->count());
+        $metaItems = [
+            [trans('quiz.Question Group'), $group->title],
+            [trans('quiz.Total Questions'), $questionCount],
+            [trans('common.Date'), showDate($group->created_at)],
+        ];
+        $metaGap = 2;
+        $metaWidth = ($usableWidth - ($metaGap * 2)) / 3;
+        $metaY = $pdf->GetY();
+
+        foreach ($metaItems as $index => [$label, $value]) {
+            $metaX = $leftMargin + (($metaWidth + $metaGap) * $index);
+            $pdf->SetFillColor(248, 250, 252);
+            $pdf->SetDrawColor(226, 232, 240);
+            $pdf->Rect($metaX, $metaY, $metaWidth, 17, 'DF');
+            $pdf->SetTextColor(71, 85, 105);
+            $pdf->SetFont('dejavusans', 'B', 8.5, '', true);
+            $this->renderPdfCell($pdf, $label, $metaWidth - 6, 5, 'C', 0, false, 1, $metaX + 3, $metaY + 2);
+            $pdf->SetTextColor(15, 23, 42);
+            $pdf->SetFont('dejavusans', '', 9.5, '', true);
+            $this->renderPdfCell($pdf, $value, $metaWidth - 6, 6, 'C', 0, false, 1, $metaX + 3, $metaY + 8);
+        }
+
+        $pdf->SetY($metaY + 23);
 
         foreach ($group->questions as $index => $question) {
             $this->renderPdfQuestion($pdf, $question, $index + 1);
         }
-    }
-
-    private function renderPdfMetaRow(TCPDF $pdf, string $label, string $value): void
-    {
-        $leftMargin = $pdf->getMargins()['left'];
-        $usableWidth = $pdf->getPageWidth() - $leftMargin - $pdf->getMargins()['right'];
-        $labelWidth = 45;
-        $valueWidth = $usableWidth - $labelWidth;
-        $startX = $leftMargin;
-        $startY = $pdf->GetY();
-
-        $pdf->SetX($leftMargin);
-        $pdf->SetFont('dejavusans', 'B', 11, '', true);
-        $pdf->MultiCell($labelWidth, 8, $this->pdfText($label), 0, 'R', false, 0);
-        $pdf->SetFont('dejavusans', '', 11, '', true);
-        $pdf->MultiCell($valueWidth, 8, $this->pdfText($value), 0, 'R', false, 1);
-
-        $pdf->SetXY($startX, max($startY + 8, $pdf->GetY()));
     }
 
     private function renderPdfQuestion(TCPDF $pdf, $question, int $number): void
@@ -250,23 +252,42 @@ class QuizController extends Controller
             $typeLabel .= ' | ' . trans('quiz.Marks') . ': ' . $question->marks;
         }
 
+        $questionImage = $this->resolvePdfImagePath($question->image);
+        $detailItemCount = match ($question->type) {
+            'M' => ($question->questionMuInSerial ?? collect())->count(),
+            'O' => ($question->questionSortingOptionsSerial ?? collect())->count(),
+            'X', 'P' => ($question->questionMuInSerial ?? collect())->where('type', 1)->count(),
+            'C' => ($question->questionMuInSerial ?? collect())->groupBy('group')->count(),
+            default => 1,
+        };
+        $minimumQuestionHeight = 31 + (min(8, $detailItemCount) * 6);
+        if (!blank($question->explanation)) {
+            $minimumQuestionHeight += 11;
+        }
+        if ($questionImage) {
+            $imageSize = $this->getPdfImageSize($questionImage, $usableWidth);
+            $minimumQuestionHeight += ($imageSize['height'] ?? 0) + 6;
+        }
+        $pageCapacity = $pdf->getPageHeight() - $pdf->getMargins()['top'] - $pdf->getMargins()['bottom'] - 1;
+        $this->ensurePdfSpace($pdf, min($minimumQuestionHeight, $pageCapacity));
+
         $pdf->SetFillColor(248, 250, 252);
         $pdf->SetDrawColor(219, 228, 240);
         $pdf->SetLineWidth(0.2);
-        $pdf->SetX($leftMargin);
-        $pdf->SetFont('dejavusans', 'B', 13, '', true);
-        $pdf->Cell($headerLeftWidth, 10, $this->pdfText($title), 1, 0, 'R', true);
+        $headerY = $pdf->GetY();
         $pdf->SetFont('dejavusans', '', 11, '', true);
-        $pdf->Cell($headerRightWidth, 10, $this->pdfText($typeLabel), 1, 1, 'L', true);
+        $this->renderPdfCell($pdf, $typeLabel, $headerLeftWidth, 10, $this->pdfAlignment($typeLabel), 1, true, 0, $leftMargin, $headerY);
+        $pdf->SetFont('dejavusans', 'B', 13, '', true);
+        $this->renderPdfCell($pdf, $title, $headerRightWidth, 10, 'R', 1, true, 1, $leftMargin + $headerLeftWidth, $headerY);
 
         $pdf->SetFont('dejavusans', 'B', 11, '', true);
         $pdf->Ln(2);
-        $pdf->MultiCell(0, 0, $this->pdfText(trans('quiz.Question')), 0, 'R', false, 1);
+        $this->renderPdfCell($pdf, trans('quiz.Question'), $usableWidth, 0, 'R');
         $pdf->SetFont('dejavusans', '', 11, '', true);
         $questionText = $this->extractPdfPlainText($question->question);
-        $pdf->MultiCell(0, 0, $this->pdfText($questionText !== '' ? $questionText : strip_tags((string)$question->question)), 0, $this->pdfAlignment($question->question), false, 1);
+        $questionText = $questionText !== '' ? $questionText : strip_tags((string)$question->question);
+        $this->renderPdfCell($pdf, $questionText, $usableWidth, 0, $this->pdfAlignment($questionText));
 
-        $questionImage = $this->resolvePdfImagePath($question->image);
         if ($questionImage) {
             $this->renderPdfImage($pdf, $questionImage);
         }
@@ -277,11 +298,14 @@ class QuizController extends Controller
         if ($explanation !== '') {
             $pdf->Ln(1);
             $pdf->SetFont('dejavusans', 'B', 10, '', true);
-            $pdf->MultiCell(0, 0, $this->pdfText(trans('quiz.Explanation')), 0, 'R', false, 1);
+            $this->renderPdfCell($pdf, trans('quiz.Explanation'), $usableWidth, 0, 'R');
             $pdf->SetFont('dejavusans', '', 10, '', true);
-            $pdf->MultiCell(0, 0, $this->pdfText($explanation), 0, $this->pdfAlignment($question->explanation), false, 1);
+            $this->renderPdfCell($pdf, $explanation, $usableWidth, 0, $this->pdfAlignment($explanation));
         }
 
+        $pdf->Ln(4);
+        $pdf->SetDrawColor(226, 232, 240);
+        $pdf->Line($leftMargin, $pdf->GetY(), $leftMargin + $usableWidth, $pdf->GetY());
         $pdf->Ln(5);
     }
 
@@ -291,7 +315,7 @@ class QuizController extends Controller
             $this->renderPdfListSection($pdf, trans('quiz.Options'), ($question->questionMuInSerial ?? collect())->map(function ($option) {
                 $text = $option->title;
                 if ((int)$option->status === 1) {
-                    $text .= ' [' . trans('quiz.Correct Answer') . ']';
+                    $text = "\u{2713} " . $text;
                 }
                 return $text;
             })->all());
@@ -359,11 +383,14 @@ class QuizController extends Controller
 
         $pdf->Ln(2);
         $pdf->SetFont('dejavusans', 'B', 10, '', true);
-        $pdf->MultiCell(0, 0, $this->pdfText($label), 0, 'R', false, 1);
+        $usableWidth = $pdf->getPageWidth() - $pdf->getMargins()['left'] - $pdf->getMargins()['right'];
+        $this->renderPdfCell($pdf, $label, $usableWidth, 0, 'R');
         $pdf->SetFont('dejavusans', '', 10, '', true);
 
         foreach ($items as $item) {
-            $pdf->MultiCell(0, 0, $this->pdfText('- ' . $item), 0, $this->pdfAlignment((string)$item), false, 1);
+            $item = (string)$item;
+            $prefix = $this->pdfAlignment($item) === 'R' ? "\u{2022} " : '- ';
+            $this->renderPdfCell($pdf, $prefix . $item, $usableWidth, 0, $this->pdfAlignment($item));
         }
     }
 
@@ -373,11 +400,78 @@ class QuizController extends Controller
         $leftMargin = $pdf->getMargins()['left'];
         $rightMargin = $pdf->getMargins()['right'];
         $usableWidth = $pdf->getPageWidth() - $leftMargin - $rightMargin;
-        $imageWidth = min(60, $usableWidth);
+        $imageSize = $this->getPdfImageSize($path, $usableWidth);
+        if (!$imageSize) {
+            return;
+        }
+
+        $imageWidth = $imageSize['width'];
+        $imageHeight = $imageSize['height'];
+        $this->ensurePdfSpace($pdf, $imageHeight + 6);
         $imageX = $leftMargin + (($usableWidth - $imageWidth) / 2);
         $imageY = $pdf->GetY();
-        $pdf->Image($path, $imageX, $imageY, $imageWidth, 0, '', '', '', true, 150, '', false, false, 1, false, false, false);
-        $pdf->SetY($pdf->GetImageRBY() + 4);
+        $pdf->Image($path, $imageX, $imageY, $imageWidth, $imageHeight, '', '', '', true, 150, '', false, false, 1, false, false, false);
+        $pdf->SetY($imageY + $imageHeight + 4);
+    }
+
+    private function getPdfImageSize(string $path, float $usableWidth): ?array
+    {
+        $dimensions = @getimagesize($path);
+        if (!$dimensions || $dimensions[0] <= 0 || $dimensions[1] <= 0) {
+            return null;
+        }
+
+        $scale = min(min(72, $usableWidth) / $dimensions[0], 72 / $dimensions[1]);
+
+        return [
+            'width' => $dimensions[0] * $scale,
+            'height' => $dimensions[1] * $scale,
+        ];
+    }
+
+    private function renderPdfCell(
+        TCPDF $pdf,
+        ?string $text,
+        float $width,
+        float $height = 0,
+        string $alignment = 'R',
+        int $border = 0,
+        bool $fill = false,
+        int $lineBreak = 1,
+        ?float $x = null,
+        ?float $y = null
+    ): void {
+        $text = $this->pdfText($text);
+        $pdf->setTempRTL($this->pdfAlignment($text) === 'R' ? 'R' : 'L');
+        $pdf->MultiCell($width, $height, $text, $border, $alignment, $fill, $lineBreak, $x, $y, true, 0, false, true);
+        $pdf->setTempRTL(false);
+    }
+
+    private function ensurePdfSpace(TCPDF $pdf, float $requiredHeight): void
+    {
+        $bottomLimit = $pdf->getPageHeight() - $pdf->getMargins()['bottom'];
+        if ($pdf->GetY() + $requiredHeight > $bottomLimit) {
+            $pdf->AddPage();
+        }
+    }
+
+    private function renderPdfPageNumbers(TCPDF $pdf): void
+    {
+        $pageCount = $pdf->getNumPages();
+        $leftMargin = $pdf->getMargins()['left'];
+        $usableWidth = $pdf->getPageWidth() - $leftMargin - $pdf->getMargins()['right'];
+        $pdf->SetAutoPageBreak(false);
+
+        for ($page = 1; $page <= $pageCount; $page++) {
+            $pdf->setPage($page);
+            $pdf->SetDrawColor(226, 232, 240);
+            $pdf->Line($leftMargin, $pdf->getPageHeight() - 11, $leftMargin + $usableWidth, $pdf->getPageHeight() - 11);
+            $pdf->SetTextColor(100, 116, 139);
+            $pdf->SetFont('dejavusans', '', 8.5, '', true);
+            $this->renderPdfCell($pdf, $page . ' / ' . $pageCount, $usableWidth, 6, 'C', 0, false, 1, $leftMargin, $pdf->getPageHeight() - 9);
+        }
+
+        $pdf->SetAutoPageBreak(true, 15);
     }
 
     private function extractPdfPlainText(?string $html): string
