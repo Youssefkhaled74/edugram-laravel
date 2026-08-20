@@ -252,6 +252,7 @@ class QuizController extends Controller
             $typeLabel .= ' | ' . trans('quiz.Marks') . ': ' . $question->marks;
         }
 
+        $questionParts = $this->extractPdfContentParts($question->question);
         $questionImage = $this->resolvePdfImagePath($question->image);
         $detailItemCount = match ($question->type) {
             'M' => ($question->questionMuInSerial ?? collect())->count(),
@@ -264,6 +265,7 @@ class QuizController extends Controller
         if (!blank($question->explanation)) {
             $minimumQuestionHeight += 11;
         }
+        $minimumQuestionHeight += collect($questionParts)->where('type', 'math')->count() * 18;
         if ($questionImage) {
             $imageSize = $this->getPdfImageSize($questionImage, $usableWidth);
             $minimumQuestionHeight += ($imageSize['height'] ?? 0) + 6;
@@ -284,9 +286,9 @@ class QuizController extends Controller
         $pdf->Ln(2);
         $this->renderPdfCell($pdf, trans('quiz.Question'), $usableWidth, 0, 'R');
         $pdf->SetFont('dejavusans', '', 11, '', true);
-        $questionText = $this->extractPdfPlainText($question->question);
-        $questionText = $questionText !== '' ? $questionText : strip_tags((string)$question->question);
-        $this->renderPdfCell($pdf, $questionText, $usableWidth, 0, $this->pdfAlignment($questionText));
+        if (!empty($questionParts)) {
+            $this->renderPdfContentParts($pdf, $questionParts, $usableWidth, 11);
+        }
 
         if ($questionImage) {
             $this->renderPdfImage($pdf, $questionImage);
@@ -294,13 +296,13 @@ class QuizController extends Controller
 
         $this->renderPdfQuestionDetails($pdf, $question);
 
-        $explanation = $this->extractPdfPlainText($question->explanation);
-        if ($explanation !== '') {
+        $explanationParts = $this->extractPdfContentParts($question->explanation);
+        if (!empty($explanationParts)) {
             $pdf->Ln(1);
             $pdf->SetFont('dejavusans', 'B', 10, '', true);
             $this->renderPdfCell($pdf, trans('quiz.Explanation'), $usableWidth, 0, 'R');
             $pdf->SetFont('dejavusans', '', 10, '', true);
-            $this->renderPdfCell($pdf, $explanation, $usableWidth, 0, $this->pdfAlignment($explanation));
+            $this->renderPdfContentParts($pdf, $explanationParts, $usableWidth, 10);
         }
 
         $pdf->Ln(4);
@@ -474,10 +476,28 @@ class QuizController extends Controller
         $pdf->SetAutoPageBreak(true, 15);
     }
 
-    private function extractPdfPlainText(?string $html): string
+    private function renderPdfContentParts(TCPDF $pdf, array $parts, float $width, float $fontSize): void
+    {
+        foreach ($parts as $part) {
+            if (($part['type'] ?? '') === 'math') {
+                $this->renderPdfMath($pdf, $part, $width, $fontSize + 1);
+                continue;
+            }
+
+            $text = trim((string)($part['text'] ?? ''));
+            if ($text === '') {
+                continue;
+            }
+
+            $pdf->SetFont('dejavusans', '', $fontSize, '', true);
+            $this->renderPdfCell($pdf, $text, $width, 0, $this->pdfAlignment($text));
+        }
+    }
+
+    private function extractPdfContentParts(?string $html): array
     {
         if (blank($html)) {
-            return '';
+            return [];
         }
 
         $html = preg_replace('#<script\b[^>]*>.*?</script>#is', '', (string)$html);
@@ -486,6 +506,7 @@ class QuizController extends Controller
         $dom = new \DOMDocument('1.0', 'UTF-8');
         $dom->loadHTML('<?xml encoding="utf-8" ?><div id="pdf-root">' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         $xpath = new \DOMXPath($dom);
+        $mathParts = [];
 
         foreach (['//br', '//p', '//div', '//li', '//tr', '//table', '//ul', '//ol'] as $query) {
             foreach (iterator_to_array($xpath->query($query) ?: []) as $node) {
@@ -495,29 +516,32 @@ class QuizController extends Controller
             }
         }
 
-        foreach (iterator_to_array($xpath->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' note-equation ')]") ?: []) as $equationNode) {
-            $latexSource = '';
-            $nextSibling = $equationNode->nextSibling;
-            while ($nextSibling) {
-                if ($nextSibling instanceof \DOMElement) {
-                    $classes = ' ' . preg_replace('/\s+/', ' ', trim((string)$nextSibling->getAttribute('class'))) . ' ';
-                    if (str_contains($classes, ' note-equation-latex-src ')) {
-                        $latexSource = trim(html_entity_decode($nextSibling->textContent ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-                        break;
-                    }
-                }
-                $nextSibling = $nextSibling->nextSibling;
-            }
-
-            if ($latexSource === '') {
-                $latexSource = trim(html_entity_decode($equationNode->textContent ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-            }
-
-            $equationNode->parentNode?->replaceChild($dom->createTextNode(' ' . $latexSource . ' '), $equationNode);
+        $equationQuery = "//*[contains(concat(' ', normalize-space(@class), ' '), ' note-equation ') or contains(concat(' ', normalize-space(@class), ' '), ' note-math ')]";
+        foreach (iterator_to_array($xpath->query($equationQuery) ?: []) as $equationNode) {
+            $latexNode = $xpath->query(
+                ".//*[contains(concat(' ', normalize-space(@class), ' '), ' note-equation-latex-src ') or contains(concat(' ', normalize-space(@class), ' '), ' note-latex ')]",
+                $equationNode
+            )?->item(0);
+            $annotationNode = $xpath->query(".//*[local-name()='annotation' and @encoding='application/x-tex']", $equationNode)?->item(0);
+            $mathNode = $xpath->query(".//*[local-name()='math']", $equationNode)?->item(0);
+            $latex = trim(html_entity_decode(
+                (string)($latexNode?->textContent ?: $annotationNode?->textContent ?: ''),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            ));
+            $ast = $this->pdfMathAstFromDom($mathNode);
+            $index = count($mathParts);
+            $mathParts[] = [
+                'type' => 'math',
+                'ast' => $ast,
+                'latex' => $latex,
+            ];
+            $equationNode->parentNode?->replaceChild($dom->createTextNode("\n[[PDF_MATH_{$index}]]\n"), $equationNode);
         }
 
         foreach ([
             "//*[contains(concat(' ', normalize-space(@class), ' '), ' note-equation-latex-src ')]",
+            "//*[contains(concat(' ', normalize-space(@class), ' '), ' note-latex ')]",
             "//*[contains(concat(' ', normalize-space(@class), ' '), ' katex ')]",
             "//*[contains(concat(' ', normalize-space(@class), ' '), ' katex-mathml ')]",
             '//img',
@@ -532,12 +556,433 @@ class QuizController extends Controller
         $text = preg_replace("/(\r\n|\r)/", "\n", $text) ?? $text;
         $text = preg_replace("/[ \t]+/", ' ', $text) ?? $text;
         $text = preg_replace("/\n{3,}/", "\n\n", $text) ?? $text;
-        $text = trim($text);
+        $chunks = preg_split('/\[\[PDF_MATH_(\d+)\]\]/', $text, -1, PREG_SPLIT_DELIM_CAPTURE) ?: [];
+        $parts = [];
+
+        foreach ($chunks as $chunkIndex => $chunk) {
+            if ($chunkIndex % 2 === 1) {
+                $mathIndex = (int)$chunk;
+                if (isset($mathParts[$mathIndex])) {
+                    $parts[] = $mathParts[$mathIndex];
+                }
+                continue;
+            }
+
+            $chunk = trim($chunk);
+            if ($chunk !== '') {
+                $parts[] = ['type' => 'text', 'text' => $chunk];
+            }
+        }
 
         libxml_clear_errors();
         libxml_use_internal_errors($previousState);
 
-        return $text;
+        return $parts;
+    }
+
+    private function pdfMathAstFromDom(?\DOMNode $node): ?array
+    {
+        if (!$node) {
+            return null;
+        }
+
+        if ($node instanceof \DOMText) {
+            $text = trim($node->nodeValue ?? '');
+            return $text === '' ? null : ['type' => 'text', 'text' => $text, 'style' => ''];
+        }
+
+        if (!$node instanceof \DOMElement) {
+            return null;
+        }
+
+        $tag = strtolower($node->localName ?: $node->nodeName);
+        if ($tag === 'annotation') {
+            return null;
+        }
+
+        $children = [];
+        foreach ($node->childNodes as $childNode) {
+            $child = $this->pdfMathAstFromDom($childNode);
+            if ($child) {
+                $children[] = $child;
+            }
+        }
+
+        if (in_array($tag, ['mi', 'mn', 'mo', 'mtext', 'ms'], true)) {
+            return [
+                'type' => 'text',
+                'text' => trim((string)$node->textContent),
+                'style' => $tag === 'mi' && $node->getAttribute('mathvariant') !== 'normal' ? 'I' : '',
+                'operator' => $tag === 'mo',
+            ];
+        }
+
+        if ($tag === 'mspace') {
+            return ['type' => 'space', 'em' => $this->pdfMathEmValue($node->getAttribute('width'), 0.35)];
+        }
+
+        if ($tag === 'mfrac' && count($children) >= 2) {
+            return ['type' => 'fraction', 'numerator' => $children[0], 'denominator' => $children[1]];
+        }
+
+        if ($tag === 'msqrt') {
+            return ['type' => 'root', 'base' => $this->pdfMathGroup($children), 'index' => null];
+        }
+
+        if ($tag === 'mroot' && count($children) >= 2) {
+            return ['type' => 'root', 'base' => $children[0], 'index' => $children[1]];
+        }
+
+        if ($tag === 'msup' && count($children) >= 2) {
+            return ['type' => 'scripts', 'base' => $children[0], 'sub' => null, 'sup' => $children[1]];
+        }
+
+        if ($tag === 'msub' && count($children) >= 2) {
+            return ['type' => 'scripts', 'base' => $children[0], 'sub' => $children[1], 'sup' => null];
+        }
+
+        if ($tag === 'msubsup' && count($children) >= 3) {
+            return ['type' => 'scripts', 'base' => $children[0], 'sub' => $children[1], 'sup' => $children[2]];
+        }
+
+        if ($tag === 'mover' && count($children) >= 2) {
+            return ['type' => 'limits', 'base' => $children[0], 'under' => null, 'over' => $children[1]];
+        }
+
+        if ($tag === 'munder' && count($children) >= 2) {
+            return ['type' => 'limits', 'base' => $children[0], 'under' => $children[1], 'over' => null];
+        }
+
+        if ($tag === 'munderover' && count($children) >= 3) {
+            return ['type' => 'limits', 'base' => $children[0], 'under' => $children[1], 'over' => $children[2]];
+        }
+
+        if ($tag === 'mfenced') {
+            $open = $node->hasAttribute('open') ? $node->getAttribute('open') : '(';
+            $close = $node->hasAttribute('close') ? $node->getAttribute('close') : ')';
+            return $this->pdfMathGroup(array_merge([
+                ['type' => 'text', 'text' => $open, 'style' => '', 'operator' => false],
+            ], $children, [
+                ['type' => 'text', 'text' => $close, 'style' => '', 'operator' => false],
+            ]));
+        }
+
+        if ($tag === 'semantics') {
+            return $children[0] ?? null;
+        }
+
+        return $this->pdfMathGroup($children);
+    }
+
+    private function pdfMathGroup(array $children): ?array
+    {
+        $children = array_values(array_filter($children));
+        if (empty($children)) {
+            return null;
+        }
+
+        return count($children) === 1 ? $children[0] : ['type' => 'row', 'children' => $children];
+    }
+
+    private function pdfMathEmValue(string $value, float $fallback): float
+    {
+        return preg_match('/-?[0-9.]+/', $value, $matches) === 1 ? (float)$matches[0] : $fallback;
+    }
+
+    private function renderPdfMath(TCPDF $pdf, array $part, float $width, float $fontSize): void
+    {
+        $ast = $part['ast'] ?? null;
+        if (!$ast) {
+            $fallback = $this->readablePdfLatex((string)($part['latex'] ?? ''));
+            if ($fallback !== '') {
+                $pdf->SetFont('dejavusans', '', max(8, $fontSize - 1), '', true);
+                $this->renderPdfCell($pdf, $fallback, $width, 0, 'C');
+            }
+            return;
+        }
+
+        $layout = $this->layoutPdfMath($pdf, $ast, $fontSize);
+        if ($layout['width'] > $width) {
+            $scaledFontSize = max(5.5, $fontSize * ($width / $layout['width']));
+            $layout = $this->layoutPdfMath($pdf, $ast, $scaledFontSize);
+        }
+
+        $blockHeight = max(6, $layout['height'] + $layout['depth'] + 4);
+        $this->ensurePdfSpace($pdf, $blockHeight);
+        $startY = $pdf->GetY();
+        $startX = $pdf->getMargins()['left'] + max(0, ($width - $layout['width']) / 2);
+        $baseline = $startY + 2 + $layout['height'];
+        $this->drawPdfMathLayout($pdf, $layout, $startX, $baseline);
+        $pdf->SetY($startY + $blockHeight);
+        $pdf->setTempRTL(false);
+    }
+
+    private function layoutPdfMath(TCPDF $pdf, array $node, float $fontSize): array
+    {
+        $type = $node['type'] ?? 'text';
+        $em = $fontSize * 0.352778;
+
+        if ($type === 'space') {
+            return [
+                'type' => 'space',
+                'width' => max(0, (float)($node['em'] ?? 0.35) * $em),
+                'height' => 0.0,
+                'depth' => 0.0,
+            ];
+        }
+
+        if ($type === 'text') {
+            $text = (string)($node['text'] ?? '');
+            $style = (string)($node['style'] ?? '');
+            $pdf->SetFont('dejavusans', $style, $fontSize, '', true);
+            $operatorPadding = !empty($node['operator']) && !in_array($text, ['(', ')', '[', ']', '{', '}', '|', '‖'], true) ? $em * 0.12 : 0;
+
+            return [
+                'type' => 'text',
+                'text' => $text,
+                'style' => $style,
+                'font_size' => $fontSize,
+                'padding' => $operatorPadding,
+                'width' => $pdf->GetStringWidth($text) + ($operatorPadding * 2),
+                'height' => $em * 0.82,
+                'depth' => $em * 0.22,
+            ];
+        }
+
+        if ($type === 'row') {
+            $children = [];
+            $cursorX = 0.0;
+            $height = 0.0;
+            $depth = 0.0;
+            foreach ($node['children'] ?? [] as $childNode) {
+                $child = $this->layoutPdfMath($pdf, $childNode, $fontSize);
+                $children[] = ['layout' => $child, 'x' => $cursorX];
+                $cursorX += $child['width'];
+                $height = max($height, $child['height']);
+                $depth = max($depth, $child['depth']);
+            }
+
+            return [
+                'type' => 'row',
+                'children' => $children,
+                'width' => $cursorX,
+                'height' => $height,
+                'depth' => $depth,
+            ];
+        }
+
+        if ($type === 'fraction') {
+            $numerator = $this->layoutPdfMath($pdf, $node['numerator'], $fontSize * 0.9);
+            $denominator = $this->layoutPdfMath($pdf, $node['denominator'], $fontSize * 0.9);
+            $padding = max(0.7, $em * 0.18);
+            $gap = max(0.6, $em * 0.15);
+            $rule = max(0.18, $em * 0.055);
+            $lineOffset = $em * 0.18;
+            $width = max($numerator['width'], $denominator['width']) + ($padding * 2);
+            $numeratorBaseline = -$lineOffset - $gap - $numerator['depth'];
+            $denominatorBaseline = -$lineOffset + $rule + $gap + $denominator['height'];
+
+            return [
+                'type' => 'fraction',
+                'numerator' => $numerator,
+                'denominator' => $denominator,
+                'numerator_baseline' => $numeratorBaseline,
+                'denominator_baseline' => $denominatorBaseline,
+                'line_y' => -$lineOffset,
+                'rule' => $rule,
+                'width' => $width,
+                'height' => -($numeratorBaseline - $numerator['height']),
+                'depth' => $denominatorBaseline + $denominator['depth'],
+            ];
+        }
+
+        if ($type === 'root') {
+            $base = $this->layoutPdfMath($pdf, $node['base'], $fontSize);
+            $index = !empty($node['index']) ? $this->layoutPdfMath($pdf, $node['index'], $fontSize * 0.52) : null;
+            $pdf->SetFont('dejavusans', '', $fontSize * 1.12, '', true);
+            $rootWidth = $pdf->GetStringWidth('√') + 0.2;
+            $height = max($base['height'] + 0.8, $em * 1.08);
+            if ($index) {
+                $height = max($height, $base['height'] + $index['height'] + $index['depth'] * 0.35);
+            }
+
+            return [
+                'type' => 'root',
+                'base' => $base,
+                'index' => $index,
+                'font_size' => $fontSize * 1.12,
+                'root_width' => $rootWidth,
+                'width' => $rootWidth + $base['width'] + 0.4,
+                'height' => $height,
+                'depth' => max($base['depth'], $em * 0.18),
+            ];
+        }
+
+        if ($type === 'scripts') {
+            $base = $this->layoutPdfMath($pdf, $node['base'], $fontSize);
+            $sub = !empty($node['sub']) ? $this->layoutPdfMath($pdf, $node['sub'], $fontSize * 0.68) : null;
+            $sup = !empty($node['sup']) ? $this->layoutPdfMath($pdf, $node['sup'], $fontSize * 0.68) : null;
+            $scriptWidth = max($sub['width'] ?? 0, $sup['width'] ?? 0);
+            $supBaseline = $sup ? -max($base['height'] * 0.72, $sup['depth'] + ($em * 0.32)) : 0;
+            $subBaseline = $sub ? max($base['depth'] + ($em * 0.24), $sub['height'] * 0.72) : 0;
+
+            return [
+                'type' => 'scripts',
+                'base' => $base,
+                'sub' => $sub,
+                'sup' => $sup,
+                'sup_baseline' => $supBaseline,
+                'sub_baseline' => $subBaseline,
+                'script_x' => $base['width'] + 0.25,
+                'width' => $base['width'] + ($scriptWidth > 0 ? $scriptWidth + 0.35 : 0),
+                'height' => max($base['height'], $sup ? -($supBaseline - $sup['height']) : 0),
+                'depth' => max($base['depth'], $sub ? $subBaseline + $sub['depth'] : 0),
+            ];
+        }
+
+        if ($type === 'limits') {
+            $base = $this->layoutPdfMath($pdf, $node['base'], $fontSize * 1.05);
+            $under = !empty($node['under']) ? $this->layoutPdfMath($pdf, $node['under'], $fontSize * 0.66) : null;
+            $over = !empty($node['over']) ? $this->layoutPdfMath($pdf, $node['over'], $fontSize * 0.66) : null;
+            $width = max($base['width'], $under['width'] ?? 0, $over['width'] ?? 0) + 0.5;
+            $gap = max(0.45, $em * 0.12);
+            $overBaseline = $over ? -$base['height'] - $gap - $over['depth'] : 0;
+            $underBaseline = $under ? $base['depth'] + $gap + $under['height'] : 0;
+
+            return [
+                'type' => 'limits',
+                'base' => $base,
+                'under' => $under,
+                'over' => $over,
+                'over_baseline' => $overBaseline,
+                'under_baseline' => $underBaseline,
+                'width' => $width,
+                'height' => max($base['height'], $over ? -($overBaseline - $over['height']) : 0),
+                'depth' => max($base['depth'], $under ? $underBaseline + $under['depth'] : 0),
+            ];
+        }
+
+        return $this->layoutPdfMath($pdf, ['type' => 'text', 'text' => '', 'style' => ''], $fontSize);
+    }
+
+    private function drawPdfMathLayout(TCPDF $pdf, array $layout, float $x, float $baseline): void
+    {
+        $type = $layout['type'];
+        if ($type === 'space') {
+            return;
+        }
+
+        if ($type === 'text') {
+            if ($layout['text'] === '') {
+                return;
+            }
+            $pdf->SetFont('dejavusans', $layout['style'], $layout['font_size'], '', true);
+            $pdf->setTempRTL('L');
+            $pdf->Text($x + $layout['padding'], $baseline - $layout['height'], $layout['text'], 0, false, true, 0, 0, 'L', false, '', 0, false, 'T', 'M', true);
+            return;
+        }
+
+        if ($type === 'row') {
+            foreach ($layout['children'] as $child) {
+                $this->drawPdfMathLayout($pdf, $child['layout'], $x + $child['x'], $baseline);
+            }
+            return;
+        }
+
+        if ($type === 'fraction') {
+            $numX = $x + (($layout['width'] - $layout['numerator']['width']) / 2);
+            $denX = $x + (($layout['width'] - $layout['denominator']['width']) / 2);
+            $this->drawPdfMathLayout($pdf, $layout['numerator'], $numX, $baseline + $layout['numerator_baseline']);
+            $this->drawPdfMathLayout($pdf, $layout['denominator'], $denX, $baseline + $layout['denominator_baseline']);
+            $pdf->SetLineWidth($layout['rule']);
+            $pdf->Line($x, $baseline + $layout['line_y'], $x + $layout['width'], $baseline + $layout['line_y']);
+            $pdf->SetLineWidth(0.2);
+            return;
+        }
+
+        if ($type === 'root') {
+            $pdf->SetFont('dejavusans', '', $layout['font_size'], '', true);
+            $pdf->setTempRTL('L');
+            $pdf->Text($x, $baseline - $layout['height'] + 0.15, '√', 0, false, true, 0, 0, 'L', false, '', 0, false, 'T', 'M', true);
+            $baseX = $x + $layout['root_width'];
+            $this->drawPdfMathLayout($pdf, $layout['base'], $baseX, $baseline);
+            $pdf->SetLineWidth(0.18);
+            $pdf->Line($baseX - 0.25, $baseline - $layout['base']['height'] - 0.45, $baseX + $layout['base']['width'] + 0.25, $baseline - $layout['base']['height'] - 0.45);
+            $pdf->SetLineWidth(0.2);
+            if ($layout['index']) {
+                $this->drawPdfMathLayout($pdf, $layout['index'], $x, $baseline - $layout['base']['height'] + 0.15);
+            }
+            return;
+        }
+
+        if ($type === 'scripts') {
+            $this->drawPdfMathLayout($pdf, $layout['base'], $x, $baseline);
+            if ($layout['sup']) {
+                $this->drawPdfMathLayout($pdf, $layout['sup'], $x + $layout['script_x'], $baseline + $layout['sup_baseline']);
+            }
+            if ($layout['sub']) {
+                $this->drawPdfMathLayout($pdf, $layout['sub'], $x + $layout['script_x'], $baseline + $layout['sub_baseline']);
+            }
+            return;
+        }
+
+        if ($type === 'limits') {
+            $baseX = $x + (($layout['width'] - $layout['base']['width']) / 2);
+            $this->drawPdfMathLayout($pdf, $layout['base'], $baseX, $baseline);
+            if ($layout['over']) {
+                $overX = $x + (($layout['width'] - $layout['over']['width']) / 2);
+                $this->drawPdfMathLayout($pdf, $layout['over'], $overX, $baseline + $layout['over_baseline']);
+            }
+            if ($layout['under']) {
+                $underX = $x + (($layout['width'] - $layout['under']['width']) / 2);
+                $this->drawPdfMathLayout($pdf, $layout['under'], $underX, $baseline + $layout['under_baseline']);
+            }
+        }
+    }
+
+    private function readablePdfLatex(string $latex): string
+    {
+        $latex = trim($latex);
+        if ($latex === '') {
+            return '';
+        }
+
+        for ($iteration = 0; $iteration < 8; $iteration++) {
+            $previous = $latex;
+            $latex = preg_replace('/\\\\frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/u', '($1)/($2)', $latex) ?? $latex;
+            $latex = preg_replace('/\\\\sqrt\s*\[([^\]]+)\]\s*\{([^{}]*)\}/u', '$1√($2)', $latex) ?? $latex;
+            $latex = preg_replace('/\\\\sqrt\s*\{([^{}]*)\}/u', '√($1)', $latex) ?? $latex;
+            if ($latex === $previous) {
+                break;
+            }
+        }
+
+        $latex = strtr($latex, [
+            '\\infty' => '∞',
+            '\\int' => '∫',
+            '\\sum' => '∑',
+            '\\prod' => '∏',
+            '\\times' => '×',
+            '\\cdot' => '·',
+            '\\pm' => '±',
+            '\\leq' => '≤',
+            '\\geq' => '≥',
+            '\\neq' => '≠',
+            '\\pi' => 'π',
+            '\\theta' => 'θ',
+            '\\alpha' => 'α',
+            '\\beta' => 'β',
+            '\\left' => '',
+            '\\right' => '',
+            '\\,' => ' ',
+            '\\;' => ' ',
+        ]);
+        $latex = preg_replace('/_\{([^{}]+)\}/u', '_($1)', $latex) ?? $latex;
+        $latex = preg_replace('/\^\{([^{}]+)\}/u', '^($1)', $latex) ?? $latex;
+        $latex = str_replace(['{', '}'], ['(', ')'], $latex);
+        $latex = preg_replace('/\\\\([a-zA-Z]+)/', '$1', $latex) ?? $latex;
+
+        return trim(preg_replace('/\s+/', ' ', $latex) ?? $latex);
     }
 
     private function pdfText(?string $value): string
