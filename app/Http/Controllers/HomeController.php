@@ -16,6 +16,8 @@ use Modules\CourseSetting\Entities\Course;
 use Modules\CourseSetting\Entities\CourseEnrolled;
 use Modules\Noticeboard\Entities\Noticeboard;
 use Modules\Payment\Entities\Withdraw;
+use Modules\Quiz\Entities\QuestionBank;
+use Modules\Quiz\Entities\QuestionGroup;
 use Modules\Setting\Entities\Badge;
 use Modules\Setting\Http\Controllers\BadgeController;
 
@@ -60,6 +62,19 @@ class HomeController extends Controller
                 $teacherCoursesQuery = Course::query()->where('user_id', $user->id);
                 $teacherCourseIds = (clone $teacherCoursesQuery)->pluck('id');
                 $hasPublishStatusColumn = Schema::hasColumn('courses', 'publish_status');
+                $teacherQuestionGroupsCount = 0;
+                $teacherQuestionsCount = 0;
+
+                if (isModuleActive('Quiz')) {
+                    $teacherQuestionGroupsCount = QuestionGroup::query()
+                        ->where('user_id', $user->id)
+                        ->where('active_status', 1)
+                        ->count();
+
+                    $teacherQuestionsCount = QuestionBank::query()
+                        ->where('user_id', $user->id)
+                        ->count();
+                }
 
                 $recentEnroll = CourseEnrolled::query()
                     ->whereIn('course_id', $teacherCourseIds)
@@ -96,6 +111,8 @@ class HomeController extends Controller
                         ->where('instructor_id', $user->id)
                         ->where('status', 1)
                         ->count(),
+                    'question_groups' => $teacherQuestionGroupsCount,
+                    'questions_count' => $teacherQuestionsCount,
                 ];
 
                 return view('dashboard_teacher', compact('teacherDashboard', 'recentEnroll'));
