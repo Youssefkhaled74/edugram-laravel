@@ -264,6 +264,14 @@
     @php
         $teacherShortcutCards = collect([
             [
+                'title' => 'الحصص المباشرة',
+                'description' => 'أنشئ حصص Live وتابع مواعيد البث وبيانات الحضور.',
+                'value' => 'إدارة Live',
+                'url' => \Illuminate\Support\Facades\Route::has('virtual-class.index') && permissionCheck('virtual-class.index') ? route('virtual-class.index') : null,
+                'icon' => 'fas fa-video',
+                'variant' => 'crimson',
+            ],
+            [
                 'title' => 'كورساتي',
                 'description' => 'عرض وتحديث جميع الكورسات الخاصة بك.',
                 'value' => translatedNumber($teacherDashboard['my_courses'] ?? 0) . ' كورس',
