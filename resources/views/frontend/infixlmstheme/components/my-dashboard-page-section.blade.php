@@ -3,6 +3,188 @@
         #myHomepageCourse.owl-carousel .owl-stage-outer {
             overflow: hidden !important
         }
+
+        .student-live-section {
+            margin: 8px 0 30px;
+            direction: rtl;
+        }
+
+        .student-live-heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 16px;
+        }
+
+        .student-live-heading h4 {
+            color: #17233d;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .student-live-heading p {
+            color: #7b8497;
+            margin: 0;
+        }
+
+        .student-live-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .student-live-card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            min-height: 160px;
+            padding: 24px;
+            overflow: hidden;
+            border: 1px solid #e1e7f0;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #ffffff 0%, #f6f9ff 100%);
+            box-shadow: 0 12px 32px rgba(22, 42, 83, .07);
+        }
+
+        .student-live-card::after {
+            position: absolute;
+            inset-inline-end: -55px;
+            top: -70px;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background: rgba(28, 77, 151, .06);
+            content: '';
+        }
+
+        .student-live-card.is-live {
+            border-color: rgba(220, 53, 69, .28);
+            background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%);
+        }
+
+        .student-live-content,
+        .student-live-action {
+            position: relative;
+            z-index: 1;
+        }
+
+        .student-live-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 11px;
+            margin-bottom: 12px;
+            border-radius: 30px;
+            color: #245294;
+            background: #e8f0fc;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .student-live-status.live {
+            color: #b42331;
+            background: #ffe8eb;
+        }
+
+        .student-live-status.live::before {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #dc3545;
+            box-shadow: 0 0 0 5px rgba(220, 53, 69, .12);
+            content: '';
+            animation: studentLivePulse 1.8s infinite;
+        }
+
+        .student-live-title {
+            color: #17233d;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.55;
+            margin-bottom: 8px;
+        }
+
+        .student-live-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            color: #667085;
+            font-size: 13px;
+        }
+
+        .student-live-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .student-live-action {
+            flex: 0 0 auto;
+            min-width: 145px;
+            text-align: center;
+        }
+
+        .student-live-join,
+        .student-live-details {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .student-live-join {
+            color: #fff;
+            background: #d92d3a;
+            box-shadow: 0 8px 18px rgba(217, 45, 58, .2);
+        }
+
+        .student-live-details {
+            color: #214d8d;
+            border: 1px solid #cfd9e8;
+            background: #fff;
+        }
+
+        .student-live-join:hover,
+        .student-live-details:hover {
+            transform: translateY(-2px);
+        }
+
+        .student-live-join:hover {
+            color: #fff;
+        }
+
+        @keyframes studentLivePulse {
+            50% { box-shadow: 0 0 0 9px rgba(220, 53, 69, 0); }
+        }
+
+        @media (max-width: 991px) {
+            .student-live-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 575px) {
+            .student-live-card {
+                align-items: stretch;
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .student-live-action {
+                width: 100%;
+            }
+        }
     </style>
     @php
         $total =\Illuminate\Support\Facades\Auth::user()->totalStudentCourses();
@@ -32,6 +214,61 @@
                     </div>
                 </div>
             </div>
+
+            @if($studentLiveClasses->isNotEmpty())
+                <section class="student-live-section" aria-labelledby="student-live-title">
+                    <div class="student-live-heading">
+                        <div>
+                            <h4 id="student-live-title">حصصك المباشرة</h4>
+                            <p>تابع موعد الحصة وادخل إلى البث مباشرة من هنا.</p>
+                        </div>
+                    </div>
+
+                    <div class="student-live-grid">
+                        @foreach($studentLiveClasses as $liveClass)
+                            @php
+                                $liveCourse = $liveClass['course'];
+                                $liveMeeting = $liveClass['meeting'];
+                            @endphp
+                            <article class="student-live-card {{ $liveClass['is_live'] ? 'is-live' : '' }}">
+                                <div class="student-live-content">
+                                    <span class="student-live-status {{ $liveClass['is_live'] ? 'live' : '' }}">
+                                        @if($liveClass['is_live'])
+                                            مباشر الآن
+                                        @elseif($liveMeeting)
+                                            موعد قادم
+                                        @else
+                                            في انتظار تحديد الموعد
+                                        @endif
+                                    </span>
+                                    <h5 class="student-live-title">{{ $liveCourse->title }}</h5>
+                                    <div class="student-live-meta">
+                                        <span><i class="fas fa-video"></i> {{ $liveClass['host'] }}</span>
+                                        @if($liveMeeting)
+                                            <span><i class="far fa-calendar-alt"></i> {{ $liveMeeting['start']->translatedFormat('j F Y') }}</span>
+                                            <span><i class="far fa-clock"></i> {{ $liveMeeting['start']->format('h:i A') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="student-live-action">
+                                    @if($liveClass['is_live'])
+                                        <a class="student-live-join" target="_blank" rel="noopener"
+                                           href="{{ route('classStart', [$liveCourse->slug, $liveClass['host'], $liveMeeting['id']]) }}">
+                                            <i class="fas fa-broadcast-tower"></i>
+                                            دخول البث الآن
+                                        </a>
+                                    @else
+                                        <a class="student-live-details" href="{{ route('classDetails', $liveCourse->slug) }}">
+                                            عرض تفاصيل الحصة
+                                        </a>
+                                    @endif
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
 
             <div class="row">
                 <div class="col-xl-{{$col}} col-12">

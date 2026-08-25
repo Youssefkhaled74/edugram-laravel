@@ -63,13 +63,15 @@ class MyDashboardPageSection extends Component
         if (isModuleActive('BBB')) {
             $withForClass[] = 'class.bbbMeetings';
         }
-        if (isModuleActive('Jisti')) {
+        if (isModuleActive('Jitsi')) {
             $withForClass[] = 'class.jitsiMeetings';
         }
         $classes = Course::where('type', 3)->where('status', 1)->inRandomOrder()->limit(3)->with($withForClass)
             ->whereDoesntHave('enrolls', function ($q) {
                 $q->where('user_id', '=', Auth::id());
             })->get();
+
+        $studentLiveClasses = $this->studentLiveClasses();
 
         $myCertificateNumber = CertificateRecord::where('student_id', Auth::id())->count();
 
@@ -123,6 +125,129 @@ class MyDashboardPageSection extends Component
             })->latest()->limit(5)->get();
         }
 
-        return view(theme('components.my-dashboard-page-section'), $data, compact('badges', 'myCertificateNumber', 'quizzes', 'courses', 'classes', 'data', 'mycourse', 'wish_string', 'date', 'total_purchase', 'student_setup', 'total_spent'));
+        return view(theme('components.my-dashboard-page-section'), $data, compact('badges', 'myCertificateNumber', 'quizzes', 'courses', 'classes', 'studentLiveClasses', 'data', 'mycourse', 'wish_string', 'date', 'total_purchase', 'student_setup', 'total_spent'));
+    }
+
+    private function studentLiveClasses()
+    {
+        $relations = ['class', 'class.customMeetings', 'user'];
+
+        if (isModuleActive('Zoom') && class_exists('Modules\\Zoom\\Entities\\ZoomMeeting')) {
+            $relations[] = 'class.zoomMeetings';
+        }
+        if (isModuleActive('BBB') && class_exists('Modules\\BBB\\Entities\\BbbMeeting')) {
+            $relations[] = 'class.bbbMeetings';
+        }
+        if (isModuleActive('Jitsi') && class_exists('Modules\\Jitsi\\Entities\\JitsiMeeting')) {
+            $relations[] = 'class.jitsiMeetings';
+        }
+        if (isModuleActive('InAppLiveClass') && class_exists('Modules\\InAppLiveClass\\Entities\\InAppLiveClassMeeting')) {
+            $relations[] = 'class.inAppMeetings';
+        }
+        if (isModuleActive('GoogleMeet') && class_exists('Modules\\GoogleMeet\\Entities\\GoogleMeetMeeting')) {
+            $relations[] = 'class.googleMeetMeetings';
+        }
+
+        $now = Carbon::now(Settings('active_time_zone'));
+
+        return Course::query()
+            ->where('type', 3)
+            ->where('status', 1)
+            ->whereHas('enrolls', function ($query) {
+                $query->where('user_id', Auth::id())->where('status', 1);
+            })
+            ->with($relations)
+            ->latest()
+            ->limit(6)
+            ->get()
+            ->map(function ($course) use ($now) {
+                $meeting = $this->nextLiveMeeting($course, $now);
+
+                return [
+                    'course' => $course,
+                    'host' => $course->class->host,
+                    'meeting' => $meeting,
+                    'is_live' => $meeting
+                        ? $now->between($meeting['start']->copy()->subMinutes(10), $meeting['end'])
+                        : false,
+                ];
+            })
+            ->sortBy(function ($liveClass) {
+                if ($liveClass['is_live']) {
+                    return '0';
+                }
+
+                return $liveClass['meeting']
+                    ? '1-' . $liveClass['meeting']['start']->timestamp
+                    : '2';
+            })
+            ->values();
+    }
+
+    private function nextLiveMeeting($course, Carbon $now)
+    {
+        $host = $course->class->host;
+        $relation = [
+            'Zoom' => 'zoomMeetings',
+            'BBB' => 'bbbMeetings',
+            'Jitsi' => 'jitsiMeetings',
+            'Custom' => 'customMeetings',
+            'InAppLiveClass' => 'inAppMeetings',
+            'GoogleMeet' => 'googleMeetMeetings',
+        ][$host] ?? null;
+
+        if (!$relation || !$course->class->relationLoaded($relation)) {
+            return null;
+        }
+
+        return $course->class->{$relation}
+            ->map(function ($meeting) use ($host, $course) {
+                return $this->meetingWindow($meeting, $host, $course->class->duration);
+            })
+            ->filter()
+            ->filter(function ($meeting) use ($now) {
+                return $meeting['end']->gte($now);
+            })
+            ->sortBy(function ($meeting) {
+                return $meeting['start']->timestamp;
+            })
+            ->first();
+    }
+
+    private function meetingWindow($meeting, $host, $classDuration)
+    {
+        try {
+            if ($host === 'Zoom') {
+                if (empty($meeting->start_time) || empty($meeting->end_time)) {
+                    return null;
+                }
+
+                $start = Carbon::parse($meeting->start_time);
+                $end = Carbon::parse($meeting->end_time);
+            } elseif ($host === 'GoogleMeet') {
+                if (empty($meeting->start_date_time) || empty($meeting->end_date_time)) {
+                    return null;
+                }
+
+                $start = Carbon::parse($meeting->start_date_time);
+                $end = Carbon::parse($meeting->end_date_time);
+            } else {
+                if (empty($meeting->date) || empty($meeting->time)) {
+                    return null;
+                }
+
+                $start = Carbon::parse($meeting->date . ' ' . $meeting->time);
+                $duration = (int) preg_replace('/[^0-9]/', '', (string) ($meeting->duration ?: $classDuration));
+                $end = $start->copy()->addMinutes($duration > 0 ? $duration : 60);
+            }
+        } catch (\Throwable $exception) {
+            return null;
+        }
+
+        return [
+            'id' => $meeting->id,
+            'start' => $start,
+            'end' => $end,
+        ];
     }
 }
