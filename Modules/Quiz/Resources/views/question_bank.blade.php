@@ -95,6 +95,47 @@
         .math-writer-insert-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
         .math-writer-insert-btn .btn-icon { font-size: 16px; font-weight: 700; }
 
+        .math-digit-tools {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 9px;
+            direction: rtl;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+        }
+        .math-digit-tools-label {
+            color: #334155;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .math-digit-convert-btn {
+            min-width: 48px;
+            padding: 4px 10px;
+            color: #0f172a;
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.3;
+            cursor: pointer;
+            transition: color .15s, border-color .15s, background-color .15s;
+        }
+        .math-digit-convert-btn:hover,
+        .math-digit-convert-btn:focus {
+            color: #0d6efd;
+            background: #eff6ff;
+            border-color: #60a5fa;
+            outline: none;
+        }
+        .math-digit-tools-help {
+            color: #64748b;
+            font-size: 10px;
+        }
+
         .math-tabs-section {
             padding: 8px 16px 0;
             flex-shrink: 0;
@@ -568,6 +609,13 @@
             }
             .math-keyboard-grid {
                 grid-template-columns: repeat(6, 1fr);
+            }
+            .math-digit-tools {
+                align-items: flex-start;
+                flex-wrap: wrap;
+            }
+            .math-digit-tools-help {
+                flex-basis: 100%;
             }
         }
 
@@ -1434,7 +1482,13 @@
         </div>
 
         <div class="math-writer-area" id="mathWriterArea">
-            <textarea id="eqLatexInput" placeholder="اكتب المعادلة الرياضية هنا …" rows="3" spellcheck="false"></textarea>
+            <textarea id="eqLatexInput" placeholder="اكتب LaTeX هنا، مثال: x^{٢}+٣=٧" rows="3" spellcheck="false"></textarea>
+            <div class="math-digit-tools" role="group" aria-label="اختيار أرقام المعادلة">
+                <span class="math-digit-tools-label">أرقام المعادلة:</span>
+                <button type="button" class="math-digit-convert-btn" data-digit-style="arabic" title="تحويل أرقام المعادلة إلى العربية">١٢٣</button>
+                <button type="button" class="math-digit-convert-btn" data-digit-style="latin" title="تحويل أرقام المعادلة إلى الإنجليزية">123</button>
+                <span class="math-digit-tools-help">يمكنك الكتابة بالنوعين، أو تحديد النوع بعد كتابة المعادلة.</span>
+            </div>
             <div style="font-size:10px;color:#94a3b8;padding:0 2px;display:flex;gap:12px;flex-wrap:wrap;direction:ltr">
                 <span>Ctrl+F ← \frac</span>
                 <span>Ctrl+R ← \sqrt</span>
@@ -2189,6 +2243,11 @@
         (function () {
             // ── Symbol data ──
             var symbolsByCategory = {
+                numbers: {
+                    label: 'أرقام',
+                    icon: '١٢٣',
+                    symbols: ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '٫', '٬', '٪']
+                },
                 operators: {
                     label: 'عمليات',
                     icon: '±',
@@ -2255,7 +2314,7 @@
                     symbols: ['μ', 'σ', 'Σ', 'Π', 'Δ', '∂', '∞', 'ℕ', 'ℝ', 'ℂ', '%', '‰', '°', '∠', '∡', '⊥', '∥']
                 }
             };
-            var categoryOrder = ['operators', 'relations', 'inequalities', 'greek', 'calculus', 'trigonometry', 'logic', 'statistics', 'roots', 'arrows', 'sets', 'geometry', 'brackets'];
+            var categoryOrder = ['numbers', 'operators', 'relations', 'inequalities', 'greek', 'calculus', 'trigonometry', 'logic', 'statistics', 'roots', 'arrows', 'sets', 'geometry', 'brackets'];
 
             // ── KaTeX template definitions ──
             var katexTemplates = [
@@ -2551,6 +2610,57 @@
             var $customPreview = $('#eqPreview');
             var $customInsertBtn = $('#eqInsertBtn');
 
+            function convertEquationDigits(value, style) {
+                var arabicDigits = '٠١٢٣٤٥٦٧٨٩';
+                var latinDigits = '0123456789';
+                var sourceDigits = style === 'arabic' ? latinDigits : arabicDigits;
+                var targetDigits = style === 'arabic' ? arabicDigits : latinDigits;
+                var pattern = style === 'arabic' ? /[0-9]/g : /[٠-٩]/g;
+
+                return String(value || '').replace(pattern, function (digit) {
+                    return targetDigits.charAt(sourceDigits.indexOf(digit));
+                });
+            }
+
+            // This project uses a KaTeX version that only parses Latin numerals.
+            // Render a normalized copy, then localize text nodes without changing the saved LaTeX.
+            function renderLatexWithLocalizedDigits(latex, options) {
+                var source = String(latex || '');
+                var usesArabicDigits = /[٠-٩]/.test(source);
+                var usesArabicDecimal = source.indexOf('٫') !== -1;
+                var usesArabicThousands = source.indexOf('٬') !== -1;
+                var usesArabicPercent = source.indexOf('٪') !== -1;
+                var normalized = convertEquationDigits(source, 'latin')
+                    .replace(/٫/g, '.')
+                    .replace(/٬/g, ',')
+                    .replace(/٪/g, '\\%');
+                var html = katex.renderToString(normalized, options);
+
+                if (!usesArabicDigits && !usesArabicDecimal && !usesArabicThousands && !usesArabicPercent) {
+                    return html;
+                }
+
+                return html.replace(/>([^<]*)</g, function (match, text) {
+                    var localized = usesArabicDigits ? convertEquationDigits(text, 'arabic') : text;
+                    if (usesArabicDecimal) localized = localized.replace(/\./g, '٫');
+                    if (usesArabicThousands) localized = localized.replace(/,/g, '٬');
+                    if (usesArabicPercent) localized = localized.replace(/%/g, '٪');
+                    return '>' + localized + '<';
+                });
+            }
+
+            $('.math-digit-convert-btn').on('click', function () {
+                var input = $customLatex[0];
+                if (!input) return;
+
+                var selectionStart = input.selectionStart || 0;
+                var selectionEnd = input.selectionEnd || 0;
+                input.value = convertEquationDigits(input.value, $(this).data('digit-style'));
+                input.focus();
+                if (input.setSelectionRange) input.setSelectionRange(selectionStart, selectionEnd);
+                $customLatex.trigger('input').trigger('change');
+            });
+
             function autoResizeTextarea() {
                 var el = $customLatex[0];
                 if (!el) return;
@@ -2566,7 +2676,7 @@
                 $customInsertBtn.prop('disabled', false);
                 if (typeof katex !== 'undefined') {
                     try {
-                        var rendered = katex.renderToString(val, { displayMode: false, throwOnError: true });
+                        var rendered = renderLatexWithLocalizedDigits(val, { displayMode: false, throwOnError: true });
                         $customPreview.html(rendered).removeClass('has-error');
                     } catch(e) {
                         $customPreview.text(e.message).addClass('has-error');
@@ -2636,7 +2746,7 @@
                     var rendered = '';
                     try {
                         if (typeof katex !== 'undefined') {
-                            rendered = katex.renderToString(tpl.latex, { displayMode: false, throwOnError: false });
+                            rendered = renderLatexWithLocalizedDigits(tpl.latex, { displayMode: false, throwOnError: false });
                         } else {
                             rendered = '<code>' + tpl.latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
                         }
@@ -2940,7 +3050,7 @@
                 var html = '';
                 try {
                     if (typeof katex !== 'undefined') {
-                        html = katex.renderToString(latex, { displayMode: true, throwOnError: false });
+                        html = renderLatexWithLocalizedDigits(latex, { displayMode: true, throwOnError: false });
                     } else {
                         html = '<code>' + latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
                     }
@@ -3219,7 +3329,7 @@
                     var rendered = '';
                     try {
                         if (typeof katex !== 'undefined') {
-                            rendered = katex.renderToString(tpl.latex, { displayMode: false, throwOnError: false });
+                            rendered = renderLatexWithLocalizedDigits(tpl.latex, { displayMode: false, throwOnError: false });
                         } else {
                             rendered = '<code>' + tpl.latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
                         }
@@ -3324,7 +3434,7 @@
                     var rendered = '';
                     try {
                         if (typeof katex !== 'undefined') {
-                            rendered = katex.renderToString(latex, { displayMode: false, throwOnError: false });
+                            rendered = renderLatexWithLocalizedDigits(latex, { displayMode: false, throwOnError: false });
                         } else {
                             rendered = '<code>' + latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
                         }
