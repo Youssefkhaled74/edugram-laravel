@@ -5,7 +5,7 @@
         <div class="main-title box_header common_table_header d-md-flex">
             <h3 class="mb-20" id="page_title">{{ __('virtual-class.Class List') }}</h3>
 
-        @if (permissionCheck('virtual-class.index'))
+        @if (permissionCheck('virtual-class.create'))
                 <ul class="d-flex">
                     <li>
 

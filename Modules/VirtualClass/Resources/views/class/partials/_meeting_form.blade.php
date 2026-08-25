@@ -2,6 +2,15 @@
 @php use Carbon\Carbon; @endphp
 @php use Modules\GoogleMeet\Entities\GoogleAccount; @endphp
 @php use Modules\GoogleCalendar\Entities\GoogleCalendarAccount; @endphp
+@php
+    $selectedHost = old('host', $class->host ?? (
+        isModuleActive('Jitsi') ? 'Jitsi' : (
+            isModuleActive('InAppLiveClass') ? 'InAppLiveClass' : (
+                isModuleActive('BBB') ? 'BBB' : 'Custom'
+            )
+        )
+    ));
+@endphp
 
 <div class="col-lg-12">
 
@@ -526,7 +535,7 @@
                                                             <input type="radio" class="common-checkbox" id="type2"
                                                                    name="host"
                                                                    value="BBB"
-                                                                   @if(isset($class)) @if($class->host=="BBB") checked @endif @endif
+                                                                   {{ $selectedHost === 'BBB' ? 'checked' : '' }}
                                                             >
                                                             <span
                                                                 class="checkmark me-2"></span> {{__('virtual-class.BBB')}}
@@ -537,10 +546,10 @@
                                                 @if(isModuleActive("Jitsi"))
                                                     <div class="col-md-2 mb-25">
                                                         <label for="type3" class="primary_checkbox d-flex mr-12 ">
-                                                            <input checked type="radio" class="common-checkbox" id="type3"
+                                                            <input type="radio" class="common-checkbox" id="type3"
                                                                    name="host"
                                                                    value="Jitsi"
-                                                                   @if(isset($class)) @if($class->host=="Jitsi") checked @endif @endif
+                                                                   {{ $selectedHost === 'Jitsi' ? 'checked' : '' }}
                                                             >
                                                             <span class="checkmark me-2"></span> DirectVideo
                                                         </label>
@@ -552,8 +561,7 @@
                                                         <input type="radio" class="common-checkbox" id="Custom"
                                                                name="host"
                                                                value="Custom"
-                                                               @if(isset($class) && $class->host=="Custom") checked
-                                                            @endif>
+                                                               {{ $selectedHost === 'Custom' ? 'checked' : '' }}>
                                                         <span
                                                             class="checkmark me-2"></span>{{__('virtual-class.Custom')}}
                                                     </label>
@@ -566,7 +574,7 @@
                                                             <input type="radio" class="common-checkbox" id="GoogleMeet"
                                                                    name="host"
                                                                    value="GoogleMeet"
-                                                                   @if(isset($class)) @if($class->host=="GoogleMeet") checked @endif @endif
+                                                                   {{ $selectedHost === 'GoogleMeet' ? 'checked' : '' }}
                                                             >
                                                             <span
                                                                 class="checkmark me-2"></span> {{__('virtual-class.Google Meet')}}
@@ -581,7 +589,7 @@
                                                             <input type="radio" class="common-checkbox" id="type4"
                                                                    name="host"
                                                                    value="InAppLiveClass"
-                                                                   @if(isset($class)) @if($class->host=="InAppLiveClass") checked @endif @endif
+                                                                   {{ $selectedHost === 'InAppLiveClass' ? 'checked' : '' }}
                                                             >
                                                             <span
                                                                 class="checkmark me-2"></span> {{__('common.In-App Live Class')}}
@@ -952,4 +960,3 @@
                         </div>
                     </form>
 </div>
-

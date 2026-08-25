@@ -6,7 +6,15 @@ use Modules\VirtualClass\Http\Controllers\MeetingRecordController;
 
 
 Route::group(['prefix' => 'virtualclass', 'middleware' => ['auth', 'admin']], function () {
-    Route::resource('virtual-class', 'VirtualClassController')->middleware('RoutePermissionCheck:virtual-class.index')->except('show','destroy');
+    Route::resource('virtual-class', 'VirtualClassController')
+        ->only('index')
+        ->middleware('RoutePermissionCheck:virtual-class.index');
+    Route::resource('virtual-class', 'VirtualClassController')
+        ->only(['create', 'store'])
+        ->middleware('RoutePermissionCheck:virtual-class.create');
+    Route::resource('virtual-class', 'VirtualClassController')
+        ->only(['edit', 'update'])
+        ->middleware('RoutePermissionCheck:virtual-class.edit');
     Route::post('virtual-class-delete', 'VirtualClassController@destroy')->name('virtual-class.destroy')->middleware('RoutePermissionCheck:virtual-class.index');
     Route::get('/all/virtual-class-data', 'VirtualClassController@getAllVirtualClassData')->name('getAllVirtualClassData')->middleware('RoutePermissionCheck:virtual-class.index');
 

@@ -62,3 +62,5 @@
         </div>
     </div>
 </section>
+
+@include(theme('snippets.components._home_page_app_guide_v8'))

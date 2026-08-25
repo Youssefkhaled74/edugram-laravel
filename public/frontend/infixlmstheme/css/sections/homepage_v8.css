@@ -1533,8 +1533,10 @@ body {
   font-family: "Cairo", sans-serif;
 }
 
+.v8-app-features .container,
 .v8-app-guide .container {
   width: min(1280px, calc(100% - 32px));
+  margin-inline: auto;
 }
 
 .v8-app-guide-shell {
