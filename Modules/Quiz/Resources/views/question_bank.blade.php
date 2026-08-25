@@ -11,51 +11,89 @@
         .equation-templates::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
         .eq-tpl-btn:hover { background: #e2e8f0 !important; border-color: #94a3b8 !important; }
         .math-writer-area {
-            padding: 12px 16px 0;
+            padding: 16px 18px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 10px;
+            background: #fff;
+            border-bottom: 1px solid #e8edf5;
+        }
+        .math-writer-heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+            direction: rtl;
+        }
+        .math-writer-heading strong {
+            display: block;
+            color: #172033;
+            font-size: 13px;
+            font-weight: 800;
+        }
+        .math-writer-heading span {
+            color: #7b879d;
+            font-size: 10px;
         }
         .math-writer-area textarea {
             width: 100%;
             font-family: 'Courier New', monospace;
-            font-size: 15px;
-            padding: 10px 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
+            font-size: 16px;
+            line-height: 1.75;
+            padding: 12px 14px;
+            border: 1px solid #cfd8e6;
+            border-radius: 12px;
             resize: vertical;
-            min-height: 80px;
+            min-height: 96px;
             max-height: 400px;
             outline: none;
             direction: ltr;
+            background: #fbfcfe;
+            color: #172033;
+            box-sizing: border-box;
             transition: border-color .15s, box-shadow .15s;
         }
         .math-writer-area textarea:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 3px rgba(13,110,253,.12);
+            background: #fff;
+            border-color: #2f67f6;
+            box-shadow: 0 0 0 4px rgba(47, 103, 246, .1);
         }
         .math-writer-area textarea::placeholder {
             color: #94a3b8;
             font-size: 13px;
         }
         .math-writer-toolbar {
-            display: flex;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
             align-items: stretch;
-            gap: 8px;
+            gap: 10px;
+        }
+        .math-preview-shell {
+            min-width: 0;
+            padding: 8px 12px 10px;
+            background: #f8fafc;
+            border: 1px solid #dce3ed;
+            border-radius: 12px;
+        }
+        .math-preview-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            color: #738096;
+            font-size: 10px;
+            font-weight: 700;
+            direction: rtl;
         }
         .math-writer-preview {
-            flex: 1;
-            min-height: 44px;
-            padding: 8px 14px;
-            background: #fafbfc;
-            border: 1px dashed #d0d5dd;
-            border-radius: 8px;
+            min-height: 42px;
+            padding: 6px 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 15px;
-            color: #475569;
+            font-size: 16px;
+            color: #263247;
             overflow-x: auto;
             transition: border-color .15s;
         }
@@ -79,18 +117,21 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 8px 18px;
-            background: linear-gradient(135deg, #0d6efd, #6610f2);
+            min-width: 150px;
+            justify-content: center;
+            padding: 10px 18px;
+            background: #2457f5;
             color: #fff;
             border: 0;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 800;
             cursor: pointer;
-            transition: opacity .15s, transform .1s;
+            box-shadow: 0 8px 18px rgba(36, 87, 245, .2);
+            transition: background .15s, box-shadow .15s, transform .1s;
             white-space: nowrap;
         }
-        .math-writer-insert-btn:hover { opacity: .9; }
+        .math-writer-insert-btn:hover { background: #1748dc; box-shadow: 0 10px 22px rgba(36, 87, 245, .28); }
         .math-writer-insert-btn:active { transform: scale(.97); }
         .math-writer-insert-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
         .math-writer-insert-btn .btn-icon { font-size: 16px; font-weight: 700; }
@@ -99,11 +140,11 @@
             display: flex;
             align-items: center;
             gap: 7px;
-            padding: 7px 9px;
+            padding: 7px 10px;
             direction: rtl;
             background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 9px;
+            border: 1px solid #e1e7f0;
+            border-radius: 10px;
         }
         .math-digit-tools-label {
             color: #334155;
@@ -134,24 +175,52 @@
         .math-digit-tools-help {
             color: #64748b;
             font-size: 10px;
+            margin-inline-start: 2px;
+        }
+        .math-shortcuts {
+            color: #77849a;
+            font-size: 10px;
+            direction: rtl;
+        }
+        .math-shortcuts summary {
+            width: fit-content;
+            color: #526078;
+            font-weight: 700;
+            cursor: pointer;
+            user-select: none;
+        }
+        .math-shortcuts-list {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding-top: 7px;
+            direction: ltr;
+        }
+        .math-shortcuts-list span {
+            padding: 3px 7px;
+            background: #f4f6f9;
+            border: 1px solid #e5e9f0;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            white-space: nowrap;
         }
 
         .math-tabs-section {
-            padding: 8px 16px 0;
+            padding: 12px 18px 0;
             flex-shrink: 0;
+            background: #f7f9fc;
         }
         .math-tabs-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            direction: rtl;
         }
         .math-tabs-header .tabs-label {
-            font-size: 10px;
-            font-weight: 600;
-            color: #94a3b8;
-            letter-spacing: .3px;
-            text-transform: uppercase;
+            font-size: 11px;
+            font-weight: 800;
+            color: #435069;
         }
         @media only screen and (min-width: 992px) {
             .drawflow-node.ans {
@@ -310,15 +379,15 @@
             position: fixed;
             left: 24px;
             bottom: 90px;
-            width: 580px;
-            max-width: calc(100vw - 28px);
-            max-height: 85vh;
+            width: 720px;
+            max-width: calc(100vw - 32px);
+            max-height: calc(100vh - 32px);
             overflow: hidden;
-            background: #fff;
-            border: 0;
-            border-radius: 16px;
+            background: #f7f9fc;
+            border: 1px solid rgba(207, 216, 230, .9);
+            border-radius: 20px;
             padding: 0;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, .18);
+            box-shadow: 0 24px 70px rgba(24, 34, 55, .22), 0 4px 12px rgba(24, 34, 55, .08);
             z-index: 10501;
             display: flex;
             flex-direction: column;
@@ -341,43 +410,57 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px 0;
+            min-height: 64px;
+            padding: 12px 18px;
             flex-shrink: 0;
+            direction: rtl;
+            background: linear-gradient(135deg, #ffffff 0%, #f3f7ff 100%);
+            border-bottom: 1px solid #e3e9f2;
         }
         .math-keyboard-title {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             cursor: grab;
             user-select: none;
             -webkit-user-select: none;
         }
         .math-keyboard-title:active { cursor: grabbing; }
         .math-keyboard-title .title-icon {
-            width: 26px;
-            height: 26px;
-            background: linear-gradient(135deg, #0d6efd, #6610f2);
+            width: 36px;
+            height: 36px;
+            background: #2457f5;
             color: #fff;
-            border-radius: 7px;
+            border-radius: 11px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 15px;
+            font-size: 20px;
             font-weight: 700;
             flex-shrink: 0;
         }
         .math-keyboard-title .title-text {
-            font-size: 15px;
-            font-weight: 700;
-            color: #1a1a2e;
+            font-size: 16px;
+            font-weight: 800;
+            color: #172033;
+        }
+        .math-keyboard-title .title-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .math-keyboard-title .title-subtitle {
+            color: #7b879d;
+            font-size: 10px;
+            font-weight: 500;
         }
         .math-keyboard-title .title-badge {
             font-size: 9px;
             font-weight: 700;
-            color: #6610f2;
-            background: #f0e6ff;
-            padding: 2px 6px;
-            border-radius: 5px;
+            color: #2457f5;
+            background: #e9efff;
+            padding: 3px 7px;
+            border-radius: 6px;
             letter-spacing: .5px;
         }
         .header-actions {
@@ -386,49 +469,52 @@
             gap: 6px;
         }
         .header-action-btn {
-            width: 28px;
-            height: 28px;
-            border: 0;
-            background: #f1f3f4;
-            border-radius: 8px;
-            font-size: 15px;
+            width: 34px;
+            height: 34px;
+            border: 1px solid #e0e6ef;
+            background: #fff;
+            border-radius: 10px;
+            font-size: 14px;
             line-height: 1;
             cursor: pointer;
-            color: #666;
+            color: #536078;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background .15s;
+            transition: color .15s, background .15s, border-color .15s, transform .15s;
         }
-        .header-action-btn:hover { background: #e0e2e5; color: #333; }
+        .header-action-btn:hover { background: #edf3ff; border-color: #b8c9fb; color: #2457f5; transform: translateY(-1px); }
         .math-keyboard-close {
-            width: 28px;
-            height: 28px;
-            border: 0;
-            background: #f1f3f4;
-            border-radius: 8px;
-            font-size: 16px;
+            width: 34px;
+            height: 34px;
+            border: 1px solid #e0e6ef;
+            background: #fff;
+            border-radius: 10px;
+            font-size: 14px;
             line-height: 1;
             cursor: pointer;
-            color: #666;
+            color: #536078;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: background .15s;
         }
-        .math-keyboard-close:hover { background: #fee2e2; color: #dc2626; }
+        .math-keyboard-close:hover { background: #fff0f0; border-color: #fecaca; color: #dc2626; }
 
         .math-keyboard-search {
-            padding: 10px 16px 0;
+            padding: 12px 18px 0;
             flex-shrink: 0;
+            background: #f7f9fc;
         }
         .math-keyboard-search input {
             width: 100%;
-            padding: 8px 12px 8px 32px;
-            border: 1px solid #e8e8e8;
-            border-radius: 10px;
-            background: #f8f9fa;
+            height: 42px;
+            padding: 9px 40px 9px 12px;
+            border: 1px solid #dce3ed;
+            border-radius: 12px;
+            background: #fff;
             font-size: 13px;
+            direction: rtl;
             outline: 0;
             transition: background .15s, border-color .15s;
             box-sizing: border-box;
@@ -440,10 +526,10 @@
         }
         .math-keyboard-search .search-icon {
             position: absolute;
-            left: 26px;
-            top: 50%;
+            right: 31px;
+            top: calc(50% + 6px);
             transform: translateY(-50%);
-            color: #999;
+            color: #768399;
             font-size: 14px;
             pointer-events: none;
         }
@@ -451,7 +537,7 @@
         .math-keyboard-recent {
             display: flex;
             gap: 6px;
-            padding: 8px 16px 0;
+            padding: 9px 18px 0;
             flex-shrink: 0;
             flex-wrap: wrap;
             min-height: 0;
@@ -479,21 +565,22 @@
 
         .math-keyboard-tabs {
             display: flex;
-            gap: 4px;
-            padding: 8px 16px 0;
+            gap: 6px;
+            padding: 0 0 9px;
             flex-shrink: 0;
             overflow-x: auto;
+            direction: rtl;
             -webkit-overflow-scrolling: touch;
         }
         .math-keyboard-tabs::-webkit-scrollbar { height: 2px; }
         .math-keyboard-tabs::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 4px; }
 
         .math-tab-btn {
-            border: 1px solid #e8e8e8;
-            border-radius: 8px;
-            background: #f8f9fa;
-            color: #666;
-            padding: 6px 13px;
+            border: 1px solid #dce3ed;
+            border-radius: 9px;
+            background: #fff;
+            color: #536078;
+            padding: 7px 13px;
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
@@ -507,14 +594,14 @@
             color: #334;
         }
         .math-tab-btn.active {
-            background: #0d6efd;
-            border-color: #0d6efd;
+            background: #2457f5;
+            border-color: #2457f5;
             color: #fff;
-            box-shadow: 0 2px 8px rgba(13, 110, 253, .25);
+            box-shadow: 0 5px 12px rgba(36, 87, 245, .22);
         }
 
         .math-keyboard-grid-wrap {
-            padding: 8px 16px 14px;
+            padding: 12px 18px 18px;
             overflow: hidden;
             flex: 1;
             display: flex;
@@ -523,10 +610,12 @@
         }
         .math-keyboard-grid {
             display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 6px;
+            grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+            grid-auto-rows: minmax(50px, auto);
+            gap: 8px;
             overflow-y: auto;
-            padding-right: 4px;
+            padding: 2px 4px 6px 2px;
+            scrollbar-gutter: stable;
         }
         .math-keyboard-grid::-webkit-scrollbar { width: 3px; }
         .math-keyboard-grid::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
@@ -540,11 +629,12 @@
         }
 
         .math-key-btn {
-            border: 1px solid #e6e6e6;
-            border-radius: 10px;
-            background: #fafafa;
-            color: #222;
-            padding: 9px 4px;
+            min-width: 0;
+            border: 1px solid #dfe5ee;
+            border-radius: 11px;
+            background: #fff;
+            color: #253149;
+            padding: 10px 5px;
             font-size: 17px;
             line-height: 1.3;
             text-align: center;
@@ -553,10 +643,10 @@
             position: relative;
         }
         .math-key-btn:hover {
-            background: #eef2ff;
-            border-color: #0d6efd;
-            transform: translateY(-1px) scale(1.04);
-            box-shadow: 0 3px 10px rgba(13, 110, 253, .15);
+            background: #f2f6ff;
+            border-color: #7da0ff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(36, 87, 245, .12);
             z-index: 2;
         }
         .math-key-btn:active {
@@ -573,14 +663,17 @@
         }
 
         .math-active-indicator {
-            padding: 6px 16px 0;
+            padding: 4px 8px;
             font-size: 11px;
-            color: #999;
+            color: #66748a;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             gap: 6px;
             min-height: 0;
+            background: #fff;
+            border: 1px solid #dfe5ee;
+            border-radius: 999px;
         }
         .math-active-indicator .dot {
             width: 6px;
@@ -588,7 +681,7 @@
             border-radius: 50%;
             flex-shrink: 0;
         }
-        .math-active-indicator .dot.active-dot { background: #198754; }
+        .math-active-indicator .dot.active-dot { background: #16a066; box-shadow: 0 0 0 3px rgba(22, 160, 102, .12); }
         .math-active-indicator .dot.inactive-dot { background: #ccc; }
 
         @media (max-width: 575px) {
@@ -600,15 +693,64 @@
                 font-size: 20px;
             }
             .math-keyboard-panel {
-                left: 8px;
-                right: 8px;
-                bottom: 70px;
-                width: auto;
+                left: 8px !important;
+                right: 8px !important;
+                top: auto !important;
+                bottom: 8px !important;
+                width: auto !important;
+                height: auto !important;
                 max-width: none;
-                max-height: 60vh;
+                max-height: calc(100dvh - 16px);
+                border-radius: 18px;
+                transform-origin: bottom center;
+            }
+            .math-keyboard-header {
+                min-height: 58px;
+                padding: 10px 12px;
+            }
+            .math-keyboard-title .title-icon {
+                width: 32px;
+                height: 32px;
+            }
+            .math-keyboard-title .title-subtitle,
+            .math-keyboard-title .title-badge {
+                display: none;
+            }
+            .header-actions {
+                gap: 4px;
+            }
+            .header-action-btn,
+            .math-keyboard-close {
+                width: 32px;
+                height: 32px;
+            }
+            .math-writer-area {
+                padding: 12px;
+            }
+            .math-writer-heading span {
+                display: none;
+            }
+            .math-writer-area textarea {
+                min-height: 78px;
+                font-size: 14px;
+            }
+            .math-writer-toolbar {
+                grid-template-columns: 1fr;
+            }
+            .math-writer-insert-btn {
+                width: 100%;
+                min-height: 44px;
+            }
+            .math-keyboard-search,
+            .math-tabs-section {
+                padding-inline: 12px;
             }
             .math-keyboard-grid {
-                grid-template-columns: repeat(6, 1fr);
+                grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+                gap: 6px;
+            }
+            .math-keyboard-grid-wrap {
+                padding: 10px 12px 14px;
             }
             .math-digit-tools {
                 align-items: flex-start;
@@ -616,6 +758,25 @@
             }
             .math-digit-tools-help {
                 flex-basis: 100%;
+            }
+            .math-shortcuts {
+                display: none;
+            }
+            .math-resize-handle {
+                display: none;
+            }
+        }
+
+        @media (max-width: 400px) {
+            #mathSaveTemplateBtn,
+            #mathHistoryBtn {
+                display: none;
+            }
+            .math-keyboard-title .title-text {
+                font-size: 14px;
+            }
+            .math-tabs-header .tabs-label {
+                display: none;
             }
         }
 
@@ -1470,38 +1631,52 @@
         <div class="math-keyboard-header">
             <div class="math-keyboard-title" id="mathKeyboardDragHandle">
                 <span class="title-icon">∑</span>
-                <span class="title-text">اكتب المعادلة</span>
+                <span class="title-copy">
+                    <span class="title-text">محرر المعادلات</span>
+                    <span class="title-subtitle">اكتب، عاين، ثم أدرج المعادلة داخل السؤال</span>
+                </span>
                 <span class="title-badge">LaTeX</span>
             </div>
             <div class="header-actions">
-                <button type="button" class="header-action-btn" id="mathSaveTemplateBtn" title="حفظ القالب">💾</button>
-                <button type="button" class="header-action-btn" id="mathHistoryBtn" title="سجل المعادلات">⏱</button>
-                <button type="button" class="header-action-btn" id="mathClearBtn" title="مسح">⟳</button>
-                <button type="button" class="math-keyboard-close" id="mathKeyboardClose" title="إغلاق">✕</button>
+                <button type="button" class="header-action-btn" id="mathSaveTemplateBtn" title="حفظ كقالب" aria-label="حفظ المعادلة كقالب"><i class="ti-save" aria-hidden="true"></i></button>
+                <button type="button" class="header-action-btn" id="mathHistoryBtn" title="المعادلات السابقة" aria-label="عرض المعادلات السابقة"><i class="ti-timer" aria-hidden="true"></i></button>
+                <button type="button" class="header-action-btn" id="mathClearBtn" title="مسح المعادلة" aria-label="مسح المعادلة"><i class="ti-reload" aria-hidden="true"></i></button>
+                <button type="button" class="header-action-btn" id="mathResetPanelBtn" title="استعادة حجم النافذة" aria-label="استعادة حجم النافذة"><i class="ti-layout-width-default" aria-hidden="true"></i></button>
+                <button type="button" class="math-keyboard-close" id="mathKeyboardClose" title="إغلاق" aria-label="إغلاق محرر المعادلات"><i class="ti-close" aria-hidden="true"></i></button>
             </div>
         </div>
 
         <div class="math-writer-area" id="mathWriterArea">
+            <div class="math-writer-heading">
+                <strong>كود المعادلة</strong>
+                <span>استخدم LaTeX أو اختر رمزاً من المكتبة بالأسفل</span>
+            </div>
             <textarea id="eqLatexInput" placeholder="اكتب LaTeX هنا، مثال: x^{٢}+٣=٧" rows="3" spellcheck="false"></textarea>
             <div class="math-digit-tools" role="group" aria-label="اختيار أرقام المعادلة">
                 <span class="math-digit-tools-label">أرقام المعادلة:</span>
                 <button type="button" class="math-digit-convert-btn" data-digit-style="arabic" title="تحويل أرقام المعادلة إلى العربية">١٢٣</button>
                 <button type="button" class="math-digit-convert-btn" data-digit-style="latin" title="تحويل أرقام المعادلة إلى الإنجليزية">123</button>
-                <span class="math-digit-tools-help">يمكنك الكتابة بالنوعين، أو تحديد النوع بعد كتابة المعادلة.</span>
+                <span class="math-digit-tools-help">اكتب بأي نوع ثم حوّل المعادلة بضغطة واحدة.</span>
             </div>
-            <div style="font-size:10px;color:#94a3b8;padding:0 2px;display:flex;gap:12px;flex-wrap:wrap;direction:ltr">
-                <span>Ctrl+F ← \frac</span>
-                <span>Ctrl+R ← \sqrt</span>
-                <span>Ctrl+Shift+P ← ^{ }</span>
-                <span>Ctrl+Shift+I ← _{ }</span>
-                <span>Ctrl+Enter ← إدراج</span>
-                <span>Alt+Click ← إدراج مباشر</span>
-            </div>
+            <details class="math-shortcuts">
+                <summary>اختصارات لوحة المفاتيح</summary>
+                <div class="math-shortcuts-list">
+                    <span>Ctrl+F → \frac</span>
+                    <span>Ctrl+R → \sqrt</span>
+                    <span>Ctrl+Shift+P → ^{ }</span>
+                    <span>Ctrl+Shift+I → _{ }</span>
+                    <span>Ctrl+Enter → إدراج</span>
+                    <span>Alt+Click → إدراج مباشر</span>
+                </div>
+            </details>
             <div class="math-writer-toolbar">
-                <div class="math-writer-preview" id="eqPreview">\\[ \\; \\]</div>
+                <div class="math-preview-shell">
+                    <div class="math-preview-label"><span>المعاينة المباشرة</span><span>تتحدث أثناء الكتابة</span></div>
+                    <div class="math-writer-preview" id="eqPreview">\\[ \\; \\]</div>
+                </div>
                 <div class="math-writer-actions">
                     <button type="button" class="math-writer-insert-btn" id="eqInsertBtn">
-                        <span class="btn-icon">⊞</span>
+                        <i class="ti-plus" aria-hidden="true"></i>
                         إدراج المعادلة
                     </button>
                 </div>
@@ -1509,8 +1684,8 @@
         </div>
 
         <div class="math-keyboard-search" style="position:relative">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="mathKeyboardSearch" placeholder="ابحث عن رمز..." autocomplete="off">
+            <span class="search-icon"><i class="ti-search" aria-hidden="true"></i></span>
+            <input type="text" id="mathKeyboardSearch" placeholder="ابحث عن رمز أو عملية رياضية..." autocomplete="off" aria-label="البحث في مكتبة الرموز">
         </div>
 
         <div class="math-keyboard-recent" id="mathKeyboardRecent" style="display:none">
@@ -1520,14 +1695,13 @@
 
         <div class="math-tabs-section">
             <div class="math-tabs-header">
-                <span class="tabs-label">قوالب وسريعة</span>
+                <span class="tabs-label">مكتبة الرموز والقوالب</span>
+                <div class="math-active-indicator" id="mathActiveIndicator">
+                    <span class="dot inactive-dot" id="mathActiveDot"></span>
+                    <span id="mathActiveLabel">اختر مكان إدراج المعادلة</span>
+                </div>
             </div>
             <div class="math-keyboard-tabs" id="mathKeyboardTabs"></div>
-        </div>
-
-        <div class="math-active-indicator" id="mathActiveIndicator">
-            <span class="dot inactive-dot" id="mathActiveDot"></span>
-            <span id="mathActiveLabel">لم يتم تحديد حقل</span>
         </div>
 
         <div class="math-keyboard-grid-wrap">
@@ -2709,6 +2883,16 @@
                 $customLatex.val('').trigger('input').focus();
             });
 
+            $('#mathResetPanelBtn').on('click', function () {
+                $panel.css({ width: '', height: '', left: '', right: '', top: '', bottom: '' });
+                try {
+                    ['math_panel_width', 'math_panel_height', 'math_panel_left', 'math_panel_top', 'math_panel_right', 'math_panel_bottom'].forEach(function (key) {
+                        localStorage.removeItem(key);
+                    });
+                } catch(e) {}
+                toastr.info('تمت استعادة حجم نافذة المعادلات');
+            });
+
             // ── Build tabs ──
             categoryOrder.forEach(function (key) {
                 var cat = symbolsByCategory[key];
@@ -3178,6 +3362,7 @@
 
             // ── Drag ──
             $dragHandle.on('mousedown touchstart', function (e) {
+                if (window.innerWidth <= 575) return;
                 if (e.type === 'mousedown' && e.button !== 0) return;
                 e.preventDefault();
                 var clientX, clientY;
@@ -3264,8 +3449,8 @@
                     var touch = e.originalEvent.touches[0];
                     clientX = touch.clientX; clientY = touch.clientY;
                 }
-                var newW = Math.max(300, resizeStartW + (clientX - resizeStartX));
-                var newH = Math.max(200, resizeStartH + (clientY - resizeStartY));
+                var newW = Math.min(window.innerWidth - 16, Math.max(360, resizeStartW + (clientX - resizeStartX)));
+                var newH = Math.min(window.innerHeight - 16, Math.max(280, resizeStartH + (clientY - resizeStartY)));
                 $panel.css({ width: newW + 'px', height: newH + 'px' });
             });
 
@@ -3286,8 +3471,8 @@
             try {
                 var savedW = localStorage.getItem('math_panel_width');
                 var savedH = localStorage.getItem('math_panel_height');
-                if (savedW) $panel.css('width', savedW + 'px');
-                if (savedH) $panel.css('height', savedH + 'px');
+                if (savedW) $panel.css('width', Math.min(parseInt(savedW, 10), window.innerWidth - 16) + 'px');
+                if (savedH) $panel.css('height', Math.min(parseInt(savedH, 10), window.innerHeight - 16) + 'px');
                 var savedL = localStorage.getItem('math_panel_left');
                 var savedT = localStorage.getItem('math_panel_top');
                 var savedR = localStorage.getItem('math_panel_right');
@@ -3297,6 +3482,11 @@
                 } else if (savedR && savedB && savedR !== 'auto') {
                     $panel.css({ right: savedR, bottom: savedB });
                 }
+
+                var maxLeft = Math.max(0, window.innerWidth - $panel.outerWidth());
+                var maxTop = Math.max(0, window.innerHeight - $panel.outerHeight());
+                if ($panel.position().left > maxLeft) $panel.css('left', maxLeft + 'px');
+                if ($panel.position().top > maxTop) $panel.css('top', maxTop + 'px');
             } catch(e) {}
 
             // ── Custom Template Save ──
