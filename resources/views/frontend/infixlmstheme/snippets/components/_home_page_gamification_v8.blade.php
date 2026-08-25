@@ -105,6 +105,9 @@
 <style>
     .v8-gamification {
         position: relative;
+        width: 100%;
+        max-width: none;
+        margin: 0;
         padding: 70px 0;
         background: linear-gradient(180deg, #F7FAFF 0%, #EEF4FF 100%);
         font-family: "Cairo", sans-serif;
@@ -122,6 +125,7 @@
         padding: 70px 60px;
         position: relative;
         overflow: hidden;
+        isolation: isolate;
         box-shadow: 0 22px 60px rgba(23, 59, 120, 0.22);
     }
 
@@ -135,6 +139,7 @@
         top: -200px;
         left: -100px;
         pointer-events: none;
+        z-index: 0;
     }
 
     .v8-gamification-content {
@@ -144,6 +149,11 @@
         flex-direction: column;
         gap: 20px;
         text-align: right;
+        padding: 12px 8px;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
     }
 
     .v8-gamification-title {
@@ -226,7 +236,14 @@
         z-index: 2;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
+        padding: 30px;
+        background: rgba(7, 24, 55, 0.58);
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 30px;
+        box-shadow: 0 20px 45px rgba(5, 16, 37, 0.2);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
     }
 
     .v8-leaderboard-header {
@@ -260,10 +277,10 @@
         gap: 14px;
         padding: 16px 22px;
         border-radius: 24px;
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.11);
         transition: background 0.3s ease, transform 0.3s ease;
     }
 
@@ -273,8 +290,8 @@
     }
 
     .v8-leaderboard-gold {
-        background: rgba(245, 185, 66, 0.18);
-        border-color: rgba(245, 185, 66, 0.22);
+        background: linear-gradient(135deg, rgba(245, 185, 66, 0.25), rgba(245, 185, 66, 0.1));
+        border-color: rgba(245, 185, 66, 0.38);
     }
 
     .v8-leaderboard-silver {
@@ -364,6 +381,10 @@
             border-radius: 36px;
         }
 
+        .v8-gamification-content {
+            padding: 0;
+        }
+
         .v8-gamification-desc {
             max-width: 100%;
         }
@@ -382,6 +403,11 @@
             padding: 32px 20px;
             border-radius: 28px;
             gap: 32px;
+        }
+
+        .v8-gamification-leaderboard {
+            padding: 22px 18px;
+            border-radius: 22px;
         }
 
         .v8-gamification-title {
@@ -449,6 +475,11 @@
             padding: 24px 16px;
             border-radius: 22px;
             gap: 28px;
+        }
+
+        .v8-gamification-leaderboard {
+            padding: 18px 12px;
+            border-radius: 18px;
         }
 
         .v8-gamification-title {
