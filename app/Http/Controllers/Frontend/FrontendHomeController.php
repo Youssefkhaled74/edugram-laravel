@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -28,7 +29,15 @@ class FrontendHomeController extends Controller
             }
 
             $row = FrontPage::where('slug', '/')->first();
-            return view(theme('snippets.pages.home_v8_forced'), compact('row'));
+            $teachers = User::query()
+                ->where('role_id', 2)
+                ->where('status', 1)
+                ->orderByDesc('total_rating')
+                ->orderByDesc('id')
+                ->limit(12)
+                ->get(['id', 'name', 'image', 'headline']);
+
+            return view(theme('snippets.pages.home_v8_forced'), compact('row', 'teachers'));
 
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()]);
