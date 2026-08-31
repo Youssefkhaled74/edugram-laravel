@@ -54,6 +54,10 @@
     .v8-teacher-name { color: var(--v8-primary); font-size: 20px; font-weight: 800; line-height: 1.55; margin: 0; }
     .v8-teacher-bio { color: var(--v8-muted); font-size: 14px; line-height: 1.7; margin: 0; min-height: 24px; }
     .v8-teacher-subject-pill { background: rgba(45, 103, 216, .1); border-radius: 999px; color: var(--v8-secondary); font-size: 14px; font-weight: 700; margin-top: 4px; padding: 8px 16px; }
+    .v8-teacher-categories { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; min-height: 34px; }
+    .v8-teacher-category, .v8-teacher-subcategory { border-radius: 999px; font-size: 12px; font-weight: 700; line-height: 1.4; padding: 7px 11px; }
+    .v8-teacher-category { background: rgba(45, 103, 216, .11); color: var(--v8-secondary); }
+    .v8-teacher-subcategory { background: rgba(23, 59, 120, .07); color: var(--v8-primary); }
 
     .v8-slider-arrow {
         align-items: center;
@@ -107,13 +111,21 @@
                 <div class="v8-teachers-viewport">
                     <div class="v8-teachers-track" data-slider-track tabindex="0" aria-label="قائمة المدرسين">
                         @foreach($teachers as $teacher)
+                            @php($course = $teacher->courses->first())
                             <a class="v8-teacher-card" href="{{ route('instructorDetails', [$teacher->id, \Illuminate\Support\Str::slug($teacher->name, '-')]) }}">
                                 <div class="v8-teacher-img">
                                     <img src="{{ getProfileImage($teacher->image, $teacher->name) }}" alt="صورة {{ $teacher->name }}" loading="lazy">
                                 </div>
                                 <h3 class="v8-teacher-name">{{ $teacher->name }}</h3>
                                 <p class="v8-teacher-bio">{{ $teacher->headline ?: 'معلم متخصص' }}</p>
-                                <span class="v8-teacher-subject-pill">عرض الملف الشخصي</span>
+                                <div class="v8-teacher-categories" aria-label="تخصص المدرس">
+                                    @if($course?->category?->name)
+                                        <span class="v8-teacher-category">{{ $course->category->name }}</span>
+                                    @endif
+                                    @if($course?->subCategory?->name)
+                                        <span class="v8-teacher-subcategory">{{ $course->subCategory->name }}</span>
+                                    @endif
+                                </div>
                             </a>
                         @endforeach
                     </div>

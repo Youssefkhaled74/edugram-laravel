@@ -32,6 +32,13 @@ class FrontendHomeController extends Controller
             $teachers = User::query()
                 ->where('role_id', 2)
                 ->where('status', 1)
+                ->with(['courses' => function ($query) {
+                    $query->where('status', 1)
+                        ->where('type', 1)
+                        ->orderByDesc('id')
+                        ->select(['id', 'user_id', 'category_id', 'subcategory_id'])
+                        ->with(['category:id,name', 'subCategory:id,name']);
+                }])
                 ->orderByDesc('total_rating')
                 ->orderByDesc('id')
                 ->limit(12)

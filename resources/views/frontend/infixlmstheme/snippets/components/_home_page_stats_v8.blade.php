@@ -58,11 +58,19 @@
 
 <style>
     .v8-stats {
+        display: block;
+        max-width: none;
+        margin: 0;
         position: relative;
         z-index: 5;
         padding: 40px 0 70px;
         background: linear-gradient(180deg, #EEF4FF 0%, #F7FAFF 100%);
         font-family: "Cairo", sans-serif;
+    }
+
+    .v8-stats .container {
+        width: min(1280px, calc(100% - 32px));
+        margin-inline: auto;
     }
 
     .v8-stats-grid {
