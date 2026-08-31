@@ -142,7 +142,9 @@
                                         </div>
                                     </div>
                                     @if (Auth::user()->role_id == 2)
-                                        @php($selectedStudentIds = old('student_ids', isset($class) ? $class->students->pluck('id')->all() : []))
+                                        @php
+                                            $selectedStudentIds = old('student_ids', isset($class) ? $class->students->pluck('id')->all() : []);
+                                        @endphp
                                         <div class="col-xl-8 col-md-12">
                                             <div class="primary_input mb-25">
                                                 <label class="primary_input_label" for="student_ids">الطلاب المسموح لهم بحضور البث المباشر</label>
