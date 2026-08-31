@@ -141,7 +141,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    @if (Auth::user()->role_id == 2)
+                                    @if (in_array(Auth::user()->role_id, [1, 2]))
                                         @php
                                             $selectedStudentIds = old('student_ids', isset($class) ? $class->students->pluck('id')->all() : []);
                                         @endphp
@@ -155,7 +155,7 @@
                                                         </option>
                                                     @endforeach
                                                 </select>
-                                                <small class="text-muted">تظهر هنا فقط حسابات الطلاب المسجلين في إحدى دوراتك.</small>
+                                                <small class="text-muted">اختر المدرس أولًا؛ ستظهر فقط حسابات الطلاب المسجلين في إحدى دوراته.</small>
                                             </div>
                                         </div>
                                     @endif
@@ -978,3 +978,28 @@
                         </div>
                     </form>
 </div>
+
+@if (Auth::user()->role_id == 1)
+    <script>
+        $(document).on('change', '#assign_instructor', function () {
+            var instructorId = $(this).val();
+            var students = $('#student_ids');
+
+            students.empty();
+            if (!instructorId) {
+                students.trigger('change');
+                return;
+            }
+
+            $.get('{{ url('virtualclass/eligible-students') }}/' + instructorId, function (data) {
+                $.each(data, function (_, student) {
+                    $('<option>', {
+                        value: student.id,
+                        text: student.name + (student.email ? ' — ' + student.email : '')
+                    }).appendTo(students);
+                });
+                students.trigger('change');
+            });
+        });
+    </script>
+@endif

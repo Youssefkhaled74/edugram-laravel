@@ -524,7 +524,9 @@ class VirtualClassController extends Controller
             $data += $interface->index();
         }
         $data['instructors'] = User::whereIn('role_id', [1, 2])->where('status', 1)->select('name', 'id')->get();
-        $data['eligibleStudents'] = Auth::user()->role_id == 2 ? $this->eligibleStudentsForInstructor(Auth::id()) : collect();
+        $data['eligibleStudents'] = $data['class']->course->user_id
+            ? $this->eligibleStudentsForInstructor($data['class']->course->user_id)
+            : collect();
         $data['days'] = $this->getDays();
         return view('virtualclass::class.virtual_class_form')->with($data);
     }
@@ -1425,10 +1427,6 @@ class VirtualClassController extends Controller
 
     private function syncSelectedStudents(VirtualClass $class, array $studentIds, int $instructorId): void
     {
-        if (Auth::user()->role_id != 2) {
-            return;
-        }
-
         $studentIds = collect($studentIds)->map(fn ($id) => (int) $id)->unique()->values();
         $eligibleIds = $this->eligibleStudentsForInstructor($instructorId)->pluck('id');
 
@@ -1439,6 +1437,13 @@ class VirtualClassController extends Controller
         }
 
         $class->students()->sync($studentIds->all());
+    }
+
+    public function eligibleStudents(int $instructor)
+    {
+        abort_unless(User::where('id', $instructor)->where('role_id', 2)->exists(), 404);
+
+        return response()->json($this->eligibleStudentsForInstructor($instructor));
     }
 
     public function getAllVirtualClassData(Request $request)

@@ -22,6 +22,7 @@ Route::group(['prefix' => 'virtualclass', 'middleware' => ['auth', 'admin']], fu
     Route::post('virtual-class-setting-update', 'VirtualClassController@settingUpdate')->name('setting.update')->middleware('RoutePermissionCheck:virtual-class.setting');
     Route::get('virtual-class-details/{id}', 'VirtualClassController@details')->name('virtual-class.details')->middleware('RoutePermissionCheck:virtual-class.index');
     Route::get('virtual-class-create/{id}', 'VirtualClassController@createMeeting')->name('virtual-class.createMeeting')->middleware('RoutePermissionCheck:virtual-class.create');
+    Route::get('eligible-students/{instructor}', 'VirtualClassController@eligibleStudents')->name('virtual-class.eligibleStudents')->middleware('RoutePermissionCheck:virtual-class.create');
 
 //    Route::post('virtual-class-create/{id}', 'VirtualClassController@createMeetingStore')->name('virtual-class.createMeetingStore')->middleware('RoutePermissionCheck:virtual-class.create');
 //    Route::post('bbb-virtual-class-create/{id}', 'VirtualClassController@bbbMeetingStore')->name('virtual-class.bbbMeetingStore')->middleware('RoutePermissionCheck:virtual-class.create');
