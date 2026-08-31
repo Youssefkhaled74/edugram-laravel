@@ -141,6 +141,22 @@
                                             </select>
                                         </div>
                                     </div>
+                                    @if (Auth::user()->role_id == 2)
+                                        @php($selectedStudentIds = old('student_ids', isset($class) ? $class->students->pluck('id')->all() : []))
+                                        <div class="col-xl-8 col-md-12">
+                                            <div class="primary_input mb-25">
+                                                <label class="primary_input_label" for="student_ids">الطلاب المسموح لهم بحضور البث المباشر</label>
+                                                <select name="student_ids[]" id="student_ids" class="multypol_check_select active mb-15 e1" multiple>
+                                                    @foreach ($eligibleStudents as $student)
+                                                        <option value="{{ $student->id }}" {{ in_array($student->id, $selectedStudentIds) ? 'selected' : '' }}>
+                                                            {{ $student->name }}{{ $student->email ? ' — '.$student->email : '' }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <small class="text-muted">تظهر هنا فقط حسابات الطلاب المسجلين في إحدى دوراتك.</small>
+                                            </div>
+                                        </div>
+                                    @endif
                                     <div class="col-xl-4 col-md-6">
                                         <div class="primary_input  mb-25">
 

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\ValidationException;
 use Modules\BBB\Entities\BbbMeeting;
 use Modules\BBB\Entities\BbbMeetingUser;
 use Modules\Certificate\Entities\Certificate;
@@ -84,6 +85,8 @@ class VirtualClassController extends Controller
             'attendee_password' => 'required_if:host,==,BBB',
             'moderator_password' => 'required_if:host,==,BBB',
             'attached_file' => 'nullable|mimes:jpeg,png,jpg,doc,docx,pdf,xls,xlsx',
+            'student_ids' => 'nullable|array',
+            'student_ids.*' => 'integer|distinct|exists:users,id',
         ];
 
         $this->validate($request, $rules, validationMessage($rules));
@@ -208,6 +211,8 @@ class VirtualClassController extends Controller
 
             $course->price_text=$request->price_text;
             $course->save();
+
+            $this->syncSelectedStudents($class, $request->input('student_ids', []), $course->user_id);
 
             $days = $this->getDates($class);
 
@@ -400,6 +405,7 @@ class VirtualClassController extends Controller
             'categories' => Category::with('childs')->where('status', 1)->orderBy('position_order', 'ASC')->get(),
         ];
         $data['instructors'] = User::whereIn('role_id', [1, 2])->where('status', 1)->select('name', 'id')->get();
+        $data['eligibleStudents'] = Auth::user()->role_id == 2 ? $this->eligibleStudentsForInstructor(Auth::id()) : collect();
         if (isModuleActive('CertificatePro') && Settings('use_certificate_template') == 'pro') {
             if (Auth::user()->role_id == 1) {
                 $certificates_query = CertificateTemplate::query();
@@ -486,7 +492,7 @@ class VirtualClassController extends Controller
 
         $data = [
             'languages' => Language::where('status', 1)->get(),
-            'class' => VirtualClass::with('course')->find($id),
+            'class' => VirtualClass::with(['course', 'students'])->find($id),
             'levels' => CourseLevel::where('status', 1)->get(['title', 'id']),
             'categories' => Category::where('status', 1)->orderBy('position_order', 'ASC')->get()
         ];
@@ -518,6 +524,7 @@ class VirtualClassController extends Controller
             $data += $interface->index();
         }
         $data['instructors'] = User::whereIn('role_id', [1, 2])->where('status', 1)->select('name', 'id')->get();
+        $data['eligibleStudents'] = Auth::user()->role_id == 2 ? $this->eligibleStudentsForInstructor(Auth::id()) : collect();
         $data['days'] = $this->getDays();
         return view('virtualclass::class.virtual_class_form')->with($data);
     }
@@ -542,6 +549,8 @@ class VirtualClassController extends Controller
             'recurring_repeat_count' => 'required_if:is_recurring,1',
             'recurring_days' => 'required_if:recurring_type,2',
             'end_date' => 'required_if:is_recurring,1',
+            'student_ids' => 'nullable|array',
+            'student_ids.*' => 'integer|distinct|exists:users,id',
         ];
         $this->validate($request, $rules, validationMessage($rules));
 
@@ -657,6 +666,8 @@ class VirtualClassController extends Controller
             $course->price_text=$request->price_text;
 
             $course->save();
+
+            $this->syncSelectedStudents($class, $request->input('student_ids', []), $course->user_id);
 
 
             $days = $this->getDates($class);
@@ -1396,6 +1407,38 @@ class VirtualClassController extends Controller
         $currency = Settings('currency_symbol');
         $user = Auth::user();
         return view('virtualclass::class.class_details', compact('class', 'currency', 'user'));
+    }
+
+    private function eligibleStudentsForInstructor(int $instructorId)
+    {
+        return User::query()
+            ->where('role_id', 3)
+            ->where('status', 1)
+            ->whereHas('enCoursesInstance', function ($query) use ($instructorId) {
+                $query->where('status', 1)->whereHas('course', function ($course) use ($instructorId) {
+                    $course->where('user_id', $instructorId)->where('type', 1);
+                });
+            })
+            ->orderBy('name')
+            ->get(['id', 'name', 'email']);
+    }
+
+    private function syncSelectedStudents(VirtualClass $class, array $studentIds, int $instructorId): void
+    {
+        if (Auth::user()->role_id != 2) {
+            return;
+        }
+
+        $studentIds = collect($studentIds)->map(fn ($id) => (int) $id)->unique()->values();
+        $eligibleIds = $this->eligibleStudentsForInstructor($instructorId)->pluck('id');
+
+        if ($studentIds->diff($eligibleIds)->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'student_ids' => 'يمكن اختيار الطلاب المسجلين في دوراتك فقط.',
+            ]);
+        }
+
+        $class->students()->sync($studentIds->all());
     }
 
     public function getAllVirtualClassData(Request $request)

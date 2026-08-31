@@ -2,6 +2,7 @@
 
 namespace Modules\VirtualClass\Entities;
 
+use App\User;
 use App\Notifications\GeneralNotification;
 use App\Traits\Tenantable;
 use Illuminate\Database\Eloquent\Model;
@@ -130,6 +131,12 @@ class VirtualClass extends Model
     public function course()
     {
         return $this->hasOne(Course::class, 'class_id')->withDefault();
+    }
+
+    public function students()
+    {
+        return $this->belongsToMany(User::class, 'virtual_class_students', 'virtual_class_id', 'user_id')
+            ->withTimestamps();
     }
 
     public function getSlugAttribute()

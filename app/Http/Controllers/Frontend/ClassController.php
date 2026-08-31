@@ -155,7 +155,13 @@ class ClassController extends Controller
                 Toastr::error(trans('frontend.You are not enrolled for this course'), trans('common.Failed'));
                 return redirect()->back();
             } else {
-                if (!$course->isLoginUserEnrolled) {
+                $isSelectedStudent = $course->virtualClass
+                    && $course->virtualClass->students()->whereKey(Auth::id())->exists();
+
+                $hasSelectedStudents = $course->virtualClass && $course->virtualClass->students()->exists();
+                $hasAccess = $hasSelectedStudents ? $isSelectedStudent : $course->isLoginUserEnrolled;
+
+                if (!$hasAccess) {
                     Toastr::error(trans('frontend.You are not enrolled for this course'), trans('common.Failed'));
                     return redirect()->back();
                 }

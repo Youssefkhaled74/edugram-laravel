@@ -153,8 +153,15 @@ class MyDashboardPageSection extends Component
         return Course::query()
             ->where('type', 3)
             ->where('status', 1)
-            ->whereHas('enrolls', function ($query) {
-                $query->where('user_id', Auth::id())->where('status', 1);
+            ->where(function ($query) {
+                $query->whereHas('class.students', function ($students) {
+                    $students->where('users.id', Auth::id());
+                })->orWhere(function ($fallback) {
+                    $fallback->whereDoesntHave('class.students')
+                        ->whereHas('enrolls', function ($enrollments) {
+                            $enrollments->where('user_id', Auth::id())->where('status', 1);
+                        });
+                });
             })
             ->with($relations)
             ->latest()
