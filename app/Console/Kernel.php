@@ -7,6 +7,7 @@ use App\Console\Commands\BackupDatabaseCommand;
 use App\Console\Commands\BackupFileCommand;
 use App\Console\Commands\GetZoomMeetingRecord;
 use App\Console\Commands\InstructorPayout;
+use App\Console\Commands\SendLiveClassReminders;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -21,7 +22,8 @@ class Kernel extends ConsoleKernel
         BackupDatabaseCommand::class,
         BackupFileCommand::class,
         AppReset::class,
-        GetZoomMeetingRecord::class
+        GetZoomMeetingRecord::class,
+        SendLiveClassReminders::class,
 
     ];
 
@@ -56,6 +58,7 @@ class Kernel extends ConsoleKernel
         }
 
         $schedule->command('app:send-mail-expire-soon-course')->dailyAt('00:00');
+        $schedule->command('live-class:send-reminders')->everyMinute()->withoutOverlapping();
 
     }
 
