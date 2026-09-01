@@ -126,21 +126,6 @@
 
                                     @endif
 
-                                    <div class="col-xl-4 col-md-6">
-                                        <div class="primary_input  mb-25">
-                                            <label class="primary_input_label"
-                                                   for="assistant_instructors">{{ __('courses.Assistant Instructor') }}
-                                            </label>
-                                            <select name="assistant_instructors[]" id="assistant_instructors"
-                                                    class="multypol_check_select active mb-15 e1" multiple>
-                                                @foreach ($instructors as $instructor)
-                                                    <option value="{{ $instructor->id }}"
-                                                        {{ isset($class) && !empty($class->course->assistantInstructorsIds) && in_array($instructor->id, $class->course->assistantInstructorsIds) ? 'selected' : '' }}>
-                                                        {{ @$instructor->name }} </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
                                     @if (in_array(Auth::user()->role_id, [1, 2]))
                                         @php
                                             $selectedStudentIds = old('student_ids', isset($class) ? $class->students->pluck('id')->all() : []);
