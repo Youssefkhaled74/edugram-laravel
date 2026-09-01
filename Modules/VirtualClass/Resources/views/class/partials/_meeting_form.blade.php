@@ -281,21 +281,6 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-xl-4 col-md-6">
-                                        <div class="primary_input  mb-25">
-                                            <label class="primary_input_label">
-                                                {{ __('courses.Level') }}
-                                            </label>
-                                            <select class="primary_select" name="level">
-
-                                                @foreach($levels as $level)
-                                                    <option
-                                                        value="{{$level->id}}" {{old('level',@$class->course->level)==$level->id?"selected":""}} >{{$level->title}}</option>
-                                                @endforeach
-
-                                            </select>
-                                        </div>
-                                    </div>
                                     @if(isModuleActive('Org'))
                                         <div class="col-xl-4 col-md-6">
                                             <div class="primary_input  mb-25">

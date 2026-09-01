@@ -192,9 +192,20 @@ class JitsiMeetingController extends Controller
     public function meetingStart($course_id, $meeting_id)
     {
         $course = Course::findOrFail($course_id);
-        if (Auth::check() && $course->isLoginUserEnrolled) {
+        $meeting = JitsiMeeting::where('meeting_id', $meeting_id)
+            ->where('class_id', $course->class_id)
+            ->first();
 
-            $meeting = JitsiMeeting::where('meeting_id', $meeting_id)->first();
+        $virtualClass = $course->virtualClass;
+        $hasSelectedStudents = $virtualClass && $virtualClass->students()->exists();
+        $isSelectedStudent = $virtualClass
+            && $virtualClass->students()->whereKey(Auth::id())->exists();
+
+        // When the teacher selected students for this live class, only those
+        // students may join.  Otherwise retain the normal course-enrolment rule.
+        $hasAccess = $hasSelectedStudents ? $isSelectedStudent : $course->isLoginUserEnrolled;
+
+        if (Auth::check() && $meeting && $hasAccess) {
             $setting = JitsiSetting::getData();
             return view('jitsi::meeting.start', compact('meeting', 'setting'));
 
