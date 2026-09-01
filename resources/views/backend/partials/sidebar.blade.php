@@ -113,7 +113,13 @@
     @endif
     <ul id="sidebar_menu">
         @if($isTeacherSidebar)
-            @if (\Illuminate\Support\Facades\Route::has('virtual-class.index') && permissionCheck('virtual-class.index'))
+            <li class="{{ request()->routeIs('teacher.students.*') ? 'mm-active' : '' }}">
+                <a href="{{ route('teacher.students.index') }}" aria-expanded="false">
+                    <div class="nav_icon_small"><span class="fas fa-user-graduate"></span></div>
+                    <div class="nav_title"><span>طلابي</span></div>
+                </a>
+            </li>
+            @if (\Illuminate\Support\Facades\Route::has('virtual-class.index'))
                 <li class="{{ request()->routeIs('virtual-class.*') ? 'mm-active' : '' }}">
                     <a href="{{ route('virtual-class.index') }}" aria-expanded="false">
                         <div class="nav_icon_small">

@@ -268,6 +268,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('teacher/statistics', 'TeacherStatisticsController@index')->name('teacher.statistics.index');
     Route::get('teacher/course-statistics', 'TeacherStatisticsController@courseStatistics')->name('teacher.statistics.courses');
     Route::get('teacher/courses/{course}/analytics', 'TeacherStatisticsController@courseAnalytics')->name('teacher.courses.analytics');
+    Route::get('teacher/students', 'TeacherStatisticsController@students')->name('teacher.students.index');
+    Route::delete('teacher/students/{enrollment}', 'TeacherStatisticsController@removeStudentFromCourse')->name('teacher.students.remove');
     Route::get('getDashboardData', 'HomeController@getDashboardData')->name('getDashboardData')->middleware('RoutePermissionCheck:dashboard');
     Route::get('userLoginChartByDays', 'HomeController@userLoginChartByDays')->name('userLoginChartByDays');
     Route::get('userLoginChartByTime', 'HomeController@userLoginChartByTime')->name('userLoginChartByTime');

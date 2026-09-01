@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\LessonComplete;
+use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -85,6 +86,41 @@ class TeacherStatisticsController extends Controller
     public function courseStatistics(Request $request)
     {
         return $this->index($request);
+    }
+
+    public function students(Request $request)
+    {
+        $teacherId = $this->teacherIdOrFail();
+        $enrollments = CourseEnrolled::query()
+            ->where('course_enrolleds.status', 1)
+            ->whereHas('course', fn ($course) => $course->where('user_id', $teacherId)->where('type', 1))
+            ->with(['user:id,name,email,image', 'course:id,title,user_id'])
+            ->select('course_enrolleds.*')
+            ->selectSub(function ($query) use ($teacherId) {
+                $query->from('course_enrolleds as teacher_enrollments')
+                    ->join('courses as teacher_courses', 'teacher_courses.id', '=', 'teacher_enrollments.course_id')
+                    ->whereColumn('teacher_enrollments.user_id', 'course_enrolleds.user_id')
+                    ->where('teacher_enrollments.status', 1)
+                    ->where('teacher_courses.user_id', $teacherId)
+                    ->where('teacher_courses.type', 1)
+                    ->selectRaw('count(distinct teacher_enrollments.course_id)');
+            }, 'teacher_courses_count')
+            ->latest()
+            ->paginate(25);
+
+        return view('backend.teacher.students.index', compact('enrollments'));
+    }
+
+    public function removeStudentFromCourse(CourseEnrolled $enrollment)
+    {
+        $teacherId = $this->teacherIdOrFail();
+        $enrollment->load('course');
+
+        abort_unless((int) $enrollment->course->user_id === (int) $teacherId, 403);
+        $enrollment->delete();
+
+        Toastr::success('تمت إزالة الطالب من الدورة بنجاح.', __('common.Success'));
+        return back();
     }
 
     public function courseAnalytics(Course $course)
