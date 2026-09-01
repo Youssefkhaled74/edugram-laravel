@@ -129,6 +129,15 @@ class JitsiMeetingController extends Controller
     public function show(int $id)
     {
         $meeting = JitsiMeeting::findOrFail($id);
+
+        $isAdmin = Auth::user()->role_id == 1;
+        $isInstructor = (int) $meeting->instructor_id === (int) Auth::id();
+        $isCourseOwner = (int) optional($meeting->class->course)->user_id === (int) Auth::id();
+
+        if (!$isAdmin && !$isInstructor && !$isCourseOwner) {
+            abort(403);
+        }
+
         $setting = JitsiSetting::getData();
         return view('jitsi::meeting.start', compact('meeting', 'setting'));
     }
