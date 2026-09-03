@@ -26,6 +26,7 @@
         <div class="container-fluid p-0">
 
             <div class="row justify-content-center">
+                @if(!isInstructor())
                 <div class="col-lg-12">
                     <div class="white_box mb_30">
                         <div class="white_box_tittle list_header main-title mb-0">
@@ -134,6 +135,7 @@
                         </form>
                     </div>
                 </div>
+                @endif
 
                 <div class="col-lg-12">
                     <div class="white-box">

@@ -1373,13 +1373,13 @@ class CourseSettingController extends Controller
         }
 
 
-        if (isModuleActive('OrgInstructorPolicy') && \auth()->user()->role_id != 1) {
+        if (isModuleActive('OrgInstructorPolicy') && \auth()->user()->role_id != 1 && \auth()->user()->role_id != 2) {
             $assigns = Auth::user()->policy->course_assigns;
             $ids = [];
             foreach ($assigns as $assign) {
                 $ids[] = $assign->course_id;
             }
-            $query->orWhereIn('id', $ids);
+            $query->whereIn('id', $ids);
         }
 
         if (isModuleActive('Organization') && Auth::user()->isOrganization()) {
