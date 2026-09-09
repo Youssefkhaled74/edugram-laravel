@@ -103,7 +103,9 @@
             $required_type =true;
         }
     @endphp
-    {!! generateBreadcrumb() !!}
+    @if(!isInstructor())
+        {!! generateBreadcrumb() !!}
+    @endif
     <section class="admin-visitor-area up_st_admin_visitor">
 
 
@@ -285,6 +287,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @if(!isInstructor())
                                 <div class="row">
                                     <div class="col-xl-12">
                                         <div class="primary_input mb-35">
@@ -300,6 +303,7 @@
 
                                     </div>
                                 </div>
+                                @endif
 
                                 <div class="row">
                                     <div class="col-xl-12">
@@ -315,6 +319,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @if(!isInstructor())
                                 <div class="row">
                                     <div class="col-xl-12">
                                         <div class="primary_input mb-35">
@@ -330,6 +335,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>
@@ -362,13 +368,13 @@
                         @endif
                         <div class="col-xl-{{$col_size}} courseBox mb_30">
                             <label class="primary_input_label d-flex"
-                                   for="">{{__('quiz.Category')}} <span
+                                   for="">{{ isInstructor() ? 'المرحلة الدراسية' : __('quiz.Category') }} <span
                                     class="required_mark">*</span>
                             </label>
                             <select class="primary_select category_id" name="category"
                                     id="category_id" {{$errors->has('category') ? 'autofocus' : ''}}>
-                                <option data-display="{{__('common.Select')}} {{__('quiz.Category')}}"
-                                        value="">{{__('common.Select')}} {{__('quiz.Category')}} <span
+                                <option data-display="{{__('common.Select')}} {{ isInstructor() ? 'المرحلة الدراسية' : __('quiz.Category') }}"
+                                        value="">{{__('common.Select')}} {{ isInstructor() ? 'المرحلة الدراسية' : __('quiz.Category') }} <span
                                         class="required_mark">*</span></option>
                                 @foreach($categories as $category)
                                     @if($category->parent_id==0)
@@ -379,13 +385,13 @@
                         </div>
                         <div class="col-xl-{{$col_size}} courseBox mb_30" id="subCategoryDiv">
                             <label class="primary_input_label d-flex"
-                                   for=""> {{ __('courses.Sub Category') }}
+                                   for=""> {{ isInstructor() ? 'الصف الدراسي' : __('courses.Sub Category') }}
                             </label>
                             <select class="primary_select" name="sub_category"
                                     id="subcategory_id" {{$errors->has('sub_category') ? 'autofocus' : ''}}>
                                 <option
-                                    data-display="{{ __('common.Select') }} {{ __('courses.Sub Category') }}  "
-                                    value="">{{ __('common.Select') }} {{ __('courses.Sub Category') }}
+                                    data-display="{{ __('common.Select') }} {{ isInstructor() ? 'الصف الدراسي' : __('courses.Sub Category') }}  "
+                                    value="">{{ __('common.Select') }} {{ isInstructor() ? 'الصف الدراسي' : __('courses.Sub Category') }}
                                 </option>
                             </select>
                         </div>
@@ -394,6 +400,9 @@
                             <div class="col-xl-{{$col_size}}   mb_30">
                                 <label class="primary_input_label d-flex"
                                        for="">{{ __('courses.Mode of Delivery') }} <span class="required_mark">*</span>
+                                    @if(isInstructor())
+                                        <small class="text-muted ms-2">(عبر الإنترنت / التعليم عن بعد / حضوري)</small>
+                                    @endif
                                 </label>
                                 <select class="primary_select mode_of_delivery " name="mode_of_delivery" required>
                                     <option
@@ -799,7 +808,11 @@
 
                     <div class="row">
                         <div class="col-xl-4 mt-25">
-                            <label class="primary_input_label mt-1">{{__('courses.View Scope')}} </label>
+                            <label class="primary_input_label mt-1">{{__('courses.View Scope')}}
+                                @if(isInstructor())
+                                    <small class="text-muted ms-2">(عام: متاح للجميع / خاص: متاح للمستخدمين المصرح لهم فقط)</small>
+                                @endif
+                            </label>
                             <select class="primary_select " name="scope"
                                     id="">
                                 <option
