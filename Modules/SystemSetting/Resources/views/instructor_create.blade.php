@@ -1,6 +1,20 @@
 @extends('backend.master')
 @push('styles')
     <link rel="stylesheet" href="{{asset('public/backend/css/student_list.css')}}"/>
+    <style>
+        .instructor-academic-fields .select2-container {
+            width: 100% !important;
+        }
+
+        .instructor-academic-fields .select2-container--default .select2-selection--multiple {
+            min-height: 46px;
+            padding: 4px 8px;
+        }
+
+        .instructor-academic-fields .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: var(--system_primery_color);
+        }
+    </style>
 @endpush
 @php
     $table_name='users';
@@ -50,15 +64,17 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-xl-6">
+                                    <section class="instructor-academic-fields mb-20">
+                                        <h4 class="mb-15">{{__('common.Academic Information')}}</h4>
+                                        <div class="row align-items-start">
+                                        <div class="col-xl-4 col-md-6">
                                             <div class="primary_input mb-25">
-                                                <label class="primary_input_label"
-                                                       for=""> {{__('common.Semester')}}</label>
+                                                      <label class="primary_input_label"
+                                                          for="category_id"> {{__('common.Semester')}}</label>
                                                 @php
                                                     $selectedSemesters = old('category_ids', isset($user) ? ($user->instructorSemesters->pluck('id')->all() ?: ($user->category_id ? [$user->category_id] : [])) : []);
                                                 @endphp
-                                                <select class="primary_input_field" name="category_ids[]" id="category_id" multiple size="5">
+                                                <select class="primary_input_field instructor-multi-select" name="category_ids[]" id="category_id" multiple>
                                                     @php
                                                         $parentCategories = \Modules\CourseSetting\Entities\Category::where('parent_id', NULL)->where('status', 1)->orderBy('position_order')->get();
                                                         $allSubCategories = \Modules\CourseSetting\Entities\SubCategory::where('status', 1)->get()->keyBy('category_id');
@@ -73,26 +89,25 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-xl-6">
+                                        <div class="col-xl-4 col-md-6">
                                             <div class="primary_input mb-25">
-                                                <label class="primary_input_label"
-                                                       for="">{{__('common.Sub Category')}}</label>
+                                                      <label class="primary_input_label"
+                                                          for="subcategory_id">{{__('common.Sub Category')}}</label>
                                                 @php
                                                     $selectedSubcategories = old('subcategory_ids', isset($user) ? $user->instructorSubcategoryIds() : []);
                                                 @endphp
-                                                <select class="primary_input_field" name="subcategory_ids[]" id="subcategory_id" multiple size="5">
+                                                <select class="primary_input_field instructor-multi-select" name="subcategory_ids[]" id="subcategory_id" multiple disabled>
                                                 </select>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-xl-6">
+                                        <div class="col-xl-4 col-md-6">
                                             <div class="primary_input mb-25">
                                                 <label class="primary_input_label" for="academic_year">{{__('common.Academic Year')}}</label>
                                                 <input class="primary_input_field" name="academic_year" id="academic_year" type="text" maxlength="20" placeholder="2025/2026" value="{{ old('academic_year', isset($user) ? $user->academic_year : '') }}">
                                             </div>
                                         </div>
                                     </div>
+                                    </section>
                                     <div class="row">
                                         <div class="col-xl-6">
                                             <div class="primary_input mb-15">
@@ -269,6 +284,7 @@
 @push('scripts')
 
     <script src="{{asset('public/backend/js/student_list.js')}}"></script>
+    <script src="{{asset('public/vendor/spondonit/js/select2.min.js')}}{{assetVersion()}}"></script>
 
     @php
         $subCatsFromCategories = \Modules\CourseSetting\Entities\Category::where('parent_id', '!=', NULL)->where('status', 1)->get();
@@ -307,12 +323,30 @@
                     $sub.append(option);
                 });
                 selectedSubcategories = $sub.val() || [];
+                $sub.trigger('change.select2');
             }
 
             loadSubcategories($('#category_id').val());
+            $('#subcategory_id').prop('disabled', !($('#category_id').val() || []).length);
+            var selectDirection = '{{ isRtl() ? "rtl" : "ltr" }}';
+            $('#category_id').select2({
+                width: '100%',
+                closeOnSelect: false,
+                allowClear: true,
+                placeholder: @json(__('common.Select Semesters')),
+                dir: selectDirection
+            });
+            $('#subcategory_id').select2({
+                width: '100%',
+                closeOnSelect: false,
+                allowClear: true,
+                placeholder: @json(__('common.Select Subcategories')),
+                dir: selectDirection
+            });
 
             $('#category_id').on('change', function () {
                 selectedSubcategories = $('#subcategory_id').val() || [];
+                $('#subcategory_id').prop('disabled', !(($(this).val() || []).length));
                 loadSubcategories($(this).val());
             });
         });
