@@ -58,7 +58,7 @@
                                                 @php
                                                     $selectedSemesters = old('category_ids', isset($user) ? ($user->instructorSemesters->pluck('id')->all() ?: ($user->category_id ? [$user->category_id] : [])) : []);
                                                 @endphp
-                                                <select class="primary_input_field primary_select" name="category_ids[]" id="category_id" multiple>
+                                                <select class="primary_input_field" name="category_ids[]" id="category_id" multiple size="5">
                                                     @php
                                                         $parentCategories = \Modules\CourseSetting\Entities\Category::where('parent_id', NULL)->where('status', 1)->orderBy('position_order')->get();
                                                         $allSubCategories = \Modules\CourseSetting\Entities\SubCategory::where('status', 1)->get()->keyBy('category_id');
@@ -80,7 +80,7 @@
                                                 @php
                                                     $selectedSubcategories = old('subcategory_ids', isset($user) ? $user->instructorSubcategoryIds() : []);
                                                 @endphp
-                                                <select class="primary_input_field primary_select" name="subcategory_ids[]" id="subcategory_id" multiple>
+                                                <select class="primary_input_field" name="subcategory_ids[]" id="subcategory_id" multiple size="5">
                                                 </select>
                                             </div>
                                         </div>
@@ -278,12 +278,12 @@
             $catId = $sc->parent_id;
             if (!isset($subData[$catId])) $subData[$catId] = [];
             $name = is_array($sc->name) ? ($sc->getTranslation('name', app()->getLocale()) ?? reset($sc->name)) : $sc->name;
-            $subData[$catId][] = ['id' => (int)$sc->id, 'name' => $name];
+            $subData[$catId][] = ['value' => 'category:' . (int)$sc->id, 'name' => $name];
         }
         foreach ($allSubCategories as $sc) {
             $catId = $sc->category_id;
             if (!isset($subData[$catId])) $subData[$catId] = [];
-            $subData[$catId][] = ['id' => (int)$sc->id, 'name' => (string)$sc->name];
+            $subData[$catId][] = ['value' => 'sub_category:' . (int)$sc->id, 'name' => (string)$sc->name];
         }
     @endphp
 
@@ -297,14 +297,16 @@
                 var options = {};
                 $.each(categoryIds || [], function (categoryIndex, categoryId) {
                     $.each(subCategoriesData[categoryId] || [], function (itemIndex, item) {
-                        options[item.id] = item;
+                        options[item.value] = item;
                     });
                 });
                 $sub.empty();
                 $.each(options, function (id, item) {
-                    var selected = selectedSubcategories.indexOf(String(item.id)) !== -1 ? ' selected' : '';
-                    $sub.append('<option value="' + item.id + '"' + selected + '>' + item.name + '</option>');
+                    var option = $('<option>').val(item.value).text(item.name);
+                    option.prop('selected', selectedSubcategories.indexOf(String(item.value)) !== -1);
+                    $sub.append(option);
                 });
+                selectedSubcategories = $sub.val() || [];
             }
 
             loadSubcategories($('#category_id').val());

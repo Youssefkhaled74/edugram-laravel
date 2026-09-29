@@ -20,6 +20,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
 use Laravel\Passport\HasApiTokens;
 use Modules\Affiliate\Entities\AffiliateReferralPayment;
@@ -434,16 +435,49 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(CourseCategory::class, 'instructor_semesters', 'user_id', 'category_id');
     }
 
-    public function instructorSubcategories()
-    {
-        return $this->belongsToMany(CourseSubCategory::class, 'instructor_subcategories', 'user_id', 'subcategory_id');
-    }
-
     public function instructorSubcategoryIds()
     {
-        $ids = DB::table('instructor_subcategories')->where('user_id', $this->id)->pluck('subcategory_id')->all();
+        $connection = $this->getConnection();
+        $ids = $connection->table('instructor_subcategories')
+            ->where('user_id', $this->id)
+            ->get(['subcategory_type', 'subcategory_id'])
+            ->map(function ($assignment) {
+                return $assignment->subcategory_type . ':' . $assignment->subcategory_id;
+            })->all();
 
-        return $ids ?: ($this->subcategory_id ? [$this->subcategory_id] : []);
+        if ($ids || !$this->subcategory_id) {
+            return $ids;
+        }
+
+        $legacyId = (int) $this->subcategory_id;
+        if (CourseSubCategory::whereKey($legacyId)->exists()) {
+            return ['sub_category:' . $legacyId];
+        }
+
+        return ['category:' . $legacyId];
+    }
+
+    public function instructorSubcategoryNames()
+    {
+        $selections = $this->instructorSubcategoryIds();
+        if (!$selections) {
+            return collect();
+        }
+
+        $names = collect();
+        foreach ($selections as $selection) {
+            [$source, $id] = explode(':', $selection, 2);
+            if ($source === 'sub_category') {
+                $name = CourseSubCategory::whereKey($id)->value('name');
+            } else {
+                $name = CourseCategory::whereKey($id)->whereNotNull('parent_id')->first()?->name;
+            }
+            if ($name !== null) {
+                $names->push($name);
+            }
+        }
+
+        return $names->values();
     }
 
     public function studentRegistrationSubCategory()

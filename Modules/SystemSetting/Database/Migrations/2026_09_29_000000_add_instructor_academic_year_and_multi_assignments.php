@@ -16,7 +16,7 @@ return new class extends Migration
 
         if (!Schema::hasTable('instructor_semesters')) {
             Schema::create('instructor_semesters', function (Blueprint $table) {
-                $table->unsignedInteger('user_id');
+                $table->unsignedBigInteger('user_id');
                 $table->unsignedInteger('category_id');
                 $table->primary(['user_id', 'category_id']);
             });
@@ -24,9 +24,10 @@ return new class extends Migration
 
         if (!Schema::hasTable('instructor_subcategories')) {
             Schema::create('instructor_subcategories', function (Blueprint $table) {
-                $table->unsignedInteger('user_id');
+                $table->unsignedBigInteger('user_id');
+                $table->string('subcategory_type', 20);
                 $table->unsignedInteger('subcategory_id');
-                $table->primary(['user_id', 'subcategory_id']);
+                $table->primary(['user_id', 'subcategory_type', 'subcategory_id']);
             });
         }
     }

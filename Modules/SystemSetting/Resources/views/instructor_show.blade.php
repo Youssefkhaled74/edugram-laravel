@@ -47,6 +47,18 @@
                                                         <td class="text-start">{{$user->phone}}</td>
                                                     </tr>
                                                     <tr>
+                                                        <th class="text-start">{{__('common.Academic Year')}}</th>
+                                                        <td class="text-start">{{$user->academic_year}}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="text-start">{{__('common.Semester')}}</th>
+                                                        <td class="text-start">{{$user->instructorSemesters->pluck('name')->implode(', ')}}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="text-start">{{__('common.Sub Category')}}</th>
+                                                        <td class="text-start">{{$user->instructorSubcategoryNames()->implode(', ')}}</td>
+                                                    </tr>
+                                                    <tr>
                                                         <th class="text-start">{{__('common.Currency')}}</th>
                                                         <td class="text-start">{{$user->currency->name}}</td>
                                                     </tr>

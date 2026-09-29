@@ -78,18 +78,30 @@ namespace Modules\SystemSetting\Http\Controllers;
                 'password' => 'required|min:8|confirmed',
                 'academic_year' => 'nullable|string|max:20',
                 'category_ids' => 'nullable|array',
-                'category_ids.*' => 'integer|distinct|exists:categories,id',
-                'subcategory_ids' => 'nullable|array',
-                'subcategory_ids.*' => [
+                'category_ids.*' => [
                     'integer',
                     'distinct',
                     function ($attribute, $value, $fail) {
-                        $exists = Schema::hasTable('sub_categories')
-                            && \Illuminate\Support\Facades\DB::table('sub_categories')->where('id', $value)->where('status', 1)->exists();
+                        $exists = ctype_digit((string) $value)
+                            && Schema::hasTable('categories')
+                            && \Illuminate\Support\Facades\DB::table('categories')->where('id', $value)->whereNull('parent_id')->where('status', 1)->exists();
 
-                        if (!$exists && Schema::hasTable('categories') && Schema::hasColumn('categories', 'parent_id')) {
-                            $exists = \Illuminate\Support\Facades\DB::table('categories')->where('id', $value)->whereNotNull('parent_id')->where('status', 1)->exists();
+                        if (!$exists) {
+                            $fail(trans('validation.exists', ['attribute' => $attribute]));
                         }
+                    },
+                ],
+                'subcategory_ids' => 'nullable|array',
+                'subcategory_ids.*' => [
+                    'string',
+                    'distinct',
+                    function ($attribute, $value, $fail) {
+                        [$source, $id] = array_pad(explode(':', (string) $value, 2), 2, null);
+                        $exists = ctype_digit((string) $id) && match ($source) {
+                            'sub_category' => Schema::hasTable('sub_categories') && \Illuminate\Support\Facades\DB::table('sub_categories')->where('id', $id)->where('status', 1)->exists(),
+                            'category' => Schema::hasTable('categories') && Schema::hasColumn('categories', 'parent_id') && \Illuminate\Support\Facades\DB::table('categories')->where('id', $id)->whereNotNull('parent_id')->where('status', 1)->exists(),
+                            default => false,
+                        };
 
                         if (!$exists) {
                             $fail(trans('validation.exists', ['attribute' => $attribute]));
@@ -134,7 +146,7 @@ namespace Modules\SystemSetting\Http\Controllers;
                 $user->linkedin = $request->linkedin;
                 $user->instagram = $request->instagram;
                 $user->category_id = collect($request->input('category_ids', []))->first();
-                $user->subcategory_id = collect($request->input('subcategory_ids', []))->first();
+                $user->subcategory_id = $this->firstInstructorSubcategoryId($request);
                 $user->added_by = Auth::user()->id;
                 $user->email_verify = 1;
                 $user->email_verified_at = now();
@@ -147,7 +159,7 @@ namespace Modules\SystemSetting\Http\Controllers;
                 $user->save();
 
                 $user->instructorSemesters()->sync($request->input('category_ids', []));
-                $user->instructorSubcategories()->sync($request->input('subcategory_ids', []));
+                $this->syncInstructorSubcategories($user, $request);
 
                 if ($request->image) {
                     $user->image = $this->generateLink($request->image, $user->id, get_class($user), 'image');
@@ -275,7 +287,7 @@ namespace Modules\SystemSetting\Http\Controllers;
             $data['passport_document'] = UserDocument::where('user_id', $id)->where('name', 'passport')->first();
             $data['nid_document'] = UserDocument::where('user_id', $id)->where('name', 'nid')->first();
             $data['others_documents'] = UserDocument::where('user_id', $id)->whereNotIn('name', ['nid', 'passport'])->get();
-            $data['user'] = User::with('currency', 'userInfo', 'userInfo.timezone', 'userEducations', 'userSkill', 'userPayoutAccount')->findOrFail($id);
+            $data['user'] = User::with('currency', 'userInfo', 'userInfo.timezone', 'userEducations', 'userSkill', 'userPayoutAccount', 'instructorSemesters')->findOrFail($id);
 
             if (isModuleActive('Appointment')) {
             $data['socials'] = InstructorSocial::where('instructor_id', $id)->get();
@@ -307,18 +319,30 @@ namespace Modules\SystemSetting\Http\Controllers;
                 'password' => 'bail|nullable|min:8|confirmed',
                 'academic_year' => 'nullable|string|max:20',
                 'category_ids' => 'nullable|array',
-                'category_ids.*' => 'integer|distinct|exists:categories,id',
-                'subcategory_ids' => 'nullable|array',
-                'subcategory_ids.*' => [
+                'category_ids.*' => [
                     'integer',
                     'distinct',
                     function ($attribute, $value, $fail) {
-                        $exists = Schema::hasTable('sub_categories')
-                            && \Illuminate\Support\Facades\DB::table('sub_categories')->where('id', $value)->where('status', 1)->exists();
+                        $exists = ctype_digit((string) $value)
+                            && Schema::hasTable('categories')
+                            && \Illuminate\Support\Facades\DB::table('categories')->where('id', $value)->whereNull('parent_id')->where('status', 1)->exists();
 
-                        if (!$exists && Schema::hasTable('categories') && Schema::hasColumn('categories', 'parent_id')) {
-                            $exists = \Illuminate\Support\Facades\DB::table('categories')->where('id', $value)->whereNotNull('parent_id')->where('status', 1)->exists();
+                        if (!$exists) {
+                            $fail(trans('validation.exists', ['attribute' => $attribute]));
                         }
+                    },
+                ],
+                'subcategory_ids' => 'nullable|array',
+                'subcategory_ids.*' => [
+                    'string',
+                    'distinct',
+                    function ($attribute, $value, $fail) {
+                        [$source, $id] = array_pad(explode(':', (string) $value, 2), 2, null);
+                        $exists = ctype_digit((string) $id) && match ($source) {
+                            'sub_category' => Schema::hasTable('sub_categories') && \Illuminate\Support\Facades\DB::table('sub_categories')->where('id', $id)->where('status', 1)->exists(),
+                            'category' => Schema::hasTable('categories') && Schema::hasColumn('categories', 'parent_id') && \Illuminate\Support\Facades\DB::table('categories')->where('id', $id)->whereNotNull('parent_id')->where('status', 1)->exists(),
+                            default => false,
+                        };
 
                         if (!$exists) {
                             $fail(trans('validation.exists', ['attribute' => $attribute]));
@@ -344,7 +368,7 @@ namespace Modules\SystemSetting\Http\Controllers;
                 $user->dob = getPhpDateFormat($request->dob);
                 $user->academic_year = $request->academic_year;
                 $user->category_id = collect($request->input('category_ids', []))->first();
-                $user->subcategory_id = collect($request->input('subcategory_ids', []))->first();
+                $user->subcategory_id = $this->firstInstructorSubcategoryId($request);
                 if (empty($request->phone)) {
                     $user->phone = null;
                 } else {
@@ -369,7 +393,7 @@ namespace Modules\SystemSetting\Http\Controllers;
                 $user->save();
 
                 $user->instructorSemesters()->sync($request->input('category_ids', []));
-                $user->instructorSubcategories()->sync($request->input('subcategory_ids', []));
+                $this->syncInstructorSubcategories($user, $request);
 
 
                 if (isModuleActive('Appointment')) {
@@ -501,6 +525,34 @@ namespace Modules\SystemSetting\Http\Controllers;
             }
 
             return response()->json($results);
+        }
+
+        private function firstInstructorSubcategoryId(Request $request)
+        {
+            $first = collect($request->input('subcategory_ids', []))->first();
+            $parts = $first ? explode(':', $first, 2) : [];
+
+            return isset($parts[1]) ? (int) $parts[1] : null;
+        }
+
+        private function syncInstructorSubcategories(User $user, Request $request)
+        {
+            $connection = $user->getConnection();
+            $connection->table('instructor_subcategories')->where('user_id', $user->id)->delete();
+
+            $rows = [];
+            foreach ($request->input('subcategory_ids', []) as $selection) {
+                [$source, $id] = explode(':', $selection, 2);
+                $rows[] = [
+                    'user_id' => $user->id,
+                    'subcategory_id' => (int) $id,
+                    'subcategory_type' => $source,
+                ];
+            }
+
+            if ($rows) {
+                $connection->table('instructor_subcategories')->insert($rows);
+            }
         }
 
     }
