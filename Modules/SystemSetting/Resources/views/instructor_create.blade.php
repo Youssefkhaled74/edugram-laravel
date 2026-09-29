@@ -54,9 +54,11 @@
                                         <div class="col-xl-6">
                                             <div class="primary_input mb-25">
                                                 <label class="primary_input_label"
-                                                       for="">{{__('common.Category')}}</label>
-                                                <select class="primary_input_field" name="category_id" id="category_id">
-                                                    <option value="">{{__('common.Select One')}}</option>
+                                                       for=""> {{__('common.Semester')}}</label>
+                                                @php
+                                                    $selectedSemesters = old('category_ids', isset($user) ? ($user->instructorSemesters->pluck('id')->all() ?: ($user->category_id ? [$user->category_id] : [])) : []);
+                                                @endphp
+                                                <select class="primary_input_field primary_select" name="category_ids[]" id="category_id" multiple>
                                                     @php
                                                         $parentCategories = \Modules\CourseSetting\Entities\Category::where('parent_id', NULL)->where('status', 1)->orderBy('position_order')->get();
                                                         $allSubCategories = \Modules\CourseSetting\Entities\SubCategory::where('status', 1)->get()->keyBy('category_id');
@@ -66,7 +68,7 @@
                                                         @php
                                                             $subKey = 'cat_' . $cat->id;
                                                         @endphp
-                                                        <option value="{{$cat->id}}" {{old('category_id', isset($user)?$user->category_id:'') == $cat->id ? 'selected' : ''}}>{{$cat->name}}</option>
+                                                        <option value="{{$cat->id}}" {{in_array($cat->id, $selectedSemesters) ? 'selected' : ''}}>{{$cat->name}}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -75,9 +77,19 @@
                                             <div class="primary_input mb-25">
                                                 <label class="primary_input_label"
                                                        for="">{{__('common.Sub Category')}}</label>
-                                                <select class="primary_input_field" name="subcategory_id" id="subcategory_id">
-                                                    <option value="">{{__('common.Select One')}}</option>
+                                                @php
+                                                    $selectedSubcategories = old('subcategory_ids', isset($user) ? $user->instructorSubcategoryIds() : []);
+                                                @endphp
+                                                <select class="primary_input_field primary_select" name="subcategory_ids[]" id="subcategory_id" multiple>
                                                 </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xl-6">
+                                            <div class="primary_input mb-25">
+                                                <label class="primary_input_label" for="academic_year">{{__('common.Academic Year')}}</label>
+                                                <input class="primary_input_field" name="academic_year" id="academic_year" type="text" maxlength="20" placeholder="2025/2026" value="{{ old('academic_year', isset($user) ? $user->academic_year : '') }}">
                                             </div>
                                         </div>
                                     </div>
@@ -277,27 +289,29 @@
 
     <script>
         $(document).ready(function () {
-            var currentSubcategory = '{{ old("subcategory_id", isset($user) ? $user->subcategory_id : "") }}';
+            var selectedSubcategories = @json(array_map('strval', $selectedSubcategories));
             var subCategoriesData = {!! json_encode($subData) !!};
 
-            function loadSubcategories(categoryId, selectCurrent) {
+            function loadSubcategories(categoryIds) {
                 var $sub = $('#subcategory_id');
-                $sub.html('<option value="">{{ __("common.Select One") }}</option>');
-                if (!categoryId) return;
-                var items = subCategoriesData[categoryId] || [];
-                $.each(items, function (i, item) {
-                    var selected = (selectCurrent && item.id == currentSubcategory) ? ' selected' : '';
+                var options = {};
+                $.each(categoryIds || [], function (categoryIndex, categoryId) {
+                    $.each(subCategoriesData[categoryId] || [], function (itemIndex, item) {
+                        options[item.id] = item;
+                    });
+                });
+                $sub.empty();
+                $.each(options, function (id, item) {
+                    var selected = selectedSubcategories.indexOf(String(item.id)) !== -1 ? ' selected' : '';
                     $sub.append('<option value="' + item.id + '"' + selected + '>' + item.name + '</option>');
                 });
             }
 
-            var initialCategory = '{{ old("category_id", isset($user) ? $user->category_id : "") }}';
-            if (initialCategory) {
-                loadSubcategories(initialCategory, true);
-            }
+            loadSubcategories($('#category_id').val());
 
             $('#category_id').on('change', function () {
-                loadSubcategories($(this).val(), false);
+                selectedSubcategories = $('#subcategory_id').val() || [];
+                loadSubcategories($(this).val());
             });
         });
     </script>

@@ -99,6 +99,8 @@
     "Add Model"=>"إضافة نموذج",
     "Edit Model"=>"تعديل النموذج",
     "Category"=>"برامجنا",
+    "Academic Year"=>"السنة الدراسية",
+    "Semester"=>"الفصل الدراسي",
     "Add Category"=>"إضافة فئة",
     "Code"=>"رمز",
     "Add as Sub Category"=>"أضف كفئة فرعية",

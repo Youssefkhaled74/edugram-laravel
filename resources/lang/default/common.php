@@ -98,6 +98,8 @@
     "Add Model" => "Add Model",
     "Edit Model" => "Edit Model",
     "Category" => "Category",
+    "Academic Year" => "Academic Year",
+    "Semester" => "Semester",
     "Add Category" => "Add Category",
     "Code" => "Code",
     "Add as Sub Category" => "Add as Sub Category",

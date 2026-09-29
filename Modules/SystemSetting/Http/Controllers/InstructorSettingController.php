@@ -76,6 +76,26 @@ namespace Modules\SystemSetting\Http\Controllers;
                 'phone' => 'nullable|string|regex:/^([0-9\s\-\+\(\)]*)$/|min:5|unique:users,phone',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|min:8|confirmed',
+                'academic_year' => 'nullable|string|max:20',
+                'category_ids' => 'nullable|array',
+                'category_ids.*' => 'integer|distinct|exists:categories,id',
+                'subcategory_ids' => 'nullable|array',
+                'subcategory_ids.*' => [
+                    'integer',
+                    'distinct',
+                    function ($attribute, $value, $fail) {
+                        $exists = Schema::hasTable('sub_categories')
+                            && \Illuminate\Support\Facades\DB::table('sub_categories')->where('id', $value)->where('status', 1)->exists();
+
+                        if (!$exists && Schema::hasTable('categories') && Schema::hasColumn('categories', 'parent_id')) {
+                            $exists = \Illuminate\Support\Facades\DB::table('categories')->where('id', $value)->whereNotNull('parent_id')->where('status', 1)->exists();
+                        }
+
+                        if (!$exists) {
+                            $fail(trans('validation.exists', ['attribute' => $attribute]));
+                        }
+                    },
+                ],
             ];
             if (isModuleActive('Appointment')) {
                 $rules['headline'] = 'required';
@@ -97,6 +117,7 @@ namespace Modules\SystemSetting\Http\Controllers;
                 $user->dob = getPhpDateFormat($request->dob);
                 $user->role_id = 2;
                 $user->special_commission = null;
+                $user->academic_year = $request->academic_year;
 
                 if (empty($request->phone)) {
                     $user->phone = null;
@@ -112,8 +133,8 @@ namespace Modules\SystemSetting\Http\Controllers;
                 $user->twitter = $request->twitter;
                 $user->linkedin = $request->linkedin;
                 $user->instagram = $request->instagram;
-                $user->category_id = $request->category_id;
-                $user->subcategory_id = $request->subcategory_id;
+                $user->category_id = collect($request->input('category_ids', []))->first();
+                $user->subcategory_id = collect($request->input('subcategory_ids', []))->first();
                 $user->added_by = Auth::user()->id;
                 $user->email_verify = 1;
                 $user->email_verified_at = now();
@@ -124,6 +145,9 @@ namespace Modules\SystemSetting\Http\Controllers;
                     $user->lms_id = 1;
                 }
                 $user->save();
+
+                $user->instructorSemesters()->sync($request->input('category_ids', []));
+                $user->instructorSubcategories()->sync($request->input('subcategory_ids', []));
 
                 if ($request->image) {
                     $user->image = $this->generateLink($request->image, $user->id, get_class($user), 'image');
@@ -281,6 +305,26 @@ namespace Modules\SystemSetting\Http\Controllers;
                 'phone' => 'nullable|string|regex:/^([0-9\s\-\+\(\)]*)$/|min:1|unique:users,phone,' . $request->id,
                 'email' => 'required|email|unique:users,email,' . $request->id,
                 'password' => 'bail|nullable|min:8|confirmed',
+                'academic_year' => 'nullable|string|max:20',
+                'category_ids' => 'nullable|array',
+                'category_ids.*' => 'integer|distinct|exists:categories,id',
+                'subcategory_ids' => 'nullable|array',
+                'subcategory_ids.*' => [
+                    'integer',
+                    'distinct',
+                    function ($attribute, $value, $fail) {
+                        $exists = Schema::hasTable('sub_categories')
+                            && \Illuminate\Support\Facades\DB::table('sub_categories')->where('id', $value)->where('status', 1)->exists();
+
+                        if (!$exists && Schema::hasTable('categories') && Schema::hasColumn('categories', 'parent_id')) {
+                            $exists = \Illuminate\Support\Facades\DB::table('categories')->where('id', $value)->whereNotNull('parent_id')->where('status', 1)->exists();
+                        }
+
+                        if (!$exists) {
+                            $fail(trans('validation.exists', ['attribute' => $attribute]));
+                        }
+                    },
+                ],
 
             ];
 
@@ -298,8 +342,9 @@ namespace Modules\SystemSetting\Http\Controllers;
                 $user->instagram = $request->instagram;
                 $user->about = $request->about;
                 $user->dob = getPhpDateFormat($request->dob);
-                $user->category_id = $request->category_id;
-                $user->subcategory_id = $request->subcategory_id;
+                $user->academic_year = $request->academic_year;
+                $user->category_id = collect($request->input('category_ids', []))->first();
+                $user->subcategory_id = collect($request->input('subcategory_ids', []))->first();
                 if (empty($request->phone)) {
                     $user->phone = null;
                 } else {
@@ -322,6 +367,9 @@ namespace Modules\SystemSetting\Http\Controllers;
                 }
                 $user->role_id = 2;
                 $user->save();
+
+                $user->instructorSemesters()->sync($request->input('category_ids', []));
+                $user->instructorSubcategories()->sync($request->input('subcategory_ids', []));
 
 
                 if (isModuleActive('Appointment')) {

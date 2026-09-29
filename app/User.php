@@ -429,6 +429,23 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(CourseCategory::class, 'category_id')->withDefault();
     }
 
+    public function instructorSemesters()
+    {
+        return $this->belongsToMany(CourseCategory::class, 'instructor_semesters', 'user_id', 'category_id');
+    }
+
+    public function instructorSubcategories()
+    {
+        return $this->belongsToMany(CourseSubCategory::class, 'instructor_subcategories', 'user_id', 'subcategory_id');
+    }
+
+    public function instructorSubcategoryIds()
+    {
+        $ids = DB::table('instructor_subcategories')->where('user_id', $this->id)->pluck('subcategory_id')->all();
+
+        return $ids ?: ($this->subcategory_id ? [$this->subcategory_id] : []);
+    }
+
     public function studentRegistrationSubCategory()
     {
         return $this->belongsTo(CourseSubCategory::class, 'subcategory_id')->withDefault();
