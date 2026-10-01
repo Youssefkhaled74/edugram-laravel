@@ -374,6 +374,12 @@ if (!function_exists('validationMessage')) {
             }
 
             foreach ($single_rule as $rule) {
+                if ($rule instanceof \Stringable) {
+                    $rule = (string) $rule;
+                }
+                if (!is_string($rule)) {
+                    continue;
+                }
                 $string = explode(':', $rule);
                 $key = $attribute;
                 if (strpos($attribute, '.')) {

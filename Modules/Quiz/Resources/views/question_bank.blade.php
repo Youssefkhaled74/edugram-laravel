@@ -222,6 +222,118 @@
             font-weight: 800;
             color: #435069;
         }
+        .math-keyboard-panel {
+            width: 780px;
+            max-height: min(84dvh, 860px);
+            background: #fff;
+            border-color: #d8e1ec;
+            border-radius: 16px;
+            box-shadow: 0 22px 60px rgba(24, 34, 55, .2), 0 3px 10px rgba(24, 34, 55, .06);
+        }
+        .math-keyboard-panel.is-fullscreen {
+            inset: 0 !important;
+            width: 100vw !important;
+            height: 100dvh !important;
+            max-width: none !important;
+            max-height: none !important;
+            border: 0;
+            border-radius: 0;
+            transform-origin: center;
+        }
+        .math-keyboard-panel.is-fullscreen .math-keyboard-grid-wrap {
+            padding-bottom: 28px;
+        }
+        .math-keyboard-panel.is-fullscreen .math-resize-handle {
+            display: none;
+        }
+        .math-keyboard-panel.is-fullscreen .math-keyboard-title {
+            cursor: default;
+        }
+        body.math-keyboard-open {
+            overflow: hidden;
+        }
+        .math-keyboard-header {
+            background: #fff;
+            border-bottom-color: #e5ebf2;
+        }
+        .math-keyboard-search,
+        .math-tabs-section {
+            background: #f8fafc;
+        }
+        .math-keyboard-search input {
+            border-radius: 9px;
+            border-color: #d5deea;
+        }
+        .math-writer-area {
+            padding: 18px 20px;
+        }
+        .math-writer-area textarea {
+            min-height: 108px;
+            border-radius: 9px;
+            border-color: #cbd6e4;
+            background: #fbfcfe;
+        }
+        .math-writer-area textarea:focus {
+            border-color: #2f67f6;
+            box-shadow: 0 0 0 3px rgba(47, 103, 246, .12);
+        }
+        .math-preview-shell {
+            background: #fff;
+            border-radius: 9px;
+        }
+        .math-writer-insert-btn {
+            min-width: 138px;
+            border-radius: 9px;
+            box-shadow: none;
+        }
+        .math-writer-insert-btn:hover {
+            box-shadow: 0 5px 12px rgba(36, 87, 245, .18);
+        }
+        .math-tab-btn {
+            border-radius: 7px;
+        }
+        .math-keyboard-grid {
+            grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+            gap: 7px;
+        }
+        .math-key-btn {
+            border-radius: 8px;
+        }
+        .math-keyboard-panel button:focus-visible,
+        .math-keyboard-panel input:focus-visible,
+        .math-keyboard-panel textarea:focus-visible,
+        .math-keyboard-toggle:focus-visible {
+            outline: 3px solid rgba(36, 87, 245, .35);
+            outline-offset: 2px;
+        }
+        html[dir='rtl'] .math-keyboard-panel {
+            right: 24px;
+            left: auto;
+            transform-origin: bottom right;
+        }
+        html[dir='rtl'] .math-keyboard-toggle {
+            right: 24px;
+            left: auto;
+        }
+        html[dir='rtl'] .math-resize-handle {
+            right: auto;
+            left: 0;
+            cursor: nesw-resize;
+        }
+        html[dir='rtl'] .math-resize-handle::after {
+            right: auto;
+            left: 4px;
+            border-right: 0;
+            border-left: 2px solid #ccc;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .math-keyboard-panel,
+            .math-keyboard-panel *,
+            .math-keyboard-toggle {
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
+        }
         @media only screen and (min-width: 992px) {
             .drawflow-node.ans {
                 margin-right: 0 !important;
@@ -617,6 +729,11 @@
             padding: 2px 4px 6px 2px;
             scrollbar-gutter: stable;
         }
+        .math-keyboard-grid.math-template-grid {
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            grid-auto-rows: 104px;
+            align-content: start;
+        }
         .math-keyboard-grid::-webkit-scrollbar { width: 3px; }
         .math-keyboard-grid::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
 
@@ -642,6 +759,45 @@
             transition: background .15s, border-color .15s, transform .15s, box-shadow .15s;
             position: relative;
         }
+        .math-key-btn.math-katex-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 0;
+            padding: 8px;
+            overflow: hidden;
+        }
+        .math-template-fit {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .math-template-fit-content {
+            display: block;
+            flex: 0 0 auto;
+            width: max-content;
+            max-width: none;
+            white-space: nowrap;
+            transform: scale(var(--template-scale, 1));
+            transform-origin: center;
+        }
+        .math-template-fit-content .katex {
+            white-space: nowrap;
+        }
+        .custom-tpl-wrap {
+            width: 100%;
+            min-width: 0;
+        }
+        .custom-tpl-wrap .math-katex-btn {
+            width: 100%;
+        }
         .math-key-btn:hover {
             background: #f2f6ff;
             border-color: #7da0ff;
@@ -663,17 +819,27 @@
         }
 
         .math-active-indicator {
-            padding: 4px 8px;
-            font-size: 11px;
-            color: #66748a;
+            padding: 7px 11px;
+            font-size: 12px;
+            color: #526078;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             gap: 6px;
             min-height: 0;
-            background: #fff;
-            border: 1px solid #dfe5ee;
-            border-radius: 999px;
+            background: #f1f5f9;
+            border: 1px solid #d8e1ec;
+            border-radius: 8px;
+        }
+        .math-active-indicator.has-target {
+            color: #176b4d;
+            background: #edf8f2;
+            border-color: #c5e8d4;
+        }
+        .math-active-indicator.needs-target {
+            color: #765315;
+            background: #fff8e8;
+            border-color: #f1dfae;
         }
         .math-active-indicator .dot {
             width: 6px;
@@ -691,6 +857,10 @@
                 width: 46px;
                 height: 46px;
                 font-size: 20px;
+            }
+            html[dir='rtl'] .math-keyboard-toggle {
+                right: 12px;
+                left: auto;
             }
             .math-keyboard-panel {
                 left: 8px !important;
@@ -2573,7 +2743,7 @@
                 { label: '\\begin{vmatrix}a&b\\\\c&d\\end{vmatrix}', latex: '\\begin{vmatrix} a & b \\\\ c & d \\end{vmatrix}' },
                 { label: '\\begin{Vmatrix}a&b\\\\c&d\\end{Vmatrix}', latex: '\\begin{Vmatrix} a & b \\\\ c & d \\end{Vmatrix}' },
                 { label: '\\begin{Bmatrix}a&b\\\\c&d\\end{Bmatrix}', latex: '\\begin{Bmatrix} a & b \\\\ c & d \\end{Bmatrix}' },
-                { label: '\\begin{smallmatrix}a&b\\\\c&d\\end{smallmatrix}', latex: '\\begin{smallmatrix}a&b\\\\c&d\\end{smallmatrix}' },
+                { label: '\\begin{matrix}a&b\\\\c&d\\end{matrix}', latex: '\\begin{matrix} a & b \\\\ c & d \\end{matrix}' },
 
                 // ── Matrices (3x3) ──
                 { label: '3\\times3\\,pmatrix', latex: '\\begin{pmatrix} a & b & c \\\\ d & e & f \\\\ g & h & i \\end{pmatrix}' },
@@ -2588,8 +2758,8 @@
                 // ── Multi-line ──
                 { label: '\\begin{aligned}', latex: '\\begin{aligned} a &= b + c \\\\ d &= e + f \\end{aligned}' },
                 { label: '\\begin{gathered}', latex: '\\begin{gathered} x^{2} + y^{2} = 1 \\\\ a + b = c \\end{gathered}' },
-                { label: '\\begin{align}', latex: '\\begin{align} x &= 1 & y &= 2 \\\\ a &= 3 & b &= 4 \\end{align}' },
-                { label: '\\begin{split}', latex: '\\begin{split} A & = B + C \\\\ & = D + E \\end{split}' },
+                { label: '\\begin{aligned}', latex: '\\begin{aligned} x &= 1 & y &= 2 \\\\ a &= 3 & b &= 4 \\end{aligned}' },
+                { label: '\\begin{aligned}', latex: '\\begin{aligned} A & = B + C \\\\ & = D + E \\end{aligned}' },
 
                 // ── System of equations ──
                 { label: 'System 2 eq', latex: '\\begin{cases} 2x + 3y = 5 \\\\ x - y = 1 \\end{cases}' },
@@ -2758,6 +2928,9 @@
             var activeInput = null;
             var activeEditable = null;
             var activeSummernote = null;
+            var activeInputSelectionStart = null;
+            var activeInputSelectionEnd = null;
+            var activeEditableRange = null;
             var activeCategory = categoryOrder[0];
             var recentSymbols = [];
             var maxRecent = 10;
@@ -2904,6 +3077,7 @@
             // ── Render helpers ──
             function renderSymbols(symbols) {
                 $grid.empty();
+                $grid.removeClass('math-template-grid');
                 if (!symbols || symbols.length === 0) {
                     $grid.append('<div class="no-results">لا توجد نتائج</div>');
                     return;
@@ -2915,8 +3089,30 @@
 
             // ── Writer (already in HTML) ──
 
+            function fitKatexCards() {
+                requestAnimationFrame(function () {
+                    $grid.find('.math-template-fit').each(function () {
+                        var $fit = $(this);
+                        var $content = $fit.children('.math-template-fit-content');
+                        var availableWidth = Math.max(40, $fit.innerWidth() - 16);
+                        var availableHeight = Math.max(36, $fit.innerHeight() - 16);
+                        var contentWidth = $content[0] ? $content[0].scrollWidth : 0;
+                        var contentHeight = $content[0] ? $content[0].scrollHeight : 0;
+                        var scale = contentWidth > 0 && contentHeight > 0
+                            ? Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight)
+                            : 1;
+                        $content[0].style.setProperty('--template-scale', scale.toFixed(3));
+                    });
+                });
+            }
+
+            function templateFitMarkup(rendered) {
+                return '<span class="math-template-fit"><span class="math-template-fit-content">' + rendered + '</span></span>';
+            }
+
             function renderKatexTemplates() {
                 $grid.empty();
+                $grid.addClass('math-template-grid');
 
                 $customLatex = $('#eqLatexInput');
                 $customPreview = $('#eqPreview');
@@ -2937,8 +3133,9 @@
                     } catch(e) {
                         rendered = '<code>' + tpl.latex.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
                     }
-                    $grid.append('<button type="button" class="math-key-btn math-katex-btn" data-katex="' + tpl.latex.replace(/"/g, '&quot;') + '">' + rendered + '</button>');
+                    $grid.append('<button type="button" class="math-key-btn math-katex-btn" data-katex="' + tpl.latex.replace(/"/g, '&quot;') + '">' + templateFitMarkup(rendered) + '</button>');
                 });
+                fitKatexCards();
             }
 
             function renderCategory(key) {
@@ -3006,28 +3203,33 @@
                     $activeLabel.text(name);
                     $activeDot.removeClass('inactive-dot').addClass('active-dot');
                 } else {
-                    $activeLabel.text('لم يتم تحديد حقل');
+                    $activeLabel.text('افتح المحرر بعد اختيار حقل السؤال');
                     $activeDot.removeClass('active-dot').addClass('inactive-dot');
                 }
+                $activeLabel.closest('.math-active-indicator')
+                    .toggleClass('has-target', !!(activeSummernote || activeEditable || activeInput))
+                    .toggleClass('needs-target', !(activeSummernote || activeEditable || activeInput));
             }
 
             // ── Panel open/close ──
             function openPanel() {
-                $panel.removeClass('d-none');
+                $panel.addClass('is-fullscreen').removeClass('d-none');
+                $('body').addClass('math-keyboard-open');
                 requestAnimationFrame(function () {
                     $panel.addClass('open');
                 });
                 updateActiveIndicator();
-                $search.focus();
+                $customLatex.trigger('focus');
             }
 
             function closePanel() {
                 $panel.removeClass('open');
+                $('body').removeClass('math-keyboard-open');
                 $panel.one('transitionend', function () {
-                    if (!$panel.hasClass('open')) $panel.addClass('d-none');
+                    if (!$panel.hasClass('open')) $panel.addClass('d-none').removeClass('is-fullscreen');
                 });
                 setTimeout(function () {
-                    if (!$panel.hasClass('open')) $panel.addClass('d-none');
+                    if (!$panel.hasClass('open')) $panel.addClass('d-none').removeClass('is-fullscreen');
                 }, 250);
             }
 
@@ -3108,11 +3310,15 @@
             }
 
             function insertAtCursor(el, value) {
-                var start = el.selectionStart || 0;
-                var end = el.selectionEnd || 0;
+                var start = document.activeElement === el ? el.selectionStart : activeInputSelectionStart;
+                var end = document.activeElement === el ? el.selectionEnd : activeInputSelectionEnd;
+                start = start === null || start === undefined ? (el.value || '').length : start;
+                end = end === null || end === undefined ? start : end;
                 var text = el.value || '';
                 el.value = text.slice(0, start) + value + text.slice(end);
                 var cursor = start + value.length;
+                activeInputSelectionStart = cursor;
+                activeInputSelectionEnd = cursor;
                 el.focus();
                 if (typeof el.setSelectionRange === 'function') el.setSelectionRange(cursor, cursor);
                 $(el).trigger('input').trigger('change');
@@ -3129,6 +3335,10 @@
                 el.focus();
                 if (window.getSelection) {
                     var sel = window.getSelection();
+                    if (activeEditableRange) {
+                        sel.removeAllRanges();
+                        sel.addRange(activeEditableRange);
+                    }
                     document.execCommand('insertText', false, value);
                 } else {
                     el.textContent += value;
@@ -3139,23 +3349,48 @@
             // ── Focus tracking ──
             $(document).on('focusin click', 'input, textarea', function () {
                 var $el = $(this);
+                if ($el.closest('#mathKeyboardPanel').length) return;
                 if ($el.hasClass('lms_summernote')) return;
                 if (canUseMathKeyboard($el)) {
                     activeInput = this;
+                    activeInputSelectionStart = this.selectionStart;
+                    activeInputSelectionEnd = this.selectionEnd;
+                    activeEditable = null;
+                    activeEditableRange = null;
                     activeSummernote = null;
                     if ($panel.hasClass('open')) updateActiveIndicator();
                 }
             });
 
+            $(document).on('keyup mouseup input select', 'input, textarea', function () {
+                if (this === activeInput && !$(this).closest('#mathKeyboardPanel').length) {
+                    activeInputSelectionStart = this.selectionStart;
+                    activeInputSelectionEnd = this.selectionEnd;
+                }
+            });
+
             $(document).on('focusin click', '[contenteditable="true"], .note-editable', function () {
                 var $el = $(this);
+                if ($el.closest('#mathKeyboardPanel').length) return;
                 if (canUseEditableKeyboard($el)) {
                     var $editable = $el.closest('[contenteditable="true"]').length ? $el.closest('[contenteditable="true"]') : $el;
                     activeEditable = $editable[0];
+                    activeInput = null;
+                    activeInputSelectionStart = null;
+                    activeInputSelectionEnd = null;
+                    var selection = window.getSelection();
+                    activeEditableRange = selection && selection.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
                     var $ta = getTargetSummernote($el);
                     if ($ta && $ta.length) { activeSummernote = $ta; activeInput = null; }
                     else { activeSummernote = null; }
                     if ($panel.hasClass('open')) updateActiveIndicator();
+                }
+            });
+
+            $(document).on('keyup mouseup', '[contenteditable="true"], .note-editable', function () {
+                if (!$(this).closest('#mathKeyboardPanel').length && activeEditable) {
+                    var selection = window.getSelection();
+                    activeEditableRange = selection && selection.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
                 }
             });
 
@@ -3249,6 +3484,7 @@
                     activeSummernote.summernote('focus');
                     activeSummernote.summernote('insertNode', $node[0]);
                     if ($btn && $btn.length) $btn.addClass('inserted');
+                    closePanel();
                     return true;
                 }
 
@@ -3270,6 +3506,14 @@
                         }
                     }
                     if ($btn && $btn.length) $btn.addClass('inserted');
+                    closePanel();
+                    return true;
+                }
+
+                if (activeInput && canUseMathKeyboard($(activeInput))) {
+                    insertAtCursor(activeInput, latex);
+                    if ($btn && $btn.length) $btn.addClass('inserted');
+                    closePanel();
                     return true;
                 }
 
@@ -3362,6 +3606,7 @@
 
             // ── Drag ──
             $dragHandle.on('mousedown touchstart', function (e) {
+                if ($panel.hasClass('is-fullscreen')) return;
                 if (window.innerWidth <= 575) return;
                 if (e.type === 'mousedown' && e.button !== 0) return;
                 e.preventDefault();
@@ -3511,6 +3756,7 @@
 
             function renderCustomTemplates() {
                 $grid.empty();
+                $grid.addClass('math-template-grid');
                 if (customTemplates.length === 0) {
                     $grid.append('<div class="no-results">لا توجد قوالب مخصصة. اكتب معادلة ثم اضغط 💾 للحفظ</div>');
                     return;
@@ -3528,11 +3774,12 @@
                     }
                     $grid.append(
                         '<div class="custom-tpl-wrap" style="position:relative;display:inline-block" data-idx="' + idx + '">' +
-                        '<button type="button" class="math-key-btn math-katex-btn custom-tpl-btn" data-katex="' + tpl.latex.replace(/"/g, '&quot;') + '">' + rendered + '</button>' +
+                        '<button type="button" class="math-key-btn math-katex-btn custom-tpl-btn" data-katex="' + tpl.latex.replace(/"/g, '&quot;') + '">' + templateFitMarkup(rendered) + '</button>' +
                         '<button type="button" class="custom-tpl-del" data-idx="' + idx + '" title="حذف القالب" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;border:0;background:#ef4444;color:#fff;font-size:11px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 2px 4px rgba(0,0,0,.2)">✕</button>' +
                         '</div>'
                     );
                 });
+                fitKatexCards();
             }
 
             function addCustomTab() {
@@ -3613,6 +3860,7 @@
 
             function renderHistory() {
                 $grid.empty();
+                $grid.addClass('math-template-grid');
                 if (equationHistory.length === 0) {
                     $grid.append('<div class="no-results">لا توجد معادلات سابقة</div>');
                     return;
@@ -3633,12 +3881,15 @@
                     }
                     $grid.append(
                         '<div class="history-item" style="grid-column:span 2;display:flex;align-items:center;gap:6px;background:#f8f9fa;border:1px solid #e6e6e6;border-radius:10px;padding:6px 10px">' +
-                        '<button type="button" class="math-key-btn math-katex-btn history-use-btn" data-katex="' + latex.replace(/"/g, '&quot;') + '" style="flex:1;padding:8px 4px" title="استخدام">' + rendered + '</button>' +
+                        '<button type="button" class="math-key-btn math-katex-btn history-use-btn" data-katex="' + latex.replace(/"/g, '&quot;') + '" style="flex:1;padding:8px 4px" title="استخدام">' + templateFitMarkup(rendered) + '</button>' +
                         '<button type="button" class="history-insert-btn" data-katex="' + latex.replace(/"/g, '&quot;') + '" title="إدراج في المحرر" style="width:28px;height:28px;border:0;border-radius:8px;background:#0d6efd;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">⇥</button>' +
                         '</div>'
                     );
                 });
+                fitKatexCards();
             }
+
+            $(window).on('resize.mathTemplateCards', fitKatexCards);
 
             $('#mathHistoryBtn').on('click', function () {
                 if (activeCategory === '_history') {
