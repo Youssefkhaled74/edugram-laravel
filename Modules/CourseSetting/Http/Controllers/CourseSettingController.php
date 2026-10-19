@@ -356,15 +356,15 @@ class CourseSettingController extends Controller
 
             }
 
-            foreach ($request->about as $key => $about) {
+            foreach ($request->input('about', []) as $key => $about) {
                 $course->setTranslation('about', $key, $about);
             }
 
-            foreach ($request->requirements as $key => $requirements) {
+            foreach ($request->input('requirements', []) as $key => $requirements) {
                 $course->setTranslation('requirements', $key, $requirements);
             }
 
-            foreach ($request->outcomes as $key => $outcomes) {
+            foreach ($request->input('outcomes', []) as $key => $outcomes) {
                 $course->setTranslation('outcomes', $key, $outcomes);
             }
 
@@ -656,15 +656,15 @@ class CourseSettingController extends Controller
                 }
             }
 
-            foreach ($request->about as $key => $about) {
+            foreach ($request->input('about', []) as $key => $about) {
                 $course->setTranslation('about', $key, $about);
             }
 
-            foreach ($request->requirements as $key => $requirements) {
+            foreach ($request->input('requirements', []) as $key => $requirements) {
                 $course->setTranslation('requirements', $key, $requirements);
             }
 
-            foreach ($request->outcomes as $key => $outcomes) {
+            foreach ($request->input('outcomes', []) as $key => $outcomes) {
                 $course->setTranslation('outcomes', $key, $outcomes);
             }
             $course->duration = $request->duration;
