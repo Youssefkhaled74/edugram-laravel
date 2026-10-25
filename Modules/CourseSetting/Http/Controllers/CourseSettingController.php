@@ -230,7 +230,7 @@ class CourseSettingController extends Controller
             'title.' . $code => 'required|max:255',
             'type' => 'required',
             'language' => 'required',
-            'duration' => 'nullable',
+            'duration' => 'nullable|numeric|min:0',
 
         ];
         if (isset($request->is_upcoming_course)) {
@@ -369,7 +369,9 @@ class CourseSettingController extends Controller
             }
 
             $course->slug = null;
-            $course->duration = $request->duration;
+            $course->duration = $request->filled('duration')
+                ? (int) round((float) $request->duration * 60)
+                : null;
 
             if (showEcommerce()) {
                 if ($request->is_discount == 1) {
@@ -588,6 +590,7 @@ class CourseSettingController extends Controller
             'title.' . $code => 'required|max:255',
             'type' => 'required',
             'language' => 'required',
+            'duration' => 'nullable|numeric|min:0',
 
         ];
         if ($request->has_badge == 1) {
@@ -600,7 +603,6 @@ class CourseSettingController extends Controller
         }
         if ($request->type == 1) {
             $rules = [
-                'duration' => 'nullable',
                 'level' => 'required',
                 'category' => 'required',
             ];
@@ -667,7 +669,9 @@ class CourseSettingController extends Controller
             foreach ($request->input('outcomes', []) as $key => $outcomes) {
                 $course->setTranslation('outcomes', $key, $outcomes);
             }
-            $course->duration = $request->duration;
+            $course->duration = $request->filled('duration')
+                ? (int) round((float) $request->duration * 60)
+                : null;
             $course->subscription_list = $request->subscription_list;
 
             if (isModuleActive('UpcomingCourse') && isset($request->is_upcoming_course)) {

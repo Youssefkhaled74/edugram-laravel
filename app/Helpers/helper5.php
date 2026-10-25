@@ -938,19 +938,21 @@ if (!function_exists('hasTableColumn')) {
 if (!function_exists('getMaxUploadFileSize')) {
     function getMaxUploadFileSize()
     {
-        if (is_numeric($postMaxSize = ini_get('upload_max_filesize'))) {
-            return (int)$postMaxSize;
-        }
-
-        $metric = strtoupper(substr($postMaxSize, -1));
-        $postMaxSize = (int)$postMaxSize;
-
-        return match ($metric) {
-            'K' => $postMaxSize * 1024,
-            'M' => $postMaxSize * 1048576,
-            'G' => $postMaxSize * 1073741824,
-            default => $postMaxSize,
+        $toBytes = static function ($value) {
+            $number = (float) $value;
+            return match (strtoupper(substr(trim($value), -1))) {
+                'K' => (int) ($number * 1024),
+                'M' => (int) ($number * 1048576),
+                'G' => (int) ($number * 1073741824),
+                default => (int) $number,
+            };
         };
+
+        return min(
+            500 * 1048576,
+            $toBytes(ini_get('upload_max_filesize')),
+            $toBytes(ini_get('post_max_size'))
+        );
     }
 }
 if (!function_exists('extractId')) {

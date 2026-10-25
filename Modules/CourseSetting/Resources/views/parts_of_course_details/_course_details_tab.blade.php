@@ -354,7 +354,8 @@
                         <input class="primary_input_field" name="duration"
                                placeholder="{{ __('common.Duration') }}   ({{ __('common.Hours') }})"
                                id="addDuration"
-                               type="number" value="{{ @$course->duration }}">
+                               min="0" step="any" type="number"
+                               value="{{ old('duration', $course->duration !== null ? round($course->duration / 60, 2) : null) }}">
                     </div>
                 </div>
                 @if(isModuleActive('Org'))

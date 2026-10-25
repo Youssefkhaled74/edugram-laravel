@@ -32,44 +32,48 @@
             prev_page_url: null,
             for_name: ''
         },
-        amazUppy: function () {
-            if ($(".AmazUppyDragDrop").length > 0) {
-                let uppy = new Uppy.Core({
-                    autoProceed: true,
-                    restrictions: {
-                        maxFileSize: {{getMaxUploadFileSize()}},
-                        maxNumberOfFiles: 20,
-                        minNumberOfFiles: 1,
-                        // allowedFileTypes: ['image/*']
+        initMediaUploads: function (selector, refreshFiles) {
+            const container = document.querySelector(selector);
+            if (!container) return;
+
+            container.innerHTML = '<input type="file" name="file" multiple>';
+            const pond = FilePond.create(container.querySelector('input'), {
+                allowMultiple: true,
+                allowRevert: false,
+                chunkUploads: true,
+                chunkForce: true,
+                chunkSize: 5 * 1048576,
+                maxParallelUploads: 2,
+                server: {
+                    process: {
+                        url: '{{route('setting.media-manager.chunk.start')}}',
+                        headers: {'X-CSRF-TOKEN': Amaz.data.csrf}
+                    },
+                    patch: {
+                        url: '{{route('setting.media-manager.chunk.append')}}',
+                        headers: {'X-CSRF-TOKEN': Amaz.data.csrf}
                     }
+                }
+            });
+
+            pond.on('processfile', function (error, file) {
+                if (error) return;
+                $.post('{{route('setting.media-manager.chunk.finish')}}', {
+                    _token: Amaz.data.csrf,
+                    server_id: file.serverId
+                }).done(function () {
+                    if (refreshFiles) {
+                        Amaz.uploader.getAllUploads('{{route('setting.media-manager.get_files_for_modal')}}');
+                    } else {
+                        toastr.success('{{__('setting.Upload complete')}}');
+                    }
+                    pond.removeFile(file.id);
+                }).fail(function () {
+                    toastr.error('{{__('common.Something went wrong')}}');
                 });
-                uppy.use(Uppy.Dashboard, {
-                    target: ".AmazUppyDragDrop",
-                    inline: true,
-                    locale: {
-                        strings: strings,
-                    },
-                    showLinkToFileUploadResult: false,
-                    showProgressDetails: true,
-                    hideCancelButton: true,
-                    hidePauseResumeButton: true,
-                    hideUploadButton: true,
-                    proudlyDisplayPoweredByUppy: false,
-                });
-                uppy.use(Uppy.XHRUpload, {
-                    endpoint: '{{route('setting.media-manager.store')}}',
-                    fieldName: "file",
-                    formData: true,
-                    headers: {
-                        'X-CSRF-TOKEN': Amaz.data.csrf,
-                    },
-                });
-                uppy.on("upload-success", function () {
-                    Amaz.uploader.getAllUploads(
-                        "{{route('setting.media-manager.get_files_for_modal')}}"
-                    );
-                });
-            }
+            });
+
+            return pond;
         },
         getAllUploads: function (url, search_key = null, sort_key = null) {
             $("#all_files_div").html(
@@ -371,7 +375,7 @@
                     $('.modal-backdrop').remove()
                     $("#media_modal").modal("show");
                     $('#sortStatus').niceSelect();
-                    Amaz.uploader.amazUppy();
+                    Amaz.uploader.initMediaUploads('.AmazUppyDragDrop', true);
                     Amaz.uploader.getAllUploads(
                         Amaz.data.appUrl + "/media-manager/get-files-modal",
                         null,

@@ -55,64 +55,8 @@
 
 @push('scripts')
     <script>
-
-        let strings = {
-            uploading: '{{__('setting.uploading')}}',
-            cancelUpload: '{{__('setting.Cancel upload')}}',
-            chooseFiles: '{{__('setting.Choose files')}}',
-            addedNumFiles: '{{__('setting.Added')}} %{numFiles} {{__('setting.files')}}',
-            addingMoreFiles: '{{__('setting.Adding more files')}}',
-            done: '{{__('setting.Done')}}',
-            complete: '{{__('setting.Complete')}}',
-            addMore: '{{__('setting.Add more')}}',
-            uploadComplete: '{{__('setting.Upload complete')}}',
-            browseFiles: '{{__('setting.Browse Files')}}',
-            dropPasteFiles: '{{__('setting.Drop files here')}} {{__('common.Or')}}  %{browseFiles}',
-
-        };
-
         window.addEventListener('DOMContentLoaded', function () {
-            'use strict';
-            var uppy = new Uppy.Core({
-                debug: true,
-                autoProceed: true,
-                restrictions: {
-                    maxFileSize: {{getMaxUploadFileSize()}},
-                    maxNumberOfFiles: 20,
-                    minNumberOfFiles: 1,
-                    // allowedFileTypes: ['image/*']
-                }
-            });
-            uppy.use(Uppy.Dashboard, {
-                inline: true,
-                locale: {
-                    strings: strings,
-                },
-                target: '.UppyDragDrop'
-            });
-            uppy.use(Uppy.ProgressBar, {
-                target: '.for-ProgressBar',
-                hideAfterFinish: true,
-                locale: {
-                    strings: strings,
-                },
-            });
-            let store_url = '{{route('setting.media-manager.store')}}';
-            let token = '{{csrf_token()}}';
-            uppy.use(Uppy.XHRUpload, {
-                endpoint: store_url,
-                formData: true,
-                fieldName: 'file',
-                headers: {
-                    'X-CSRF-TOKEN': token,
-                },
-            });
-
-            uppy.on('upload-success', function (response) {
-
-            });
-
-            window.uppy = uppy;
+            Amaz.uploader.initMediaUploads('.UppyDragDrop', false);
         });
     </script>
 @endpush

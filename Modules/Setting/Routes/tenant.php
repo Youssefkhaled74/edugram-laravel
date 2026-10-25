@@ -242,6 +242,10 @@ Route::group(['prefix' => 'media-manager', 'middleware' => ['auth', 'admin']], f
     Route::get('/', [MediaManagerController::class, 'index'])->name('setting.media-manager.index');
     Route::get('/create', [MediaManagerController::class, 'create'])->name('setting.media-manager.create');
     Route::post('/create', [MediaManagerController::class, 'store'])->name('setting.media-manager.store');
+    Route::post('/chunk', [MediaManagerController::class, 'startChunk'])->name('setting.media-manager.chunk.start');
+    Route::patch('/chunk', [MediaManagerController::class, 'appendChunk'])->name('setting.media-manager.chunk.append');
+    Route::head('/chunk', [MediaManagerController::class, 'chunkOffset'])->name('setting.media-manager.chunk.offset');
+    Route::post('/chunk/finish', [MediaManagerController::class, 'finishChunk'])->name('setting.media-manager.chunk.finish');
     Route::get('/delete-media-file/{id}', [MediaManagerController::class, 'destroy'])->name('setting.media-manager.delete');
     Route::get('/get-files-modal', [MediaManagerController::class, 'getfilesForModal'])->name('setting.media-manager.get_files_for_modal');
     Route::post('/get-modal', [MediaManagerController::class, 'getModal'])->name('setting.media-manager.get_media_modal');

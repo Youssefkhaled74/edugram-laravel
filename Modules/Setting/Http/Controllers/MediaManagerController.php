@@ -7,6 +7,9 @@ use App\Traits\Filepond;
 use Brian2694\Toastr\Facades\Toastr;
 use Google_Client;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Modules\AmazonS3\Http\Controllers\AmazonS3Controller;
 use Modules\BunnyStorage\Http\Controllers\BunnyStreamController;
 use Modules\Setting\Repositories\MediaManagerRepository;
@@ -144,12 +147,93 @@ class MediaManagerController extends Controller
     public function store(Request $request)
     {
         $validate_rules = [
-            'file' => 'required',
+            'file' => 'required|file',
         ];
         $request->validate($validate_rules, validationMessage($validate_rules));
 
         return $this->mediaManagerRepo->store($request->file('file'));
 
+    }
+
+    public function startChunk(Request $request)
+    {
+        $rawLength = $request->header('Upload-Length', '');
+        $name = basename(str_replace('\\', '/', $request->header('Upload-Name', '')));
+        abort_unless(ctype_digit($rawLength) && (float) $rawLength <= PHP_INT_MAX && (int) $rawLength > 0 && $name !== '', 422);
+
+        $directory = $this->getBasePath() . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR
+            . auth()->id() . DIRECTORY_SEPARATOR . Str::random(32);
+        File::makeDirectory($directory, 0775, true);
+        file_put_contents($directory . DIRECTORY_SEPARATOR . 'meta.json', json_encode([
+            'name' => $name,
+            'length' => (int) $rawLength,
+        ]));
+
+        return response($this->getServerIdFromPath($directory), 200)
+            ->header('Content-Type', 'text/plain');
+    }
+
+    public function appendChunk(Request $request)
+    {
+        $directory = $this->mediaChunkDirectory($request->query('patch', ''));
+        $meta = json_decode(file_get_contents($directory . DIRECTORY_SEPARATOR . 'meta.json'), true);
+        $offset = $request->header('Upload-Offset', '');
+        abort_unless(ctype_digit($offset) && (float) $offset <= PHP_INT_MAX, 422);
+
+        $path = $directory . DIRECTORY_SEPARATOR . 'upload.bin';
+        $output = fopen($path, 'c+b');
+        abort_unless($output && flock($output, LOCK_EX), 500);
+
+        try {
+            $current = fstat($output)['size'];
+            abort_unless((int) $offset === $current, 409);
+            fseek($output, 0, SEEK_END);
+            $input = fopen('php://input', 'rb');
+            $written = stream_copy_to_stream($input, $output, 5 * 1048576 + 1);
+            fclose($input);
+            if ($written === false || $written === 0 || $written > 5 * 1048576 || $current + $written > $meta['length']) {
+                ftruncate($output, $current);
+                abort(422);
+            }
+            fflush($output);
+        } finally {
+            flock($output, LOCK_UN);
+            fclose($output);
+        }
+
+        return response('', 204)->header('Upload-Offset', (string) ($current + $written));
+    }
+
+    public function chunkOffset(Request $request)
+    {
+        $directory = $this->mediaChunkDirectory($request->query('patch', ''));
+        $path = $directory . DIRECTORY_SEPARATOR . 'upload.bin';
+
+        return response('', 200)->header('Upload-Offset', (string) (is_file($path) ? filesize($path) : 0));
+    }
+
+    public function finishChunk(Request $request)
+    {
+        $request->validate(['server_id' => 'required|string']);
+        $directory = $this->mediaChunkDirectory($request->input('server_id'));
+        $meta = json_decode(file_get_contents($directory . DIRECTORY_SEPARATOR . 'meta.json'), true);
+        $path = $directory . DIRECTORY_SEPARATOR . 'upload.bin';
+        abort_unless(is_file($path) && filesize($path) === $meta['length'], 422);
+
+        $file = new UploadedFile($path, $meta['name'], null, null, true);
+        $media = $this->mediaManagerRepo->store($file);
+        File::deleteDirectory($directory);
+
+        return response()->json($media);
+    }
+
+    private function mediaChunkDirectory(string $serverId): string
+    {
+        $directory = $this->getPathFromServerId($serverId);
+        $ownerDirectory = $this->getBasePath() . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . auth()->id() . DIRECTORY_SEPARATOR;
+        abort_unless(str_starts_with($directory, $ownerDirectory) && is_dir($directory), 404);
+
+        return $directory;
     }
 
 
